@@ -24,7 +24,7 @@ body{background:var(--bg-page);color:var(--text-primary);font-family:var(--font-
 h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;}
 .num{font-variant-numeric:tabular-nums;}button{font-family:inherit;}
 a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
-:focus-visible{outline:2px solid var(--info-icon-bg);outline-offset:2px;}
+:focus-visible{outline:2px solid var(--info-icon-bg);outline-offset:2px);}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
@@ -148,7 +148,7 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .cs-subtitle{font-size:13.5px;color:var(--text-secondary);line-height:1.5;}
 .cs-skip{font-size:13px;color:var(--text-tertiary);}
 
-/* Agreements modal-ish block */
+/* Agreements */
 .agreements{display:flex;flex-direction:column;gap:10px;}
 .agreement{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--text-secondary);cursor:pointer;}.agreement input{margin-top:3px;flex:0 0 auto;accent-color:var(--info-icon-bg);}
 .agreement-alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-md);padding:10px 14px;font-size:13px;color:#DC2626;display:none;align-items:center;gap:8px;}
@@ -174,6 +174,56 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--card-border);flex:0 0 auto;display:flex;align-items:center;justify-content:center;transition:border-color .15s ease,background .15s ease;}
 .selected .radio-dot{border-color:var(--text-primary);background:var(--text-primary);}
 .selected .radio-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff;}
+
+/* Info button on plan/kit cards */
+.info-btn{
+  width:24px;height:24px;border-radius:50%;border:1.5px solid var(--card-border);
+  background:#fff;color:var(--text-tertiary);font-size:13px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;
+  flex:0 0 auto;transition:border-color .15s ease,color .15s ease,background .15s ease;
+  font-style:italic;line-height:1;
+}
+.info-btn:hover{border-color:var(--info-icon-bg);color:var(--info-icon-bg);background:var(--info-bg);}
+
+/* Info modal overlay */
+.info-overlay{
+  position:fixed;inset:0;z-index:100;background:rgba(21,23,26,.45);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.info-overlay.open{opacity:1;pointer-events:auto;}
+.info-modal{
+  background:#fff;border-radius:20px;max-width:540px;width:100%;
+  max-height:85vh;overflow-y:auto;padding:32px;
+  box-shadow:0 24px 80px rgba(21,23,26,.2);
+  transform:translateY(12px);transition:transform .25s ease;
+}
+.info-overlay.open .info-modal{transform:translateY(0);}
+.info-modal-close{
+  position:absolute;top:16px;right:16px;width:32px;height:32px;
+  border-radius:50%;border:none;background:var(--card-bg);color:var(--text-secondary);
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s ease;
+}
+.info-modal-close:hover{background:var(--card-bg-hover);}
+.info-modal h2{font-size:22px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;padding-right:32px;}
+.info-modal .lead{font-size:15px;line-height:1.6;color:var(--text-secondary);margin-bottom:20px;}
+.info-modal .detail-section{margin-bottom:18px;}
+.info-modal .detail-section h3{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.info-modal .detail-section ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+.info-modal .detail-section ul li{font-size:14px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+.info-modal .detail-section ul li::before{content:"\2022";color:var(--info-icon-bg);flex:0 0 auto;font-size:10px;margin-top:5px;}
+.info-modal .detail-tag{display:inline-flex;align-items:center;gap:6px;background:var(--info-bg);border-radius:var(--radius-pill);padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--info-icon-bg);margin-bottom:16px;}
+.info-modal .detail-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+.info-modal .detail-stat{background:var(--card-bg);border-radius:var(--radius-md);padding:14px 16px;text-align:center;}
+.info-modal .detail-stat .ds-val{font-size:22px;font-weight:800;color:var(--text-primary);}
+.info-modal .detail-stat .ds-label{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+.info-modal .good-for{background:var(--accent-green-bg);border:1px solid #BBF7D0;border-radius:var(--radius-md);padding:14px 16px;font-size:13.5px;color:#15803d;line-height:1.5;margin-top:8px;}
+.info-modal .good-for b{display:block;margin-bottom:4px;font-size:14px;}
+.info-modal .kit-modal-comp{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.info-modal .kit-comp-block{background:var(--card-bg);border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:4px;}
+.info-modal .kit-comp-block .kcb-title{font-size:13px;font-weight:700;color:var(--text-primary);}
+.info-modal .kit-comp-block .kcb-detail{font-size:13px;color:var(--text-secondary);line-height:1.5;}
 
 .info-block{display:flex;gap:14px;align-items:flex-start;background:var(--info-bg);border-radius:var(--radius-lg);padding:16px 18px;}
 .info-icon{flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--info-icon-bg);color:#fff;display:flex;align-items:center;justify-content:center;}
@@ -217,6 +267,7 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
   .stats-row{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}.savings-comparison{flex-direction:column;}.kit-card{padding:18px 20px;}.kit-top{flex-direction:column;gap:6px;}
   .constructor-layout{grid-template-columns:1fr;}.checkout{position:static;}
   .plans-row{flex-direction:column;}.plan-card{min-width:0;}
+  .info-modal{padding:24px;margin:12px;}
 }
 </style>
 </head>
@@ -239,7 +290,7 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
     </div>
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num num">5+</div><div class="stat-label">каналов в одном окне</div></div>
-      <div class="stat-card"><div class="stat-num num">40%</div><div class="stat-label">экономия с комплектом</div></div>
+      <div class="stat-card"><div class="stat-num num">до 14%</div><div class="stat-label">экономия с комплектом</div></div>
       <div class="stat-card"><div class="stat-num num">24/7</div><div class="stat-label">ИИ-агенты не спят</div></div>
     </div>
   </div>
@@ -289,7 +340,7 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
       </div>
       <div class="benefit-card">
         <div class="benefit-icon magenta"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg></div>
-        <div class="benefit-text"><div class="benefit-title">Комплект &mdash; экономия до 40%</div><div class="benefit-desc">Операторы + ИИ-агенты вместе дешевле, чем отдельно. Комплект &laquo;Бизнес+&raquo; экономит 1&thinsp;510&thinsp;&#8381;/мес.</div></div>
+        <div class="benefit-text"><div class="benefit-title">Комплект &mdash; экономия до 14%</div><div class="benefit-desc">Операторы + ИИ-агенты вместе дешевле, чем отдельно. Комплект &laquo;Бизнес+&raquo; экономит 1&thinsp;500&thinsp;&#8381;/мес.</div></div>
       </div>
     </div>
   </div>
@@ -302,7 +353,7 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
   <div class="panel">
     <div>
       <h1 class="screen-title">Вместе выгоднее</h1>
-      <div class="subtitle">Комплект = операторы + ИИ-агенты. Экономия до 40% по сравнению с покупкой по отдельности.</div>
+      <div class="subtitle">Комплект = операторы + ИИ-агенты. Экономия до 14% по сравнению с покупкой по отдельности.</div>
     </div>
     <div class="savings-visual" id="savingsVisual"></div>
     <div>
@@ -401,6 +452,14 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
 
 </div>
 
+<!-- INFO MODAL -->
+<div class="info-overlay" id="infoOverlay">
+  <div class="info-modal" id="infoModal" style="position:relative;">
+    <button class="info-modal-close" id="infoModalClose" aria-label="Закрыть">&times;</button>
+    <div id="infoModalContent"></div>
+  </div>
+</div>
+
 <!-- FOOTER 1 (комплекты) -->
 <div class="action-bar" id="footer1">
   <div class="action-bar-inner split">
@@ -427,8 +486,26 @@ var TARIFFS={
         bullets:['Звонки ОАТС и текстовые каналы в одном интерфейсе','Каналы: виджет на сайте, Telegram, MAX','История диалогов и карточка клиента со всей перепиской','Распределение обращений: общая очередь, логики ОАТС или локальные очереди','Подключение из личного кабинета без повторной регистрации']
       },
       plans:[
-        {id:'solo',name:'Соло',price:0,priceLabel:'0 ₽',note:'в тарифе ОАТС',features:['1 оператор','1 канал (виджет или MAX)','100 диалогов/мес','история 30 дней'],cons:'без очередей, супервизора, аналитики и рассылок'},
-        {id:'team5',name:'Команда 5',price:3990,priceLabel:'3 990 ₽/мес',features:['до 5 операторов','полный функционал'],footnote:'+990 ₽ за оператора с 6-го'}
+        {id:'solo',name:'Соло',price:0,priceLabel:'0 ₽',note:'в тарифе ОАТС',
+          features:['1 оператор','1 канал (виджет или MAX)','100 диалогов/мес','история 30 дней'],
+          cons:'без очередей, супервизора, аналитики и рассылок',
+          description:{
+            title:'Тариф «Соло»',
+            lead:'Для одного оператора, который принимает обращения из одного канала. Идеально, чтобы попробовать ОмниРМ без затрат.',
+            bullets:['1 рабочее место оператора','1 текстовый канал: виджет на сайте или MAX','До 100 диалогов в месяц','История диалогов &mdash; 30 дней','Входит в тариф Облачной АТС &mdash; доплачивать не нужно'],
+            goodFor:'Для малого бизнеса или старта: один оператор, один канал, нулевая стоимость.'
+          }
+        },
+        {id:'team5',name:'Команда 5',price:3990,priceLabel:'3 990 ₽/мес',
+          features:['до 5 операторов','полный функционал'],
+          footnote:'+990 ₽ за оператора с 6-го',
+          description:{
+            title:'Тариф «Команда 5»',
+            lead:'Полный функционал ОмниРМ для команды до 5 операторов. Очереди, супервизор, аналитика, рассылки &mdash; всё включено.',
+            bullets:['До 5 рабочих мест операторов','Все текстовые каналы: виджет, Telegram, MAX','Неограниченное число диалогов','Полная история диалогов','Общая очередь и распределение обращений','Супервизор: мониторинг и вмешательство в реальном времени','Аналитика: отчёты по операторам, каналам, нагрузке','Рассылки и шаблоны ответов','Каждый дополнительный оператор с 6-го &mdash; +990 ₽/мес'],
+            goodFor:'Для растущих команд: когда один оператор не справляется и нужен полный инструментарий.'
+          }
+        }
       ]
     },
     agents:{
@@ -436,23 +513,69 @@ var TARIFFS={
       description:{
         title:'ОмниАгенты — ИИ-агенты',
         lead:'Агент принимает звонки и обращения без оператора: отвечает на типовые вопросы и передаёт диалог сотруднику, когда нужно.',
-        bullets:['Голос и текст в едином пакете минут и обращений','Все каналы на любом тарифе','Обзвон-кампании — минуты из пакета','Передача диалога на оператора ОмниРМ','Оплата сверх пакета по факту, без блокировки']
+        bullets:['Голос и текст в едином пакете минут и обращений','Все каналы на любом тарифе','Обзвон-кампании &mdash; минуты из пакета','Передача диалога на оператора ОмниРМ','Оплата сверх пакета по факту, без блокировки']
       },
       plans:[
-        {id:'start',name:'Старт',price:2700,priceLabel:'2 700 ₽/мес',minutes:300,requests:300,overMinute:10,overRequest:5},
-        {id:'business',name:'Бизнес',price:6500,priceLabel:'6 500 ₽/мес',minutes:800,requests:1000,overMinute:9,overRequest:4},
-        {id:'pro',name:'Про',price:18700,priceLabel:'18 700 ₽/мес',minutes:2000,requests:3000,overMinute:8,overRequest:3}
+        {id:'start',name:'Старт',price:2700,priceLabel:'2 700 ₽/мес',minutes:300,requests:300,overMinute:10,overRequest:5,
+          description:{
+            title:'ИИ-агенты «Старт»',
+            lead:'Автоответчик на типовые вопросы &mdash; голосом и текстом. Пакет 300 минут и 300 обращений в месяц.',
+            bullets:['300 минут голосового автоответа в месяц','300 текстовых обращений (чат, виджет, Telegram) в месяц','Голос и текст &mdash; единый пакет, можно комбинировать','Все каналы: виджет, Telegram, MAX','Передача диалога оператору, если вопрос сложный','Сверх пакета: 10 ₽/мин, 5 ₽/обращение &mdash; без блокировки'],
+            goodFor:'Для малого бизнеса: ночью и в выходные агент отвечает за вас, днём &mdash; передаёт оператору.'
+          }
+        },
+        {id:'business',name:'Бизнес',price:6500,priceLabel:'6 500 ₽/мес',minutes:800,requests:1000,overMinute:9,overRequest:4,
+          description:{
+            title:'ИИ-агенты «Бизнес»',
+            lead:'Расширенный пакет для компаний с устойчивым потоком обращений. 800 минут голоса и 1 000 текстовых обращений.',
+            bullets:['800 минут голосового автоответа в месяц','1 000 текстовых обращений в месяц','Голос и текст &mdash; единый пакет','Все каналы: виджет, Telegram, MAX','Обзвон-кампании: исходящие звонки из пакета минут','Передача диалога оператору с контекстом','Сверх пакета: 9 ₽/мин, 4 ₽/обращение'],
+            goodFor:'Для среднего бизнеса: агент берёт на себя 60&ndash;80% обращений, операторы &mdash; только сложные.'
+          }
+        },
+        {id:'pro',name:'Про',price:18700,priceLabel:'18 700 ₽/мес',minutes:2000,requests:3000,overMinute:8,overRequest:3,
+          description:{
+            title:'ИИ-агенты «Про»',
+            lead:'Максимальный пакет для компаний с высоким потоком. 2 000 минут голоса и 3 000 текстовых обращений.',
+            bullets:['2 000 минут голосового автоответа в месяц','3 000 текстовых обращений в месяц','Голос и текст &mdash; единый пакет','Все каналы: виджет, Telegram, MAX','Обзвон-кампании без ограничений','Приоритетная передача с полным контекстом диалога','Персональный менеджер по тарифу','Сверх пакета: 8 ₽/мин, 3 ₽/обращение'],
+            goodFor:'Для крупного бизнеса и кол-центров: максимальная автоматизация при минимальной цене за минуту.'
+          }
+        }
       ]
     }
   },
   kits:[
-    {id:'start-plus',name:'Старт+',price:3990,priceLabel:'3 990 ₽/мес',operators:'2 оператора ОмниРМ',agents:'ИИ-агенты, тариф Старт',pkg:'300 минут голоса · 300 текстовых обращений',overage:'Сверх пакета: 10 ₽/мин · 5 ₽/обр',recommended:false,omnirmPlan:'solo',agentsPlan:'start'},
-    {id:'business-plus',name:'Бизнес+',price:8990,priceLabel:'8 990 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ, полный функционал',agents:'ИИ-агенты, тариф Бизнес',pkg:'800 минут голоса · 1 000 текстовых обращений',overage:'Сверх пакета: 9 ₽/мин · 4 ₽/обр',recommended:true,omnirmPlan:'team5',agentsPlan:'business'},
-    {id:'pro-plus',name:'Про+',price:23900,priceLabel:'23 900 ₽/мес',operators:'{{ОПЕРАТОРЫ_ПРО}}',agents:'ИИ-агенты, тариф Про',pkg:'2 000 минут голоса · 3 000 текстовых обращений',overage:'Сверх пакета: 8 ₽/мин · 3 ₽/обр',recommended:false,omnirmPlan:'team5',agentsPlan:'pro'}
+    {id:'start-plus',name:'Старт+',price:2490,priceLabel:'2 490 ₽/мес',operators:'2 оператора ОмниРМ',agents:'ИИ-агенты, тариф Старт',pkg:'300 минут голоса · 300 текстовых обращений',overage:'Сверх пакета: 10 ₽/мин · 5 ₽/обр',recommended:false,omnirmPlan:'solo',agentsPlan:'start',
+      description:{
+        title:'Комплект «Старт+»',
+        lead:'Всё для старта: 2 оператора ОмниРМ и ИИ-агент, который отвечает ночью и в выходные.',
+        compOmniRM:'2 оператора ОмниРМ (тариф Соло). 1 канал, 100 диалогов/мес, история 30 дней.',
+        compAgents:'ИИ-агенты тариф Старт: 300 минут голоса + 300 обращений текстом. Автоответ 24/7, передача оператору.',
+        goodFor:'Для малого бизнеса: начинаете с минимальным бюджетом, но уже с ИИ-помощником.'
+      }
+    },
+    {id:'business-plus',name:'Бизнес+',price:8990,priceLabel:'8 990 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ, полный функционал',agents:'ИИ-агенты, тариф Бизнес',pkg:'800 минут голоса · 1 000 текстовых обращений',overage:'Сверх пакета: 9 ₽/мин · 4 ₽/обр',recommended:true,omnirmPlan:'team5',agentsPlan:'business',
+      description:{
+        title:'Комплект «Бизнес+»',
+        lead:'Оптимальный комплект для растущей команды. Полный ОмниРМ + мощные ИИ-агенты.',
+        compOmniRM:'Команда 5: до 5 операторов, полный функционал (очереди, супервизор, аналитика, рассылки).',
+        compAgents:'ИИ-агенты тариф Бизнес: 800 минут голоса + 1 000 обращений. Обзвон-кампании включены.',
+        goodFor:'Для среднего бизнеса: лучший баланс цены и возможностей. Самый популярный комплект.'
+      }
+    },
+    {id:'pro-plus',name:'Про+',price:21900,priceLabel:'21 900 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ, полный функционал',agents:'ИИ-агенты, тариф Про',pkg:'2 000 минут голоса · 3 000 текстовых обращений',overage:'Сверх пакета: 8 ₽/мин · 3 ₽/обр',recommended:false,omnirmPlan:'team5',agentsPlan:'pro',
+      description:{
+        title:'Комплект «Про+»',
+        lead:'Максимум возможностей: команда операторов с полным функционалом и ИИ-агенты с наибольшим пакетом.',
+        compOmniRM:'Команда 5: до 5 операторов, полный функционал (очереди, супервизор, аналитика, рассылки).',
+        compAgents:'ИИ-агенты тариф Про: 2 000 минут голоса + 3 000 обращений. Персональный менеджер.',
+        goodFor:'Для крупного бизнеса: максимальная автоматизация и полный контроль.'
+      }
+    }
   ],
   setupFee:0
 };
 
+/* Separate (individual) prices — for savings calculation */
 var SEPARATE_PRICES={
   'start-plus':{omnirm:0,agents:2700},
   'business-plus':{omnirm:3990,agents:6500},
@@ -469,6 +592,109 @@ var state={
 function el(id){return document.getElementById(id);}
 function fmtPrice(n){return n.toLocaleString('ru-RU')+' ₽';}
 
+/* ---- INFO MODAL ---- */
+function openInfoModal(html){
+  el('infoModalContent').innerHTML=html;
+  el('infoOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeInfoModal(){
+  el('infoOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+el('infoModalClose').addEventListener('click',closeInfoModal);
+el('infoOverlay').addEventListener('click',function(e){if(e.target===el('infoOverlay'))closeInfoModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeInfoModal();});
+
+function buildPlanModalHtml(svcId,planId){
+  var svc=TARIFFS.services[svcId];
+  var plan=null;
+  for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===planId){plan=svc.plans[i];break;}}
+  if(!plan||!plan.description) return '';
+  var d=plan.description;
+  var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div>';
+  /* Tag */
+  var tag=svcId==='omnirm'?'Рабочее место оператора':'ИИ-агенты';
+  html+='<div class="detail-tag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor"/></svg> '+tag+'</div>';
+  /* Stats for agents */
+  if(svcId==='agents'&&plan.minutes){
+    html+='<div class="detail-stats">'+
+      '<div class="detail-stat"><div class="ds-val num">'+plan.minutes.toLocaleString('ru-RU')+'</div><div class="ds-label">минут голоса/мес</div></div>'+
+      '<div class="detail-stat"><div class="ds-val num">'+plan.requests.toLocaleString('ru-RU')+'</div><div class="ds-label">текстовых обращений/мес</div></div>'+
+    '</div>';
+  }
+  /* Stats for omnirm */
+  if(svcId==='omnirm'){
+    if(plan.id==='solo'){
+      html+='<div class="detail-stats">'+
+        '<div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">оператор</div></div>'+
+        '<div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">канал</div></div>'+
+      '</div>';
+    } else if(plan.id==='team5'){
+      html+='<div class="detail-stats">'+
+        '<div class="detail-stat"><div class="ds-val">до 5</div><div class="ds-label">операторов</div></div>'+
+        '<div class="detail-stat"><div class="ds-val">5+</div><div class="ds-label">каналов</div></div>'+
+      '</div>';
+    }
+  }
+  /* Bullets */
+  html+='<div class="detail-section"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Что входит</h3><ul>';
+  for(var i=0;i<d.bullets.length;i++){html+='<li>'+d.bullets[i]+'</li>';}
+  html+='</ul></div>';
+  /* Good for */
+  if(d.goodFor){
+    html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';
+  }
+  return html;
+}
+
+function buildKitModalHtml(kitId){
+  var kit=null;
+  for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===kitId){kit=TARIFFS.kits[i];break;}}
+  if(!kit||!kit.description) return '';
+  var d=kit.description;
+  var sep=SEPARATE_PRICES[kit.id];
+  var separateTotal=sep.omnirm+sep.agents;
+  var savings=separateTotal-kit.price;
+  var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div>';
+  html+='<div class="detail-tag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Комплект</div>';
+  /* Price comparison */
+  html+='<div class="detail-stats">'+
+    '<div class="detail-stat"><div class="ds-val num" style="color:#DC2626;">'+fmtPrice(separateTotal)+'/мес</div><div class="ds-label">по отдельности</div></div>'+
+    '<div class="detail-stat"><div class="ds-val num" style="color:#16A34A;">'+kit.priceLabel+'</div><div class="ds-label">комплектом (экономия '+fmtPrice(savings)+')</div></div>'+
+  '</div>';
+  /* Components */
+  html+='<div class="kit-modal-comp">';
+  html+='<div class="kit-comp-block"><div class="kcb-title">ОмниРМ</div><div class="kcb-detail">'+d.compOmniRM+'</div></div>';
+  html+='<div class="kit-comp-block"><div class="kcb-title">ОмниАгенты</div><div class="kcb-detail">'+d.compAgents+'</div></div>';
+  html+='</div>';
+  /* Good for */
+  if(d.goodFor){
+    html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';
+  }
+  return html;
+}
+
+function infoBtnHtml(type,id){
+  return '<button class="info-btn" data-info-type="'+type+'" data-info-id="'+id+'" onclick="event.stopPropagation();" title="Подробнее">i</button>';
+}
+
+/* Delegate info button clicks */
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.info-btn');
+  if(!btn) return;
+  var type=btn.dataset.infoType;
+  var id=btn.dataset.infoId;
+  if(type==='omnirm'||type==='agents'){
+    var html=buildPlanModalHtml(type,id);
+    if(html) openInfoModal(html);
+  } else if(type==='kit'){
+    var html=buildKitModalHtml(id);
+    if(html) openInfoModal(html);
+  }
+});
+
+/* ---- PROGRESS ---- */
 function progressHtml(activeStep){
   var steps=[{n:1,label:'Комплекты'},{n:2,label:'Конструктор'}];
   return steps.map(function(s,i){
@@ -487,7 +713,7 @@ el('heroCta').addEventListener('click',function(){renderScreen1();showScreen(1);
 
 /* ---- SCREEN 1: Комплекты ---- */
 function renderSavingsVisual(){
-  var b=TARIFFS.kits[1];
+  var b=TARIFFS.kits[1]; // Бизнес+
   var sep=SEPARATE_PRICES['business-plus'];
   var separateTotal=sep.omnirm+sep.agents;
   var savings=separateTotal-b.price;
@@ -511,7 +737,7 @@ function renderKits(){
     var selected=state.kitId===b.id;
     var isRec=b.recommended;
     return '<div class="kit-card '+(selected?'selected ':'')+(isRec?'recommended':'')+'" data-id="'+b.id+'">'+
-      '<div class="kit-top"><div class="kit-name-row"><div class="radio-dot"></div><div class="plan-name">'+b.name+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="plan-price num">'+b.priceLabel+'</div></div></div>'+
+      '<div class="kit-top"><div class="kit-name-row"><div class="radio-dot"></div><div class="plan-name">'+b.name+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="plan-price num">'+b.priceLabel+'</div>'+infoBtnHtml('kit',b.id)+'</div></div>'+
       '<div class="kit-badges">'+(isRec?'<div class="kit-recommend"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>':'')+(savings>0?'<div class="savings-badge">Экономия '+savingsPct+'%</div>':'')+'</div>'+
       '<ul class="kit-comp-list"><li>'+b.operators+'</li><li>'+b.agents+'</li></ul>'+
       '<div class="kit-package num">'+b.pkg+'</div>'+
@@ -551,7 +777,7 @@ function renderOmniRMPlans(){
   var container=el('omnirmPlans');
   container.innerHTML=svc.plans.map(function(p){
     return '<div class="plan-card '+(state.omnirmPlanId===p.id?'selected':'')+'" data-id="'+p.id+'">'+
-      '<div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div class="radio-dot"></div></div>'+
+      '<div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('omnirm',p.id)+'</div></div>'+
       '<div class="plan-price num">'+p.priceLabel+(p.note?'<span class="note">'+p.note+'</span>':'')+'</div>'+
       '<ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+
       (p.cons?'<div class="plan-cons">'+p.cons+'</div>':'')+
@@ -567,14 +793,13 @@ function renderOmniRMPlans(){
 function renderAgentsPlans(){
   var svc=TARIFFS.services.agents;
   var container=el('agentsPlans');
-  // Add "Не нужны" option
   var html='<div class="plan-card '+(state.agentsPlanId===null?'selected':'')+'" data-id="__none__">'+
     '<div class="plan-card-top"><div class="plan-name">Не нужны</div><div class="radio-dot"></div></div>'+
-    '<div class="plan-price num">—</div>'+
+    '<div class="plan-price num">&mdash;</div>'+
   '</div>';
   html+=svc.plans.map(function(p){
     return '<div class="plan-card '+(state.agentsPlanId===p.id?'selected':'')+'" data-id="'+p.id+'">'+
-      '<div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div class="radio-dot"></div></div>'+
+      '<div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('agents',p.id)+'</div></div>'+
       '<div class="plan-price num">'+p.priceLabel+'</div>'+
       '<div class="agent-stats">'+
         '<div class="stat-label">Минуты</div><div class="stat-value num">'+p.minutes.toLocaleString('ru-RU')+'</div>'+
@@ -644,7 +869,7 @@ function updateCheckout(){
     matchDiv.innerHTML=
       '<div class="checkout-kit-match">'+
         '<div class="m-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Это комплект «'+kit.name+'»</div>'+
-        '<div class="m-text">Этот набор входит в готовый комплект — и стоит <b>'+kit.priceLabel+'</b> вместо '+fmtPrice(total)+'/мес. Экономия '+fmtPrice(savings)+'/мес!</div>'+
+        '<div class="m-text">Этот набор входит в готовый комплект &mdash; и стоит <b>'+kit.priceLabel+'</b> вместо '+fmtPrice(total)+'/мес. Экономия '+fmtPrice(savings)+'/мес!</div>'+
         '<button class="m-btn" data-kit-id="'+kit.id+'">Взять комплектом</button>'+
       '</div>';
     savingsDiv.innerHTML='';
@@ -664,7 +889,7 @@ function updateCheckout(){
       matchDiv.innerHTML=
         '<div class="checkout-kit-match">'+
           '<div class="m-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Комплектом выгоднее</div>'+
-          '<div class="m-text">Готовый комплект «'+bestKit.name+'» включает оба сервиса и стоит <b>'+bestKit.priceLabel+'</b> — экономия до '+Math.round(bestSavings/(SEPARATE_PRICES[bestKit.id].omnirm+SEPARATE_PRICES[bestKit.id].agents)*100)+'%.</div>'+
+          '<div class="m-text">Готовый комплект «'+bestKit.name+'» включает оба сервиса и стоит <b>'+bestKit.priceLabel+'</b> &mdash; экономия до '+Math.round(bestSavings/(SEPARATE_PRICES[bestKit.id].omnirm+SEPARATE_PRICES[bestKit.id].agents)*100)+'%.</div>'+
           '<button class="m-btn" data-kit-id="'+bestKit.id+'">Посмотреть комплект</button>'+
         '</div>';
       matchDiv.querySelector('.m-btn').addEventListener('click',function(){
@@ -699,13 +924,13 @@ el('connectConstBtn').addEventListener('click',function(){
     var plan=null;var svc=TARIFFS.services.omnirm;
     for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}
     total+=plan.price;
-    lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+plan.name+'»</div>');
+    lines.push('<div><span class="label">Услуга:</span> ОмниРМ &mdash; тариф «'+plan.name+'»</div>');
   }
   if(state.agentsPlanId){
     var plan=null;var svc=TARIFFS.services.agents;
     for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}
     total+=plan.price;
-    lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+plan.name+'»</div>');
+    lines.push('<div><span class="label">Услуга:</span> ОмниАгенты &mdash; тариф «'+plan.name+'»</div>');
   }
   lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');
   lines.push('<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>');
