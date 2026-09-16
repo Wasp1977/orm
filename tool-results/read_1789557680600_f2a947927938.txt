@@ -1,0 +1,745 @@
+     1→     1→<!DOCTYPE html>
+     2→     2→<html lang="ru">
+     3→     3→<head>
+     4→     4→<meta charset="UTF-8">
+     5→     5→<meta name="viewport" content="width=device-width, initial-scale=1">
+     6→     6→<title>ОмниРМ — подключение сервиса</title>
+     7→     7→<style>
+     8→     8→:root{
+     9→     9→  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    10→    10→  --bg-page:#EEF0F3;--panel-bg:#FFFFFF;--card-bg:#F4F5F7;--card-bg-hover:#ECEEF1;
+    11→    11→  --card-border:#E7E9EC;--card-selected-border:#15171A;--card-selected-tint:#FFFCF2;
+    12→    12→  --text-primary:#15171A;--text-secondary:#6B7280;--text-tertiary:#9AA1AB;
+    13→    13→  --divider:#E7E9EC;--link:#0B6FDB;--info-bg:#E8F2FE;--info-icon-bg:#1478F0;
+    14→    14→  --accent-yellow:#FFDD5B;--accent-yellow-hover:#FFD23D;
+    15→    15→  --accent-green:#1E9E4A;--accent-green-bg:#EAF7EE;
+    16→    16→  --accent-magenta:#E91E63;--accent-magenta-bg:#FCE4EC;
+    17→    17→  --btn-secondary-border:#D8DBE0;--btn-secondary-text:#15171A;
+    18→    18→  --btn-disabled-bg:#EFF0F2;--btn-disabled-text:#B7BCC3;
+    19→    19→  --radius-lg:16px;--radius-md:12px;--radius-pill:999px;--bar-h:88px;
+    20→    20→}
+    21→    21→*{box-sizing:border-box;margin:0;padding:0;}
+    22→    22→html{scroll-behavior:smooth;}html,body{height:100%;}
+    23→    23→body{background:var(--bg-page);color:var(--text-primary);font-family:var(--font-ui);-webkit-text-size-adjust:100%;overflow-x:hidden;}
+    24→    24→h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;}
+    25→    25→.num{font-variant-numeric:tabular-nums;}button{font-family:inherit;}
+    26→    26→a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
+    27→    27→:focus-visible{outline:2px solid var(--info-icon-bg);outline-offset:2px;}
+    28→    28→
+    29→    29→@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    30→    30→@keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
+    31→    31→@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+    32→    32→
+    33→    33→.animate-fade-up{animation:fadeUp .6s ease both;}
+    34→    34→.delay-1{animation-delay:.15s;}.delay-2{animation-delay:.3s;}
+    35→    35→.shake{animation:shake .4s ease;}
+    36→    36→
+    37→    37→.page{max-width:840px;margin:0 auto;padding:0 24px calc(var(--bar-h) + 24px);}
+    38→    38→.screen{display:flex;flex-direction:column;gap:24px;}.screen[hidden]{display:none;}
+    39→    39→
+    40→    40→.proto-nav{position:fixed;top:14px;right:16px;z-index:80;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border:1px solid var(--card-border);border-radius:8px;padding:6px 10px;font-size:12px;line-height:1.2;color:var(--text-tertiary);box-shadow:0 2px 10px rgba(21,23,26,.08);}
+    41→    41→.proto-link{background:none;border:none;padding:0;margin:0;font:inherit;color:var(--text-secondary);cursor:pointer;}.proto-link:hover{color:var(--text-primary);text-decoration:underline;}
+    42→    42→.proto-sep{color:var(--card-border);}
+    43→    43→
+    44→    44→.hero{background:linear-gradient(135deg,#1A1D29,#2D3250);border-radius:24px;padding:48px 36px;color:#fff;position:relative;overflow:hidden;}
+    45→    45→.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,221,91,.15) 0%,transparent 70%);border-radius:50%;}
+    46→    46→.hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(233,30,99,.1) 0%,transparent 70%);border-radius:50%;}
+    47→    47→.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius-pill);padding:6px 14px;font-size:13px;font-weight:700;margin-bottom:20px;}
+    48→    48→.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#4ADE80;animation:pulse 2s infinite;}
+    49→    49→.hero-title{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:12px;}
+    50→    50→.hero-subtitle{font-size:17px;line-height:1.6;opacity:.85;max-width:520px;margin-bottom:28px;}
+    51→    51→.hero-cta-row{display:flex;gap:12px;flex-wrap:wrap;}
+    52→    52→.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
+    53→    53→.stat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);padding:16px 18px;text-align:center;}
+    54→    54→.stat-num{font-size:28px;font-weight:800;letter-spacing:-.01em;color:var(--accent-yellow);}
+    55→    55→.stat-label{font-size:13px;opacity:.7;margin-top:4px;}
+    56→    56→
+    57→    57→.panel{background:var(--panel-bg);border-radius:24px;box-shadow:0 24px 64px rgba(21,23,26,.10),0 2px 8px rgba(21,23,26,.05);padding:28px;display:flex;flex-direction:column;gap:24px;}
+    58→    58→
+    59→    59→.compare-section{display:flex;flex-direction:column;gap:16px;}
+    60→    60→.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+    61→    61→.compare-card{border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}
+    62→    62→.compare-card.before{background:#FEF2F2;border:1px solid #FECACA;}
+    63→    63→.compare-card.after{background:#F0FDF4;border:1px solid #BBF7D0;}
+    64→    64→.compare-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+    65→    65→.compare-card.before .compare-label{color:#DC2626;}.compare-card.after .compare-label{color:#16A34A;}
+    66→    66→.compare-title{font-size:16px;font-weight:700;}
+    67→    67→.compare-items{list-style:none;padding:0;display:flex;flex-direction:column;gap:8px;}
+    68→    68→.compare-items li{font-size:14px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+    69→    69→.compare-items li .icon{flex:0 0 auto;font-size:16px;line-height:1;}
+    70→    70→.compare-card.before .icon{color:#DC2626;}.compare-card.after .icon{color:#16A34A;}
+    71→    71→
+    72→    72→.benefits-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+    73→    73→.benefit-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px;display:flex;gap:14px;align-items:flex-start;transition:transform .2s ease,box-shadow .2s ease;}
+    74→    74→.benefit-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(21,23,26,.08);}
+    75→    75→.benefit-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;}
+    76→    76→.benefit-icon.blue{background:#E8F2FE;color:#1478F0;}.benefit-icon.green{background:#EAF7EE;color:#16A34A;}
+    77→    77→.benefit-icon.yellow{background:#FFF8E1;color:#F59E0B;}.benefit-icon.magenta{background:#FCE4EC;color:#E91E63;}
+    78→    78→.benefit-text{display:flex;flex-direction:column;gap:4px;}
+    79→    79→.benefit-title{font-size:14.5px;font-weight:700;}.benefit-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+    80→    80→
+    81→    81→.kit-recommend{display:inline-flex;align-items:center;gap:6px;background:var(--accent-magenta-bg);color:var(--accent-magenta);font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);}
+    82→    82→.savings-badge{display:inline-flex;align-items:center;gap:4px;background:#FFF3CC;color:#7A5B00;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);}
+    83→    83→
+    84→    84→.savings-visual{background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border:1px solid #BBF7D0;border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:16px;}
+    85→    85→.savings-title{font-size:17px;font-weight:700;color:#16A34A;display:flex;align-items:center;gap:8px;}
+    86→    86→.savings-comparison{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;}
+    87→    87→.savings-col{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px;}
+    88→    88→.savings-bar{height:8px;border-radius:4px;transition:width 1s ease;}
+    89→    89→.savings-bar.separate{background:#FECACA;}.savings-bar.bundle{background:#4ADE80;}
+    90→    90→.savings-label{font-size:13px;color:var(--text-secondary);}
+    91→    91→.savings-amount{font-size:22px;font-weight:800;}.savings-amount.red{color:#DC2626;}.savings-amount.green{color:#16A34A;}
+    92→    92→
+    93→    93→.kit-card{position:relative;text-align:left;background:var(--card-bg);border:2px solid transparent;border-radius:var(--radius-lg);padding:22px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;width:100%;transition:border-color .15s ease,background .15s ease,transform .15s ease;}
+    94→    94→.kit-card:hover{background:var(--card-bg-hover);transform:translateY(-1px);}
+    95→    95→.kit-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);}
+    96→    96→.kit-card.recommended{border-color:var(--accent-magenta);}
+    97→    97→.kit-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+    98→    98→.kit-name-row{display:flex;align-items:center;gap:10px;}
+    99→    99→.kit-comp-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+   100→   100→.kit-comp-list li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+   101→   101→.kit-comp-list li::before{content:"\2022";color:var(--text-tertiary);flex:0 0 auto;}
+   102→   102→.kit-package{font-size:13px;color:var(--text-secondary);}
+   103→   103→.kit-overage{font-size:12px;color:var(--text-secondary);border-top:1px solid var(--card-border);padding-top:8px;margin-top:2px;}
+   104→   104→.kit-badges{display:flex;gap:8px;flex-wrap:wrap;}
+   105→   105→
+   106→   106→/* Constructor layout (Screen 2) */
+   107→   107→.constructor-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
+   108→   108→.constructor-col{display:flex;flex-direction:column;gap:20px;}
+   109→   109→
+   110→   110→/* Checkout sidebar */
+   111→   111→.checkout{
+   112→   112→  background:var(--panel-bg);border-radius:var(--radius-lg);
+   113→   113→  box-shadow:0 8px 32px rgba(21,23,26,.08);padding:24px;
+   114→   114→  display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;
+   115→   115→}
+   116→   116→.checkout-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+   117→   117→.checkout-items{display:flex;flex-direction:column;gap:10px;}
+   118→   118→.checkout-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:14px;line-height:1.5;}
+   119→   119→.checkout-item .c-label{color:var(--text-secondary);flex:1;}
+   120→   120→.checkout-item .c-value{font-weight:700;white-space:nowrap;flex:0 0 auto;}
+   121→   121→.checkout-divider{height:1px;background:var(--card-border);}
+   122→   122→.checkout-total{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:800;}
+   123→   123→.checkout-savings{
+   124→   124→  background:var(--accent-green-bg);border:1px solid #BBF7D0;border-radius:var(--radius-md);
+   125→   125→  padding:12px 16px;display:flex;flex-direction:column;gap:4px;
+   126→   126→}
+   127→   127→.checkout-savings .s-label{font-size:12.5px;color:#16A34A;font-weight:600;}
+   128→   128→.checkout-savings .s-value{font-size:18px;font-weight:800;color:#16A34A;}
+   129→   129→.checkout-empty{font-size:14px;color:var(--text-tertiary);text-align:center;padding:24px 0;line-height:1.6;}
+   130→   130→.checkout-kit-match{
+   131→   131→  background:linear-gradient(135deg,#FFF8E1,#FFFBEB);border:1px solid #FDE68A;border-radius:var(--radius-md);
+   132→   132→  padding:14px 16px;display:flex;flex-direction:column;gap:6px;
+   133→   133→}
+   134→   134→.checkout-kit-match .m-title{font-size:13px;font-weight:700;color:#92400E;display:flex;align-items:center;gap:6px;}
+   135→   135→.checkout-kit-match .m-text{font-size:12.5px;color:#78350F;line-height:1.5;}
+   136→   136→.checkout-kit-match .m-btn{
+   137→   137→  display:inline-flex;align-self:flex-start;align-items:center;gap:4px;
+   138→   138→  background:var(--accent-yellow);color:var(--text-primary);border:none;
+   139→   139→  border-radius:var(--radius-pill);padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;
+   140→   140→  margin-top:4px;transition:background .15s ease;
+   141→   141→}
+   142→   142→.checkout-kit-match .m-btn:hover{background:var(--accent-yellow-hover);}
+   143→   143→
+   144→   144→/* Section in constructor */
+   145→   145→.constructor-section{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px 22px;display:flex;flex-direction:column;gap:14px;}
+   146→   146→.constructor-section.highlight{background:var(--card-selected-tint);border:2px solid var(--accent-yellow);}
+   147→   147→.cs-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+   148→   148→.cs-subtitle{font-size:13.5px;color:var(--text-secondary);line-height:1.5;}
+   149→   149→.cs-skip{font-size:13px;color:var(--text-tertiary);}
+   150→   150→
+   151→   151→/* Agreements modal-ish block */
+   152→   152→.agreements{display:flex;flex-direction:column;gap:10px;}
+   153→   153→.agreement{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--text-secondary);cursor:pointer;}.agreement input{margin-top:3px;flex:0 0 auto;accent-color:var(--info-icon-bg);}
+   154→   154→.agreement-alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-md);padding:10px 14px;font-size:13px;color:#DC2626;display:none;align-items:center;gap:8px;}
+   155→   155→.agreement-alert.show{display:flex;}
+   156→   156→
+   157→   157→/* Plan cards for constructor */
+   158→   158→.plans-row{display:flex;gap:10px;flex-wrap:wrap;}
+   159→   159→.plan-card{background:#fff;border:2px solid var(--card-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;}
+   160→   160→.plan-card:hover{background:var(--card-bg-hover);}
+   161→   161→.plan-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);box-shadow:0 2px 8px rgba(21,23,26,.08);}
+   162→   162→.plan-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+   163→   163→.plan-name{font-size:14px;font-weight:700;}.plan-price{font-size:16px;font-weight:800;}
+   164→   164→.plan-price .note{font-size:11.5px;font-weight:500;color:var(--text-secondary);margin-left:4px;display:block;}
+   165→   165→.plan-features{list-style:none;display:flex;flex-direction:column;gap:3px;}
+   166→   166→.plan-features li{font-size:12.5px;color:var(--text-primary);display:flex;gap:6px;line-height:1.4;}
+   167→   167→.plan-features li::before{content:"\2022";color:var(--text-tertiary);flex:0 0 auto;font-size:10px;margin-top:2px;}
+   168→   168→.plan-cons{font-size:11.5px;color:var(--text-tertiary);font-style:italic;margin-top:2px;}
+   169→   169→.plan-footnote{font-size:11.5px;color:var(--text-secondary);margin-top:2px;}
+   170→   170→.agent-stats{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;}
+   171→   171→.agent-stats .stat-label{color:var(--text-secondary);}.agent-stats .stat-value{font-weight:600;}
+   172→   172→.agent-overage{font-size:11.5px;color:var(--text-secondary);margin-top:4px;}
+   173→   173→
+   174→   174→.radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--card-border);flex:0 0 auto;display:flex;align-items:center;justify-content:center;transition:border-color .15s ease,background .15s ease;}
+   175→   175→.selected .radio-dot{border-color:var(--text-primary);background:var(--text-primary);}
+   176→   176→.selected .radio-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff;}
+   177→   177→
+   178→   178→.info-block{display:flex;gap:14px;align-items:flex-start;background:var(--info-bg);border-radius:var(--radius-lg);padding:16px 18px;}
+   179→   179→.info-icon{flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--info-icon-bg);color:#fff;display:flex;align-items:center;justify-content:center;}
+   180→   180→.info-text{font-size:14.5px;line-height:1.5;color:var(--text-primary);}
+   181→   181→.hint{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text-secondary);line-height:1.5;}.hint svg{flex:0 0 auto;margin-top:2px;}
+   182→   182→
+   183→   183→.stub-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:24px 8px;}
+   184→   184→.stub-check{width:64px;height:64px;border-radius:50%;background:#EAF7EE;color:#1E9E4A;display:flex;align-items:center;justify-content:center;}
+   185→   185→.stub-summary{margin-top:8px;background:var(--card-bg);border-radius:var(--radius-lg);padding:18px 22px;text-align:left;max-width:420px;width:100%;}
+   186→   186→.stub-summary div{font-size:14px;line-height:1.7;}.stub-summary .label{color:var(--text-secondary);}
+   187→   187→
+   188→   188→.btn{appearance:none;border:none;border-radius:var(--radius-pill);padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s ease,opacity .15s ease,transform .05s ease,box-shadow .15s ease;}
+   189→   189→.btn:active{transform:scale(.98);}
+   190→   190→.btn-primary{background:var(--accent-yellow);color:var(--text-primary);}.btn-primary:hover{background:var(--accent-yellow-hover);box-shadow:0 4px 16px rgba(255,221,91,.3);}
+   191→   191→.btn-secondary{background:#fff;color:var(--btn-secondary-text);border:1px solid var(--btn-secondary-border);}.btn-secondary:hover{background:var(--card-bg);}
+   192→   192→.btn-ghost{background:transparent;color:var(--text-secondary);border:none;text-decoration:underline;text-underline-offset:3px;}.btn-ghost:hover{color:var(--text-primary);}
+   193→   193→.btn-wide{flex:1;}
+   194→   194→
+   195→   195→.progress{display:flex;align-items:center;gap:10px;}
+   196→   196→.progress-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-tertiary);}
+   197→   197→.progress-step .dot{width:22px;height:22px;border-radius:50%;background:var(--card-bg);color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--card-border);flex:0 0 auto;}
+   198→   198→.progress-step.active{color:var(--text-primary);}.progress-step.active .dot{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+   199→   199→.progress-step.done .dot{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+   200→   200→.progress-line{width:28px;height:1px;background:var(--card-border);flex:0 0 auto;}
+   201→   201→
+   202→   202→h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
+   203→   203→.subtitle{color:var(--text-secondary);font-size:15px;line-height:1.5;margin-top:6px;}
+   204→   204→.section-title{font-size:18px;font-weight:700;}
+   205→   205→
+   206→   206→.action-bar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--divider);}.action-bar[hidden]{display:none;}
+   207→   207→.action-bar-inner{max-width:840px;margin:0 auto;display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;}.action-bar-inner.split{justify-content:space-between;}
+   208→   208→
+   209→   209→.connector{text-align:center;padding:12px 0;font-size:14px;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;gap:8px;}
+   210→   210→.connector::before,.connector::after{content:'';width:60px;height:1px;background:var(--card-border);}
+   211→   211→
+   212→   212→@media(max-width:720px){
+   213→   213→  .page{padding:0 16px calc(var(--bar-h) + 20px);}.panel{padding:20px;border-radius:18px;gap:20px;}
+   214→   214→  h1.screen-title{font-size:22px;}.section-title{font-size:16px;}.subtitle{font-size:14px;}
+   215→   215→  .proto-nav{top:8px;right:8px;font-size:11px;padding:5px 8px;gap:6px;}.action-bar-inner{padding:12px 16px;gap:8px;}.btn{padding:12px 18px;font-size:14px;}
+   216→   216→  .hero{padding:32px 24px;border-radius:18px;}.hero-title{font-size:26px;}.hero-subtitle{font-size:15px;}
+   217→   217→  .stats-row{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}.savings-comparison{flex-direction:column;}.kit-card{padding:18px 20px;}.kit-top{flex-direction:column;gap:6px;}
+   218→   218→  .constructor-layout{grid-template-columns:1fr;}.checkout{position:static;}
+   219→   219→  .plans-row{flex-direction:column;}.plan-card{min-width:0;}
+   220→   220→}
+   221→   221→</style>
+   222→   222→</head>
+   223→   223→<body>
+   224→   224→<nav class="proto-nav" aria-label="Навигация по прототипу">
+   225→   225→  <button type="button" class="proto-link" id="protoBack">&larr; Назад</button>
+   226→   226→  <span class="proto-sep" id="protoSep">&middot;</span>
+   227→   227→  <button type="button" class="proto-link" id="protoRestart">Начать заново</button>
+   228→   228→</nav>
+   229→   229→<div class="page">
+   230→   230→
+   231→   231→<!-- SCREEN 0: HOOK / LANDING -->
+   232→   232→<section class="screen" id="screen0">
+   233→   233→  <div class="hero animate-fade-up">
+   234→   234→    <div class="hero-badge"><span class="dot"></span> Подключение бесплатно</div>
+   235→   235→    <h1 class="hero-title">Все каналы &mdash; в одном окне оператора</h1>
+   236→   236→    <div class="hero-subtitle">Звонки, чаты, Telegram &mdash; всё в ОмниРМ. Не нужно переключаться между программами, не нужно нанимать лишних людей. ИИ-агенты берут рутину, операторы &mdash; сложные диалоги.</div>
+   237→   237→    <div class="hero-cta-row">
+   238→   238→      <button class="btn btn-primary" id="heroCta" style="font-size:17px;padding:15px 32px;">Подключить ОмниРМ</button>
+   239→   239→    </div>
+   240→   240→    <div class="stats-row">
+   241→   241→      <div class="stat-card"><div class="stat-num num">5+</div><div class="stat-label">каналов в одном окне</div></div>
+   242→   242→      <div class="stat-card"><div class="stat-num num">40%</div><div class="stat-label">экономия с комплектом</div></div>
+   243→   243→      <div class="stat-card"><div class="stat-num num">24/7</div><div class="stat-label">ИИ-агенты не спят</div></div>
+   244→   244→    </div>
+   245→   245→  </div>
+   246→   246→  <div class="panel animate-fade-up delay-1">
+   247→   247→    <div class="compare-section">
+   248→   248→      <h2 class="section-title">Зачем нужен ОмниРМ?</h2>
+   249→   249→      <div class="compare-grid">
+   250→   250→        <div class="compare-card before">
+   251→   251→          <div class="compare-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Без ОмниРМ</div>
+   252→   252→          <div class="compare-title">Хаос в каналах</div>
+   253→   253→          <ul class="compare-items">
+   254→   254→            <li><span class="icon">&#x2717;</span> Звонки в одной программе, чаты в другой</li>
+   255→   255→            <li><span class="icon">&#x2717;</span> Оператор переключается между 3&ndash;4 окнами</li>
+   256→   256→            <li><span class="icon">&#x2717;</span> Нет общей истории диалогов с клиентом</li>
+   257→   257→            <li><span class="icon">&#x2717;</span> Ночью &mdash; пропущенные обращения</li>
+   258→   258→            <li><span class="icon">&#x2717;</span> Каждый новый канал &mdash; новый сотрудник</li>
+   259→   259→          </ul>
+   260→   260→        </div>
+   261→   261→        <div class="compare-card after">
+   262→   262→          <div class="compare-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> С ОмниРМ</div>
+   263→   263→          <div class="compare-title">Всё в одном месте</div>
+   264→   264→          <ul class="compare-items">
+   265→   265→            <li><span class="icon">&#x2713;</span> Звонки и переписка &mdash; единый интерфейс</li>
+   266→   266→            <li><span class="icon">&#x2713;</span> Карточка клиента со всей историей</li>
+   267→   267→            <li><span class="icon">&#x2713;</span> Умная очередь распределяет автоматически</li>
+   268→   268→            <li><span class="icon">&#x2713;</span> ИИ-агенты работают ночью без людей</li>
+   269→   269→            <li><span class="icon">&#x2713;</span> Добавляйте каналы без найма</li>
+   270→   270→          </ul>
+   271→   271→        </div>
+   272→   272→      </div>
+   273→   273→    </div>
+   274→   274→  </div>
+   275→   275→  <div class="panel animate-fade-up delay-2">
+   276→   276→    <h2 class="section-title">Что вы получаете &mdash; простыми словами</h2>
+   277→   277→    <div class="benefits-grid">
+   278→   278→      <div class="benefit-card">
+   279→   279→        <div class="benefit-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+   280→   280→        <div class="benefit-text"><div class="benefit-title">Единый экран оператора</div><div class="benefit-desc">Все звонки и чаты видны в одном окне. Не нужно переключаться между программами &mdash; оператор работает быстрее.</div></div>
+   281→   281→      </div>
+   282→   282→      <div class="benefit-card">
+   283→   283→        <div class="benefit-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112 2z" stroke="currentColor" stroke-width="1.8"/></svg></div>
+   284→   284→        <div class="benefit-text"><div class="benefit-title">5+ каналов одновременно</div><div class="benefit-desc">Виджет на сайте, Telegram, MAX, звонки Облачной АТС &mdash; всё подключается в пару кликов из личного кабинета.</div></div>
+   285→   285→      </div>
+   286→   286→      <div class="benefit-card">
+   287→   287→        <div class="benefit-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+   288→   288→        <div class="benefit-text"><div class="benefit-title">ИИ работает 24/7</div><div class="benefit-desc">ИИ-агенты отвечают на типовые вопросы ночью и в выходные. Сложные диалоги &mdash; передают оператору днём.</div></div>
+   289→   289→      </div>
+   290→   290→      <div class="benefit-card">
+   291→   291→        <div class="benefit-icon magenta"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg></div>
+   292→   292→        <div class="benefit-text"><div class="benefit-title">Комплект &mdash; экономия до 40%</div><div class="benefit-desc">Операторы + ИИ-агенты вместе дешевле, чем отдельно. Комплект &laquo;Бизнес+&raquo; экономит 1&thinsp;510&thinsp;&#8381;/мес.</div></div>
+   293→   293→      </div>
+   294→   294→    </div>
+   295→   295→  </div>
+   296→   296→  <div class="connector">перейдём к тарифам</div>
+   297→   297→</section>
+   298→   298→
+   299→   299→<!-- SCREEN 1: КОМПЛЕКТЫ (PRIMARY SELL) -->
+   300→   300→<section class="screen" id="screen1" hidden>
+   301→   301→  <div class="progress" id="progressBar1"></div>
+   302→   302→  <div class="panel">
+   303→   303→    <div>
+   304→   304→      <h1 class="screen-title">Вместе выгоднее</h1>
+   305→   305→      <div class="subtitle">Комплект = операторы + ИИ-агенты. Экономия до 40% по сравнению с покупкой по отдельности.</div>
+   306→   306→    </div>
+   307→   307→    <div class="savings-visual" id="savingsVisual"></div>
+   308→   308→    <div>
+   309→   309→      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+   310→   310→        <div class="section-title">Выберите комплект</div>
+   311→   311→        <div class="kit-recommend"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>
+   312→   312→      </div>
+   313→   313→      <div style="display:flex;flex-direction:column;gap:14px;" id="kitsGrid"></div>
+   314→   314→    </div>
+   315→   315→    <div class="info-block">
+   316→   316→      <div class="info-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg></div>
+   317→   317→      <div class="info-text">Подключение комплекта: 0 &#8381;. Тарификация начинается после выбора.</div>
+   318→   318→    </div>
+   319→   319→    <div class="hint">
+   320→   320→      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+   321→   321→      <span>Хочу собрать свой тариф &mdash; <button class="btn-ghost" id="goConstructor">конструктор тарифа</button></span>
+   322→   322→    </div>
+   323→   323→    <div class="agreements">
+   324→   324→      <label class="agreement"><input type="checkbox" id="agree1"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label>
+   325→   325→      <label class="agreement"><input type="checkbox" id="agree2"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных с правообладателем ПО</a></span></label>
+   326→   326→    </div>
+   327→   327→    <div class="agreement-alert" id="alert1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="currentColor"/></svg> Пожалуйста, отметьте условия, чтобы продолжить</div>
+   328→   328→  </div>
+   329→   329→</section>
+   330→   330→
+   331→   331→<!-- SCREEN 2: КОНСТРУКТОР ТАРИФА -->
+   332→   332→<section class="screen" id="screen2" hidden>
+   333→   333→  <div class="progress" id="progressBar2"></div>
+   334→   334→  <div class="panel">
+   335→   335→    <div>
+   336→   336→      <h1 class="screen-title">Соберите свой тариф</h1>
+   337→   337→      <div class="subtitle">Выберите, что вам нужно. Комплектом всегда дешевле &mdash; мы покажем подходящий.</div>
+   338→   338→    </div>
+   339→   339→
+   340→   340→    <div class="constructor-layout">
+   341→   341→      <div class="constructor-col">
+   342→   342→        <!-- Section: ОмниРМ -->
+   343→   343→        <div class="constructor-section" id="sectionOmniRM">
+   344→   344→          <div class="cs-title">
+   345→   345→            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/></svg>
+   346→   346→            ОмниРМ &mdash; рабочее место оператора
+   347→   347→          </div>
+   348→   348→          <div class="cs-subtitle">Единый интерфейс для звонков и переписки. Каналы: виджет, Telegram, MAX.</div>
+   349→   349→          <div class="plans-row" id="omnirmPlans"></div>
+   350→   350→        </div>
+   351→   351→
+   352→   352→        <!-- Section: ОмниАгенты -->
+   353→   353→        <div class="constructor-section" id="sectionAgents">
+   354→   354→          <div class="cs-title">
+   355→   355→            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--accent-magenta)" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="var(--accent-magenta)" stroke-width="1.8" stroke-linecap="round"/></svg>
+   356→   356→            ОмниАгенты &mdash; ИИ-агенты
+   357→   357→          </div>
+   358→   358→          <div class="cs-subtitle">Автоответ на типовые вопросы 24/7. Голос и текст из единого пакета. Передача диалога оператору, когда нужно.</div>
+   359→   359→          <div class="plans-row" id="agentsPlans"></div>
+   360→   360→          <div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div>
+   361→   361→        </div>
+   362→   362→      </div>
+   363→   363→
+   364→   364→      <!-- Checkout sidebar -->
+   365→   365→      <div class="checkout" id="checkoutSidebar">
+   366→   366→        <div class="checkout-title">
+   367→   367→          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>
+   368→   368→          Ваш заказ
+   369→   369→        </div>
+   370→   370→        <div class="checkout-items" id="checkoutItems"></div>
+   371→   371→        <div class="checkout-divider"></div>
+   372→   372→        <div id="checkoutTotalRow"></div>
+   373→   373→        <div id="checkoutKitMatch"></div>
+   374→   374→        <div id="checkoutSavings"></div>
+   375→   375→      </div>
+   376→   376→    </div>
+   377→   377→
+   378→   378→    <div class="hint">
+   379→   379→      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+   380→   380→      <span>Комплектом выгоднее! <button class="btn-ghost" id="goKits">Выбрать готовый комплект</button></span>
+   381→   381→    </div>
+   382→   382→    <div class="agreements">
+   383→   383→      <label class="agreement"><input type="checkbox" id="agree3"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label>
+   384→   384→      <label class="agreement"><input type="checkbox" id="agree4"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных с правообладателем ПО</a></span></label>
+   385→   385→    </div>
+   386→   386→    <div class="agreement-alert" id="alert3"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="currentColor"/></svg> Пожалуйста, отметьте условия, чтобы продолжить</div>
+   387→   387→  </div>
+   388→   388→</section>
+   389→   389→
+   390→   390→<!-- SCREEN 3: CONFIRMATION -->
+   391→   391→<section class="screen" id="screen3" hidden>
+   392→   392→  <div class="panel">
+   393→   393→    <div class="stub-wrap">
+   394→   394→      <div class="stub-check" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+   395→   395→      <h1 class="screen-title">Услуга подключена</h1>
+   396→   396→      <div class="subtitle">Итоговый состав подключения:</div>
+   397→   397→      <div class="stub-summary" id="finalSummary"></div>
+   398→   398→    </div>
+   399→   399→  </div>
+   400→   400→</section>
+   401→   401→
+   402→   402→</div>
+   403→   403→
+   404→   404→<!-- FOOTER 1 (комплекты) -->
+   405→   405→<div class="action-bar" id="footer1">
+   406→   406→  <div class="action-bar-inner split">
+   407→   407→    <button class="btn btn-secondary btn-wide" id="skipKitBtn">Собрать самому</button>
+   408→   408→    <button class="btn btn-primary btn-wide" id="connectKitBtn">Подключить комплект</button>
+   409→   409→  </div>
+   410→   410→</div>
+   411→   411→<!-- FOOTER 2 (конструктор) -->
+   412→   412→<div class="action-bar" id="footer2" hidden>
+   413→   413→  <div class="action-bar-inner split">
+   414→   414→    <button class="btn btn-secondary" id="backToKitsBtn">Готовые комплекты</button>
+   415→   415→    <button class="btn btn-primary" id="connectConstBtn">Подключить</button>
+   416→   416→  </div>
+   417→   417→</div>
+   418→   418→
+   419→   419→<script>
+   420→   420→var TARIFFS={
+   421→   421→  services:{
+   422→   422→    omnirm:{
+   423→   423→      id:'omnirm',label:'ОмниРМ',
+   424→   424→      description:{
+   425→   425→        title:'ОмниРМ — рабочее место оператора',
+   426→   426→        lead:'Одно окно для звонков и переписки. Оператор принимает обращения из текстовых каналов и работает со звонками Облачной АТС.',
+   427→   427→        bullets:['Звонки ОАТС и текстовые каналы в одном интерфейсе','Каналы: виджет на сайте, Telegram, MAX','История диалогов и карточка клиента со всей перепиской','Распределение обращений: общая очередь, логики ОАТС или локальные очереди','Подключение из личного кабинета без повторной регистрации']
+   428→   428→      },
+   429→   429→      plans:[
+   430→   430→        {id:'solo',name:'Соло',price:0,priceLabel:'0 ₽',note:'в тарифе ОАТС',features:['1 оператор','1 канал (виджет или MAX)','100 диалогов/мес','история 30 дней'],cons:'без очередей, супервизора, аналитики и рассылок'},
+   431→   431→        {id:'team5',name:'Команда 5',price:3990,priceLabel:'3 990 ₽/мес',features:['до 5 операторов','полный функционал'],footnote:'+990 ₽ за оператора с 6-го'}
+   432→   432→      ]
+   433→   433→    },
+   434→   434→    agents:{
+   435→   435→      id:'agents',label:'ОмниАгенты',
+   436→   436→      description:{
+   437→   437→        title:'ОмниАгенты — ИИ-агенты',
+   438→   438→        lead:'Агент принимает звонки и обращения без оператора: отвечает на типовые вопросы и передаёт диалог сотруднику, когда нужно.',
+   439→   439→        bullets:['Голос и текст в едином пакете минут и обращений','Все каналы на любом тарифе','Обзвон-кампании — минуты из пакета','Передача диалога на оператора ОмниРМ','Оплата сверх пакета по факту, без блокировки']
+   440→   440→      },
+   441→   441→      plans:[
+   442→   442→        {id:'start',name:'Старт',price:2700,priceLabel:'2 700 ₽/мес',minutes:300,requests:300,overMinute:10,overRequest:5},
+   443→   443→        {id:'business',name:'Бизнес',price:6500,priceLabel:'6 500 ₽/мес',minutes:800,requests:1000,overMinute:9,overRequest:4},
+   444→   444→        {id:'pro',name:'Про',price:18700,priceLabel:'18 700 ₽/мес',minutes:2000,requests:3000,overMinute:8,overRequest:3}
+   445→   445→      ]
+   446→   446→    }
+   447→   447→  },
+   448→   448→  kits:[
+   449→   449→    {id:'start-plus',name:'Старт+',price:3990,priceLabel:'3 990 ₽/мес',operators:'2 оператора ОмниРМ',agents:'ИИ-агенты, тариф Старт',pkg:'300 минут голоса · 300 текстовых обращений',overage:'Сверх пакета: 10 ₽/мин · 5 ₽/обр',recommended:false,omnirmPlan:'solo',agentsPlan:'start'},
+   450→   450→    {id:'business-plus',name:'Бизнес+',price:8990,priceLabel:'8 990 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ, полный функционал',agents:'ИИ-агенты, тариф Бизнес',pkg:'800 минут голоса · 1 000 текстовых обращений',overage:'Сверх пакета: 9 ₽/мин · 4 ₽/обр',recommended:true,omnirmPlan:'team5',agentsPlan:'business'},
+   451→   451→    {id:'pro-plus',name:'Про+',price:23900,priceLabel:'23 900 ₽/мес',operators:'{{ОПЕРАТОРЫ_ПРО}}',agents:'ИИ-агенты, тариф Про',pkg:'2 000 минут голоса · 3 000 текстовых обращений',overage:'Сверх пакета: 8 ₽/мин · 3 ₽/обр',recommended:false,omnirmPlan:'team5',agentsPlan:'pro'}
+   452→   452→  ],
+   453→   453→  setupFee:0
+   454→   454→};
+   455→   455→
+   456→   456→var SEPARATE_PRICES={
+   457→   457→  'start-plus':{omnirm:0,agents:2700},
+   458→   458→  'business-plus':{omnirm:3990,agents:6500},
+   459→   459→  'pro-plus':{omnirm:3990,agents:18700}
+   460→   460→};
+   461→   461→
+   462→   462→var state={
+   463→   463→  service:'omnirm',kitId:null,
+   464→   464→  omnirmPlanId:null,agentsPlanId:null,
+   465→   465→  agree1:false,agree2:false,agree3:false,agree4:false,
+   466→   466→  currentScreen:0
+   467→   467→};
+   468→   468→
+   469→   469→function el(id){return document.getElementById(id);}
+   470→   470→function fmtPrice(n){return n.toLocaleString('ru-RU')+' ₽';}
+   471→   471→
+   472→   472→function progressHtml(activeStep){
+   473→   473→  var steps=[{n:1,label:'Комплекты'},{n:2,label:'Конструктор'}];
+   474→   474→  return steps.map(function(s,i){
+   475→   475→    var cls=s.n===activeStep?'active':(s.n<activeStep?'done':'');
+   476→   476→    var line=i<steps.length-1?'<div class="progress-line"></div>':'';
+   477→   477→    return '<div class="progress-step '+cls+'"><span class="dot">'+(s.n<activeStep?'✓':s.n)+'</span>'+s.label+'</div>'+line;
+   478→   478→  }).join('');
+   479→   479→}
+   480→   480→function renderProgress(activeStep){
+   481→   481→  el('progressBar1').innerHTML=progressHtml(activeStep);
+   482→   482→  el('progressBar2').innerHTML=progressHtml(activeStep);
+   483→   483→}
+   484→   484→
+   485→   485→/* ---- SCREEN 0 ---- */
+   486→   486→el('heroCta').addEventListener('click',function(){renderScreen1();showScreen(1);});
+   487→   487→
+   488→   488→/* ---- SCREEN 1: Комплекты ---- */
+   489→   489→function renderSavingsVisual(){
+   490→   490→  var b=TARIFFS.kits[1];
+   491→   491→  var sep=SEPARATE_PRICES['business-plus'];
+   492→   492→  var separateTotal=sep.omnirm+sep.agents;
+   493→   493→  var savings=separateTotal-b.price;
+   494→   494→  el('savingsVisual').innerHTML=
+   495→   495→    '<div class="savings-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.8"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Сколько вы сэкономите на комплекте &laquo;'+b.name+'&raquo;</div>'+
+   496→   496→    '<div class="savings-comparison">'+
+   497→   497→      '<div class="savings-col"><div class="savings-label">По отдельности</div><div class="savings-amount red num">'+fmtPrice(separateTotal)+'/мес</div><div class="savings-bar separate" style="width:100%"></div><div style="font-size:12px;color:var(--text-tertiary);">ОмниРМ '+fmtPrice(sep.omnirm)+' + Агенты '+fmtPrice(sep.agents)+'</div></div>'+
+   498→   498→      '<div class="savings-col"><div class="savings-label">Комплект '+b.name+'</div><div class="savings-amount green num">'+b.priceLabel+'</div><div class="savings-bar bundle" style="width:'+Math.round(b.price/separateTotal*100)+'%"></div><div style="font-size:12px;color:var(--accent-green);font-weight:700;">Экономия '+fmtPrice(savings)+'/мес</div></div>'+
+   499→   499→    '</div>';
+   500→   500→}
+   501→   501→
+   502→   502→function renderScreen1(){renderSavingsVisual();renderKits();renderProgress(1);}
+   503→   503→
+   504→   504→function renderKits(){
+   505→   505→  var grid=el('kitsGrid');
+   506→   506→  grid.innerHTML=TARIFFS.kits.map(function(b){
+   507→   507→    var sep=SEPARATE_PRICES[b.id];
+   508→   508→    var separateTotal=sep.omnirm+sep.agents;
+   509→   509→    var savings=separateTotal-b.price;
+   510→   510→    var savingsPct=Math.round(savings/separateTotal*100);
+   511→   511→    var selected=state.kitId===b.id;
+   512→   512→    var isRec=b.recommended;
+   513→   513→    return '<div class="kit-card '+(selected?'selected ':'')+(isRec?'recommended':'')+'" data-id="'+b.id+'">'+
+   514→   514→      '<div class="kit-top"><div class="kit-name-row"><div class="radio-dot"></div><div class="plan-name">'+b.name+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="plan-price num">'+b.priceLabel+'</div></div></div>'+
+   515→   515→      '<div class="kit-badges">'+(isRec?'<div class="kit-recommend"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>':'')+(savings>0?'<div class="savings-badge">Экономия '+savingsPct+'%</div>':'')+'</div>'+
+   516→   516→      '<ul class="kit-comp-list"><li>'+b.operators+'</li><li>'+b.agents+'</li></ul>'+
+   517→   517→      '<div class="kit-package num">'+b.pkg+'</div>'+
+   518→   518→      '<div class="kit-overage num">'+b.overage+'</div></div>';
+   519→   519→  }).join('');
+   520→   520→  var cards=grid.querySelectorAll('.kit-card');
+   521→   521→  for(var i=0;i<cards.length;i++){
+   522→   522→    cards[i].addEventListener('click',function(e){state.kitId=e.currentTarget.dataset.id;renderKits();});
+   523→   523→  }
+   524→   524→}
+   525→   525→
+   526→   526→el('agree1').addEventListener('change',function(e){state.agree1=e.target.checked;el('alert1').classList.remove('show');});
+   527→   527→el('agree2').addEventListener('change',function(e){state.agree2=e.target.checked;el('alert1').classList.remove('show');});
+   528→   528→
+   529→   529→el('connectKitBtn').addEventListener('click',function(){
+   530→   530→  if(!state.kitId){return;}
+   531→   531→  if(!state.agree1||!state.agree2){el('alert1').classList.add('show');el('alert1').classList.add('shake');setTimeout(function(){el('alert1').classList.remove('shake');},400);return;}
+   532→   532→  var kit=null;
+   533→   533→  for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===state.kitId){kit=TARIFFS.kits[i];break;}}
+   534→   534→  var sep=SEPARATE_PRICES[kit.id];
+   535→   535→  var savings=(sep.omnirm+sep.agents)-kit.price;
+   536→   536→  el('finalSummary').innerHTML=
+   537→   537→    '<div><span class="label">Комплект:</span> '+kit.name+' — <span class="num">'+kit.priceLabel+'</span></div>'+
+   538→   538→    '<div><span class="label">Состав:</span> '+kit.operators+', '+kit.agents+'</div>'+
+   539→   539→    '<div><span class="label">Пакет:</span> '+kit.pkg+'</div>'+
+   540→   540→    (savings>0?'<div><span class="label">Экономия:</span> <span class="num" style="color:#16A34A;">'+fmtPrice(savings)+'/мес</span> vs по отдельности</div>':'')+
+   541→   541→    '<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>';
+   542→   542→  showScreen(3);
+   543→   543→});
+   544→   544→
+   545→   545→el('skipKitBtn').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   546→   546→el('goConstructor').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   547→   547→
+   548→   548→/* ---- SCREEN 2: Конструктор тарифа ---- */
+   549→   549→function renderOmniRMPlans(){
+   550→   550→  var svc=TARIFFS.services.omnirm;
+   551→   551→  var container=el('omnirmPlans');
+   552→   552→  container.innerHTML=svc.plans.map(function(p){
+   553→   553→    return '<div class="plan-card '+(state.omnirmPlanId===p.id?'selected':'')+'" data-id="'+p.id+'">'+
+   554→   554→      '<div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div class="radio-dot"></div></div>'+
+   555→   555→      '<div class="plan-price num">'+p.priceLabel+(p.note?'<span class="note">'+p.note+'</span>':'')+'</div>'+
+   556→   556→      '<ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+
+   557→   557→      (p.cons?'<div class="plan-cons">'+p.cons+'</div>':'')+
+   558→   558→      (p.footnote?'<div class="plan-footnote">'+p.footnote+'</div>':'')+
+   559→   559→    '</div>';
+   560→   560→  }).join('');
+   561→   561→  var cards=container.querySelectorAll('.plan-card');
+   562→   562→  for(var i=0;i<cards.length;i++){
+   563→   563→    cards[i].addEventListener('click',function(e){state.omnirmPlanId=e.currentTarget.dataset.id;renderOmniRMPlans();updateCheckout();});
+   564→   564→  }
+   565→   565→}
+   566→   566→
+   567→   567→function renderAgentsPlans(){
+   568→   568→  var svc=TARIFFS.services.agents;
+   569→   569→  var container=el('agentsPlans');
+   570→   570→  // Add "Не нужны" option
+   571→   571→  var html='<div class="plan-card '+(state.agentsPlanId===null?'selected':'')+'" data-id="__none__">'+
+   572→   572→    '<div class="plan-card-top"><div class="plan-name">Не нужны</div><div class="radio-dot"></div></div>'+
+   573→   573→    '<div class="plan-price num">—</div>'+
+   574→   574→  '</div>';
+   575→   575→  html+=svc.plans.map(function(p){
+   576→   576→    return '<div class="plan-card '+(state.agentsPlanId===p.id?'selected':'')+'" data-id="'+p.id+'">'+
+   577→   577→      '<div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div class="radio-dot"></div></div>'+
+   578→   578→      '<div class="plan-price num">'+p.priceLabel+'</div>'+
+   579→   579→      '<div class="agent-stats">'+
+   580→   580→        '<div class="stat-label">Минуты</div><div class="stat-value num">'+p.minutes.toLocaleString('ru-RU')+'</div>'+
+   581→   581→        '<div class="stat-label">Обращения</div><div class="stat-value num">'+p.requests.toLocaleString('ru-RU')+'</div>'+
+   582→   582→        '<div class="stat-label">Каналы</div><div class="stat-value">все</div>'+
+   583→   583→      '</div>'+
+   584→   584→      '<div class="agent-overage">Сверх: '+p.overMinute+' ₽/мин · '+p.overRequest+' ₽/обр</div>'+
+   585→   585→    '</div>';
+   586→   586→  }).join('');
+   587→   587→  container.innerHTML=html;
+   588→   588→  var cards=container.querySelectorAll('.plan-card');
+   589→   589→  for(var i=0;i<cards.length;i++){
+   590→   590→    cards[i].addEventListener('click',function(e){
+   591→   591→      var id=e.currentTarget.dataset.id;
+   592→   592→      state.agentsPlanId=id==='__none__'?null:id;
+   593→   593→      renderAgentsPlans();updateCheckout();
+   594→   594→    });
+   595→   595→  }
+   596→   596→}
+   597→   597→
+   598→   598→function findMatchingKit(){
+   599→   599→  if(!state.omnirmPlanId||!state.agentsPlanId) return null;
+   600→   600→  for(var i=0;i<TARIFFS.kits.length;i++){
+   601→   601→    var k=TARIFFS.kits[i];
+   602→   602→    if(k.omnirmPlan===state.omnirmPlanId&&k.agentsPlan===state.agentsPlanId) return k;
+   603→   603→  }
+   604→   604→  return null;
+   605→   605→}
+   606→   606→
+   607→   607→function updateCheckout(){
+   608→   608→  var items=el('checkoutItems');
+   609→   609→  var totalRow=el('checkoutTotalRow');
+   610→   610→  var matchDiv=el('checkoutKitMatch');
+   611→   611→  var savingsDiv=el('checkoutSavings');
+   612→   612→  var total=0;
+   613→   613→  var html='';
+   614→   614→
+   615→   615→  if(!state.omnirmPlanId&&!state.agentsPlanId){
+   616→   616→    items.innerHTML='<div class="checkout-empty">Выберите тариф,<br>чтобы увидеть заказ</div>';
+   617→   617→    totalRow.innerHTML='';matchDiv.innerHTML='';savingsDiv.innerHTML='';
+   618→   618→    return;
+   619→   619→  }
+   620→   620→
+   621→   621→  if(state.omnirmPlanId){
+   622→   622→    var plan=null;
+   623→   623→    var svc=TARIFFS.services.omnirm;
+   624→   624→    for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}
+   625→   625→    total+=plan.price;
+   626→   626→    html+='<div class="checkout-item"><span class="c-label">ОмниРМ, «'+plan.name+'»</span><span class="c-value num">'+fmtPrice(plan.price)+'/мес</span></div>';
+   627→   627→  }
+   628→   628→
+   629→   629→  if(state.agentsPlanId){
+   630→   630→    var plan=null;
+   631→   631→    var svc=TARIFFS.services.agents;
+   632→   632→    for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}
+   633→   633→    total+=plan.price;
+   634→   634→    html+='<div class="checkout-item"><span class="c-label">ОмниАгенты, «'+plan.name+'»</span><span class="c-value num">'+fmtPrice(plan.price)+'/мес</span></div>';
+   635→   635→  }
+   636→   636→
+   637→   637→  items.innerHTML=html;
+   638→   638→  totalRow.innerHTML='<div class="checkout-total"><span>Итого</span><span class="num">'+fmtPrice(total)+'/мес</span></div>';
+   639→   639→
+   640→   640→  // Check for matching kit
+   641→   641→  var kit=findMatchingKit();
+   642→   642→  if(kit){
+   643→   643→    var savings=total-kit.price;
+   644→   644→    matchDiv.innerHTML=
+   645→   645→      '<div class="checkout-kit-match">'+
+   646→   646→        '<div class="m-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Это комплект «'+kit.name+'»</div>'+
+   647→   647→        '<div class="m-text">Этот набор входит в готовый комплект — и стоит <b>'+kit.priceLabel+'</b> вместо '+fmtPrice(total)+'/мес. Экономия '+fmtPrice(savings)+'/мес!</div>'+
+   648→   648→        '<button class="m-btn" data-kit-id="'+kit.id+'">Взять комплектом</button>'+
+   649→   649→      '</div>';
+   650→   650→    savingsDiv.innerHTML='';
+   651→   651→    matchDiv.querySelector('.m-btn').addEventListener('click',function(){
+   652→   652→      state.kitId=kit.id;renderScreen1();showScreen(1);
+   653→   653→    });
+   654→   654→  } else if(state.omnirmPlanId&&state.agentsPlanId){
+   655→   655→    // Both selected but no exact kit match — find closest kit
+   656→   656→    var bestKit=null;var bestSavings=0;
+   657→   657→    for(var i=0;i<TARIFFS.kits.length;i++){
+   658→   658→      var k=TARIFFS.kits[i];
+   659→   659→      var sep=SEPARATE_PRICES[k.id];
+   660→   660→      var s=sep.omnirm+sep.agents-k.price;
+   661→   661→      if(s>bestSavings){bestSavings=s;bestKit=k;}
+   662→   662→    }
+   663→   663→    if(bestKit){
+   664→   664→      matchDiv.innerHTML=
+   665→   665→        '<div class="checkout-kit-match">'+
+   666→   666→          '<div class="m-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Комплектом выгоднее</div>'+
+   667→   667→          '<div class="m-text">Готовый комплект «'+bestKit.name+'» включает оба сервиса и стоит <b>'+bestKit.priceLabel+'</b> — экономия до '+Math.round(bestSavings/(SEPARATE_PRICES[bestKit.id].omnirm+SEPARATE_PRICES[bestKit.id].agents)*100)+'%.</div>'+
+   668→   668→          '<button class="m-btn" data-kit-id="'+bestKit.id+'">Посмотреть комплект</button>'+
+   669→   669→        '</div>';
+   670→   670→      matchDiv.querySelector('.m-btn').addEventListener('click',function(){
+   671→   671→        state.kitId=bestKit.id;renderScreen1();showScreen(1);
+   672→   672→      });
+   673→   673→    }
+   674→   674→    savingsDiv.innerHTML='';
+   675→   675→  } else {
+   676→   676→    matchDiv.innerHTML='';savingsDiv.innerHTML='';
+   677→   677→  }
+   678→   678→
+   679→   679→  // Highlight sections
+   680→   680→  el('sectionOmniRM').classList.toggle('highlight',!!state.omnirmPlanId);
+   681→   681→  el('sectionAgents').classList.toggle('highlight',!!state.agentsPlanId);
+   682→   682→}
+   683→   683→
+   684→   684→el('agree3').addEventListener('change',function(e){state.agree3=e.target.checked;el('alert3').classList.remove('show');});
+   685→   685→el('agree4').addEventListener('change',function(e){state.agree4=e.target.checked;el('alert3').classList.remove('show');});
+   686→   686→
+   687→   687→function renderScreen2(){
+   688→   688→  state.omnirmPlanId=null;state.agentsPlanId=null;
+   689→   689→  el('agree3').checked=false;el('agree4').checked=false;
+   690→   690→  state.agree3=false;state.agree4=false;
+   691→   691→  renderOmniRMPlans();renderAgentsPlans();updateCheckout();renderProgress(2);
+   692→   692→}
+   693→   693→
+   694→   694→el('connectConstBtn').addEventListener('click',function(){
+   695→   695→  if(!state.omnirmPlanId&&!state.agentsPlanId){return;}
+   696→   696→  if(!state.agree3||!state.agree4){el('alert3').classList.add('show');el('alert3').classList.add('shake');setTimeout(function(){el('alert3').classList.remove('shake');},400);return;}
+   697→   697→  var total=0;var lines=[];
+   698→   698→  if(state.omnirmPlanId){
+   699→   699→    var plan=null;var svc=TARIFFS.services.omnirm;
+   700→   700→    for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}
+   701→   701→    total+=plan.price;
+   702→   702→    lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+plan.name+'»</div>');
+   703→   703→  }
+   704→   704→  if(state.agentsPlanId){
+   705→   705→    var plan=null;var svc=TARIFFS.services.agents;
+   706→   706→    for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}
+   707→   707→    total+=plan.price;
+   708→   708→    lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+plan.name+'»</div>');
+   709→   709→  }
+   710→   710→  lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');
+   711→   711→  lines.push('<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>');
+   712→   712→  el('finalSummary').innerHTML=lines.join('');
+   713→   713→  showScreen(3);
+   714→   714→});
+   715→   715→
+   716→   716→el('goKits').addEventListener('click',function(){renderScreen1();showScreen(1);});
+   717→   717→el('backToKitsBtn').addEventListener('click',function(){renderScreen1();showScreen(1);});
+   718→   718→
+   719→   719→/* ---- Navigation ---- */
+   720→   720→function showScreen(n){
+   721→   721→  state.currentScreen=n;
+   722→   722→  el('screen0').hidden=n!==0;el('screen1').hidden=n!==1;el('screen2').hidden=n!==2;el('screen3').hidden=n!==3;
+   723→   723→  el('footer1').hidden=n!==1;el('footer2').hidden=n!==2;
+   724→   724→  var back=el('protoBack'),sep=el('protoSep'),showBack=n!==0;
+   725→   725→  back.style.display=showBack?'inline':'none';sep.style.display=showBack?'inline':'none';
+   726→   726→  window.scrollTo({top:0,behavior:'smooth'});
+   727→   727→}
+   728→   728→function goBack(){
+   729→   729→  if(state.currentScreen===3){if(state.kitId){renderScreen1();showScreen(1);}else{renderScreen2();showScreen(2);}}
+   730→   730→  else if(state.currentScreen===2){renderScreen1();showScreen(1);}
+   731→   731→  else if(state.currentScreen===1){showScreen(0);}
+   732→   732→}
+   733→   733→function resetAll(){
+   734→   734→  state.omnirmPlanId=null;state.agentsPlanId=null;state.kitId=null;
+   735→   735→  state.agree1=false;state.agree2=false;state.agree3=false;state.agree4=false;
+   736→   736→  el('agree1').checked=false;el('agree2').checked=false;el('agree3').checked=false;el('agree4').checked=false;
+   737→   737→  el('alert1').classList.remove('show');el('alert3').classList.remove('show');
+   738→   738→  showScreen(0);
+   739→   739→}
+   740→   740→el('protoBack').addEventListener('click',goBack);
+   741→   741→el('protoRestart').addEventListener('click',resetAll);
+   742→   742→showScreen(0);
+   743→   743→</script>
+   744→   744→</body>
+   745→   745→</html>
