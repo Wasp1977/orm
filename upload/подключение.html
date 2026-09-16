@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact AI — подключение услуг, прототип</title>
+<style>
+  :root{
+    --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --bg-page:#EEF0F3;
+    --panel-bg:#FFFFFF;
+    --card-bg:#F4F5F7;
+    --card-bg-hover:#ECEEF1;
+    --card-border:#E7E9EC;
+    --card-selected-border:#15171A;
+    --card-selected-tint:#FFFCF2;
+    --text-primary:#15171A;
+    --text-secondary:#6B7280;
+    --text-tertiary:#9AA1AB;
+    --divider:#E7E9EC;
+    --link:#0B6FDB;
+    --info-bg:#E8F2FE;
+    --info-icon-bg:#1478F0;
+    --accent-yellow:#FFDD5B;
+    --accent-yellow-hover:#FFD23D;
+    --btn-secondary-border:#D8DBE0;
+    --btn-secondary-text:#15171A;
+    --btn-disabled-bg:#EFF0F2;
+    --btn-disabled-text:#B7BCC3;
+    --con-text:#9AA1AB;
+    --radius-lg:16px;
+    --radius-md:12px;
+    --radius-pill:999px;
+    --bar-h:88px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--bg-page);
+    color:var(--text-primary);
+    font-family:var(--font-ui);
+    -webkit-text-size-adjust:100%;
+  }
+
+  h1,h2,h3{
+    font-family:var(--font-ui);
+    margin:0;
+    text-wrap:balance;
+  }
+
+  .num{font-variant-numeric:tabular-nums;}
+
+  button{font-family:inherit;}
+  a{color:var(--link);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  :focus-visible{
+    outline:2px solid var(--info-icon-bg);
+    outline-offset:2px;
+  }
+
+  /* ---------- Page shell ---------- */
+  .page{
+    max-width:840px;
+    margin:0 auto;
+    padding:32px 24px calc(var(--bar-h) + 24px);
+  }
+
+  .screen{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+  }
+  .screen[hidden]{display:none;}
+
+  /* ---------- Prototype nav (demo-only, not product UI) ---------- */
+  .proto-nav{
+    position:fixed;
+    top:14px;
+    right:16px;
+    z-index:80;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:rgba(255,255,255,0.94);
+    border:1px solid var(--card-border);
+    border-radius:8px;
+    padding:6px 10px;
+    font-size:12px;
+    line-height:1.2;
+    color:var(--text-tertiary);
+    box-shadow:0 2px 10px rgba(21,23,26,0.08);
+  }
+  .proto-link{
+    background:none;
+    border:none;
+    padding:0;
+    margin:0;
+    font:inherit;
+    color:var(--text-secondary);
+    cursor:pointer;
+  }
+  .proto-link:hover{color:var(--text-primary);text-decoration:underline;}
+  .proto-sep{color:var(--card-border);}
+
+  /* ---------- Progress ---------- */
+  .progress{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .progress-step{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text-tertiary);
+  }
+  .progress-step .dot{
+    width:22px;height:22px;
+    border-radius:50%;
+    background:var(--card-bg);
+    color:var(--text-tertiary);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;
+    font-weight:700;
+    border:1px solid var(--card-border);
+    flex:0 0 auto;
+  }
+  .progress-step.active{color:var(--text-primary);}
+  .progress-step.active .dot{
+    background:var(--text-primary);
+    color:#fff;
+    border-color:var(--text-primary);
+  }
+  .progress-step.done .dot{
+    background:var(--text-primary);
+    color:#fff;
+    border-color:var(--text-primary);
+  }
+  .progress-line{
+    width:28px;height:1px;
+    background:var(--card-border);
+    flex:0 0 auto;
+  }
+
+  /* ---------- Panel (card wrapper for each screen) ---------- */
+  .panel{
+    background:var(--panel-bg);
+    border-radius:24px;
+    box-shadow:0 24px 64px rgba(21,23,26,0.10), 0 2px 8px rgba(21,23,26,0.05);
+    padding:28px;
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    appearance:none;
+    border:none;
+    border-radius:var(--radius-pill);
+    padding:13px 26px;
+    font-size:15px;
+    font-weight:700;
+    cursor:pointer;
+    transition:background .15s ease, opacity .15s ease, transform .05s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{
+    background:var(--accent-yellow);
+    color:var(--text-primary);
+  }
+  .btn-primary:hover{background:var(--accent-yellow-hover);}
+  .btn-primary:disabled{
+    background:var(--btn-disabled-bg);
+    color:var(--btn-disabled-text);
+    cursor:not-allowed;
+  }
+  .btn-secondary{
+    background:#fff;
+    color:var(--btn-secondary-text);
+    border:1px solid var(--btn-secondary-border);
+  }
+  .btn-secondary:hover{background:var(--card-bg);}
+  .btn-wide{flex:1;}
+
+  /* ---------- Headings / text ---------- */
+  h1.screen-title{
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    color:var(--text-secondary);
+    font-size:15px;
+    line-height:1.5;
+    margin-top:6px;
+  }
+  .section-title{
+    font-size:18px;
+    font-weight:700;
+  }
+  .muted{color:var(--text-secondary);}
+  .fine{font-size:12.5px;color:var(--text-tertiary);}
+
+  /* ---------- Info block ---------- */
+  .info-block{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    background:var(--info-bg);
+    border-radius:var(--radius-lg);
+    padding:16px 18px;
+  }
+  .info-icon{
+    flex:0 0 auto;
+    width:28px;height:28px;
+    border-radius:9px;
+    background:var(--info-icon-bg);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .info-text{font-size:14.5px;line-height:1.5;color:var(--text-primary);}
+
+  /* ---------- Segmented control ---------- */
+  .segmented{
+    display:flex;
+    background:var(--card-bg);
+    border-radius:var(--radius-pill);
+    padding:4px;
+    gap:4px;
+  }
+  .segmented button{
+    flex:1;
+    border:none;
+    background:transparent;
+    padding:11px 16px;
+    border-radius:var(--radius-pill);
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--text-secondary);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .segmented button.active{
+    background:#fff;
+    color:var(--text-primary);
+    box-shadow:0 2px 8px rgba(21,23,26,0.10);
+  }
+
+  /* ---------- Description block ---------- */
+  .desc-block{
+    background:var(--card-bg);
+    border-radius:var(--radius-lg);
+    padding:20px 22px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .desc-block h3{font-size:16px;font-weight:700;}
+  .desc-lead{font-size:14px;color:var(--text-secondary);line-height:1.5;}
+  .desc-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .desc-list li{
+    display:flex;gap:10px;
+    font-size:14px;line-height:1.5;color:var(--text-primary);
+  }
+  .desc-list li::before{
+    content:"•";
+    color:var(--text-tertiary);
+    font-weight:700;
+    flex:0 0 auto;
+  }
+
+  /* ---------- Plan cards ---------- */
+  .plans-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:14px;
+  }
+  .plans-grid.cols-3{grid-template-columns:repeat(3, 1fr);}
+
+  .plan-card{
+    position:relative;
+    text-align:left;
+    background:var(--card-bg);
+    border:2px solid transparent;
+    border-radius:var(--radius-lg);
+    padding:18px 18px 16px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    transition:border-color .15s ease, background .15s ease;
+    min-width:0;
+  }
+  .plan-card:hover{background:var(--card-bg-hover);}
+  .plan-card.selected{
+    background:var(--card-selected-tint);
+    border-color:var(--card-selected-border);
+  }
+
+  .plan-card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .plan-name{font-size:16px;font-weight:700;}
+  .radio-dot{
+    flex:0 0 auto;
+    width:20px;height:20px;
+    border-radius:50%;
+    border:2px solid var(--btn-secondary-border);
+    background:#fff;
+    position:relative;
+  }
+  .plan-card.selected .radio-dot{border-color:var(--card-selected-border);}
+  .plan-card.selected .radio-dot::after{
+    content:"";
+    position:absolute;
+    inset:3px;
+    border-radius:50%;
+    background:var(--card-selected-border);
+  }
+
+  .plan-price{font-size:20px;font-weight:800;}
+  .plan-price .note{font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-left:6px;}
+
+  .plan-features{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .plan-features li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+  .plan-features li::before{content:"•";color:var(--text-tertiary);}
+  .plan-cons{font-size:12.5px;color:var(--con-text);line-height:1.4;margin-top:2px;}
+  .plan-footnote{font-size:12px;color:var(--text-tertiary);margin-top:2px;}
+
+  .agent-stats{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px 12px;
+    font-size:13px;
+    padding-top:6px;
+    border-top:1px solid var(--card-border);
+  }
+  .agent-stats .stat-label{color:var(--text-secondary);}
+  .agent-stats .stat-value{font-weight:700;text-align:right;}
+  .agent-overage{
+    font-size:12px;
+    color:var(--text-secondary);
+    border-top:1px solid var(--card-border);
+    padding-top:8px;
+    margin-top:2px;
+  }
+
+  /* ---------- Hint ---------- */
+  .hint{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:13.5px;
+    color:var(--text-secondary);
+    padding:2px 4px;
+  }
+  .hint svg{flex:0 0 auto;}
+
+  /* ---------- Checkboxes ---------- */
+  .agreements{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .agreement{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    cursor:pointer;
+    font-size:13.5px;
+    line-height:1.5;
+    color:var(--text-primary);
+  }
+  .agreement input{
+    margin-top:2px;
+    width:18px;height:18px;
+    accent-color:var(--text-primary);
+    flex:0 0 auto;
+    cursor:pointer;
+  }
+
+  /* ---------- Screen 2 summary ---------- */
+  .summary-card{
+    background:var(--card-bg);
+    border-radius:var(--radius-lg);
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .summary-label{font-size:12.5px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+  .summary-value{font-size:15px;font-weight:700;margin-top:2px;}
+  .summary-price{font-size:18px;font-weight:800;}
+
+  .bundle-card{
+    position:relative;
+    text-align:left;
+    background:var(--card-bg);
+    border:2px solid transparent;
+    border-radius:var(--radius-lg);
+    padding:18px 20px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    width:100%;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .bundle-card:hover{background:var(--card-bg-hover);}
+  .bundle-card.selected{
+    background:var(--card-selected-tint);
+    border-color:var(--card-selected-border);
+  }
+  .bundle-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .bundle-name-row{display:flex;align-items:center;gap:10px;}
+  .bundle-comp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;}
+  .bundle-comp-list li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+  .bundle-comp-list li::before{content:"•";color:var(--text-tertiary);flex:0 0 auto;}
+  .bundle-package{font-size:13px;color:var(--text-secondary);}
+  .bundle-overage{
+    font-size:12px;
+    color:var(--text-secondary);
+    border-top:1px solid var(--card-border);
+    padding-top:8px;
+    margin-top:2px;
+  }
+  .bundle-diff{
+    display:inline-flex;
+    align-self:flex-start;
+    font-size:12.5px;
+    font-weight:700;
+    padding:4px 10px;
+    border-radius:var(--radius-pill);
+    background:#FFF3CC;
+    color:#7A5B00;
+  }
+  .bundle-diff.zero{background:#EAF7EE;color:#1E7A3B;}
+  .bundle-diff.negative{background:#EAF7EE;color:#1E7A3B;}
+
+  /* ---------- Screen 3 (stub) ---------- */
+  .stub-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    gap:16px;
+    padding:24px 8px;
+  }
+  .stub-check{
+    width:64px;height:64px;
+    border-radius:50%;
+    background:#EAF7EE;
+    color:#1E9E4A;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .stub-summary{
+    margin-top:8px;
+    background:var(--card-bg);
+    border-radius:var(--radius-lg);
+    padding:18px 22px;
+    text-align:left;
+    max-width:420px;
+    width:100%;
+  }
+  .stub-summary div{font-size:14px;line-height:1.7;}
+  .stub-summary .label{color:var(--text-secondary);}
+
+  /* ---------- Fixed bottom action bar ---------- */
+  .action-bar{
+    position:fixed;
+    left:0;right:0;bottom:0;
+    z-index:70;
+    background:#fff;
+    border-top:1px solid var(--divider);
+  }
+  .action-bar[hidden]{display:none;}
+  .action-bar-inner{
+    max-width:840px;
+    margin:0 auto;
+    display:flex;
+    justify-content:flex-end;
+    gap:12px;
+    padding:16px 24px;
+  }
+  .action-bar-inner.split{justify-content:space-between;}
+
+  /* ---------- Mobile ---------- */
+  @media (max-width:720px){
+    .page{padding:56px 16px calc(var(--bar-h) + 20px);}
+    .progress{flex-wrap:wrap;row-gap:8px;}
+    .progress-step{font-size:12px;}
+    .panel{padding:20px;border-radius:18px;gap:20px;}
+    h1.screen-title{font-size:22px;}
+    .section-title{font-size:16px;}
+    .subtitle{font-size:14px;}
+    .plans-grid,.plans-grid.cols-3{grid-template-columns:1fr;}
+    .desc-block{padding:16px 18px;}
+    .info-block{padding:14px 16px;}
+    .proto-nav{top:8px;right:8px;font-size:11px;padding:5px 8px;gap:6px;}
+    .action-bar-inner{padding:12px 16px;gap:8px;}
+    .btn{padding:12px 18px;font-size:14px;}
+    .summary-card{padding:14px 16px;}
+    .agent-stats{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="proto-nav" aria-label="Навигация по прототипу">
+  <button type="button" class="proto-link" id="protoBack">← Назад</button>
+  <span class="proto-sep" id="protoSep">·</span>
+  <button type="button" class="proto-link" id="protoRestart">Начать заново</button>
+</nav>
+
+<div class="page">
+
+  <!-- SCREEN 1 -->
+  <section class="screen" id="screen1">
+    <div class="progress" id="progressBar1"></div>
+
+    <div class="panel">
+      <div>
+        <h1 class="screen-title">Подключение Contact AI</h1>
+      </div>
+
+      <div class="info-block">
+        <div class="info-icon" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg>
+        </div>
+        <div class="info-text">Подключение бесплатно. Тарификация начинается после выбора тарифа.</div>
+      </div>
+
+      <div class="segmented" id="serviceSwitch"></div>
+
+      <div class="desc-block" id="descBlock"></div>
+
+      <div>
+        <div class="section-title" style="margin-bottom:14px;">Выберите тариф</div>
+        <div class="plans-grid" id="plansGrid"></div>
+      </div>
+
+      <div class="hint">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+        <span>Нужны и агенты, и операторы? На следующем шаге — тарифы бандла.</span>
+      </div>
+
+      <div class="agreements">
+        <label class="agreement">
+          <input type="checkbox" id="agree1">
+          <span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span>
+        </label>
+        <label class="agreement">
+          <input type="checkbox" id="agree2">
+          <span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных с правообладателем ПО</a></span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2 -->
+  <section class="screen" id="screen2" hidden>
+    <div class="progress" id="progressBar2"></div>
+
+    <div class="panel">
+      <div class="summary-card">
+        <div>
+          <div class="summary-label">Вы выбрали</div>
+          <div class="summary-value" id="summaryLine"></div>
+        </div>
+        <div class="summary-price num" id="summaryPrice"></div>
+      </div>
+
+      <div>
+        <h1 class="screen-title">Вместе дешевле</h1>
+        <div class="subtitle" id="upsellLine"></div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;" id="bundlesGrid"></div>
+
+      <div class="fine">Подключение бандла: 0 ₽</div>
+    </div>
+  </section>
+
+  <!-- SCREEN 3 (stub) -->
+  <section class="screen" id="screen3" hidden>
+    <div class="panel">
+      <div class="stub-wrap">
+        <div class="stub-check" aria-hidden="true">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h1 class="screen-title">Услуга подключена</h1>
+        <div class="subtitle">Итоговый состав подключения:</div>
+        <div class="stub-summary" id="finalSummary"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- FOOTER 1 -->
+<div class="action-bar" id="footer1">
+  <div class="action-bar-inner">
+    <button class="btn btn-secondary" id="closeBtn2">Закрыть</button>
+    <button class="btn btn-primary" id="connectBtn" disabled>Подключить</button>
+  </div>
+</div>
+
+<!-- FOOTER 2 -->
+<div class="action-bar" id="footer2" hidden>
+  <div class="action-bar-inner split">
+    <button class="btn btn-secondary btn-wide" id="skipBundleBtn">Продолжить без бандла</button>
+    <button class="btn btn-primary btn-wide" id="connectBundleBtn" disabled>Подключить бандл</button>
+  </div>
+</div>
+
+<script>
+  // ---------------------------------------------------------------
+  // Единый источник данных: тарифы, составы, описания.
+  // Всё, чего нет в брифе, оставлено плейсхолдером {{...}}.
+  // ---------------------------------------------------------------
+  var TARIFFS = {
+    services: {
+      omnirm: {
+        id: 'omnirm',
+        label: 'ОмниРМ',
+        description: {
+          title: 'ОмниРМ — рабочее место оператора',
+          lead: 'Одно окно для звонков и переписки. Оператор принимает обращения из текстовых каналов и работает со звонками Облачной АТС.',
+          bullets: [
+            'Звонки ОАТС и текстовые каналы в одном интерфейсе',
+            'Каналы: виджет на сайте, Telegram, MAX',
+            'История диалогов и карточка клиента со всей перепиской',
+            'Распределение обращений: общая очередь, логики ОАТС или локальные очереди',
+            'Подключение из личного кабинета без повторной регистрации'
+          ]
+        },
+        plans: [
+          {
+            id: 'solo',
+            name: 'Соло',
+            price: 0,
+            priceLabel: '0 ₽',
+            note: 'в тарифе ОАТС',
+            features: ['1 оператор', '1 канал (виджет или MAX)', '100 диалогов/мес', 'история 30 дней'],
+            cons: 'без очередей, супервизора, аналитики и рассылок'
+          },
+          {
+            id: 'team5',
+            name: 'Команда 5',
+            price: 3990,
+            priceLabel: '3 990 ₽/мес',
+            features: ['до 5 операторов', 'полный функционал'],
+            footnote: '+990 ₽ за оператора с 6-го'
+          }
+        ]
+      },
+      agents: {
+        id: 'agents',
+        label: 'ОмниАгенты',
+        description: {
+          title: 'ОмниАгенты — ИИ-агенты',
+          lead: 'Агент принимает звонки и обращения без оператора: отвечает на типовые вопросы и передаёт диалог сотруднику, когда нужно.',
+          bullets: [
+            'Голос и текст в едином пакете минут и обращений',
+            'Все каналы на любом тарифе',
+            'Обзвон-кампании — минуты из пакета',
+            'Передача диалога на оператора ОмниРМ',
+            'Оплата сверх пакета по факту, без блокировки'
+          ]
+        },
+        plans: [
+          { id: 'start',    name: 'Старт',   price: 2700,  priceLabel: '2 700 ₽/мес',  minutes: 300,  requests: 300,  overMinute: 10, overRequest: 5 },
+          { id: 'business', name: 'Бизнес',  price: 6500,  priceLabel: '6 500 ₽/мес',  minutes: 800,  requests: 1000, overMinute: 9,  overRequest: 4 },
+          { id: 'pro',      name: 'Про',     price: 18700, priceLabel: '18 700 ₽/мес', minutes: 2000, requests: 3000, overMinute: 8,  overRequest: 3 }
+        ]
+      }
+    },
+    bundles: [
+      {
+        id: 'start-plus', name: 'Старт+', price: 3990, priceLabel: '3 990 ₽/мес',
+        operators: '2 оператора ОмниРМ',
+        agents: 'ИИ-агенты, тариф Старт',
+        package: '300 минут голоса · 300 текстовых обращений',
+        overage: 'Сверх пакета: 10 ₽/мин · 5 ₽/обр'
+      },
+      {
+        id: 'business-plus', name: 'Бизнес+', price: 8990, priceLabel: '8 990 ₽/мес',
+        operators: 'Команда 5: до 5 операторов ОмниРМ, полный функционал',
+        agents: 'ИИ-агенты, тариф Бизнес',
+        package: '800 минут голоса · 1 000 текстовых обращений',
+        overage: 'Сверх пакета: 9 ₽/мин · 4 ₽/обр'
+      },
+      {
+        id: 'pro-plus', name: 'Про+', price: 23900, priceLabel: '23 900 ₽/мес',
+        operators: '{{ОПЕРАТОРЫ_ПРО}}',
+        agents: 'ИИ-агенты, тариф Про',
+        package: '2 000 минут голоса · 3 000 текстовых обращений',
+        overage: 'Сверх пакета: 8 ₽/мин · 3 ₽/обр'
+      }
+    ],
+    setupFee: 0
+  };
+
+  // ---------------------------------------------------------------
+  // Состояние (только переменные, без localStorage)
+  // ---------------------------------------------------------------
+  var state = {
+    service: 'omnirm',
+    planId: null,
+    agree1: false,
+    agree2: false,
+    bundleId: null,
+    step1Selection: null, // {serviceLabel, planName, price, priceLabel}
+    currentScreen: 1
+  };
+
+  function el(id){ return document.getElementById(id); }
+
+  function fmtPrice(n){
+    return n.toLocaleString('ru-RU') + ' ₽';
+  }
+
+  // ---------------------------------------------------------------
+  // ШАГ 1
+  // ---------------------------------------------------------------
+  function progressHtml(activeStep){
+    var steps = [
+      { n: 1, label: 'Выбор услуги' },
+      { n: 2, label: 'Вместе дешевле' }
+    ];
+    return steps.map(function(s, i){
+      var cls = s.n === activeStep ? 'active' : (s.n < activeStep ? 'done' : '');
+      var line = i < steps.length - 1 ? '<div class="progress-line"></div>' : '';
+      return '<div class="progress-step ' + cls + '"><span class="dot">' + (s.n < activeStep ? '✓' : s.n) + '</span>' + s.label + '</div>' + line;
+    }).join('');
+  }
+
+  function renderProgress(activeStep){
+    el('progressBar1').innerHTML = progressHtml(activeStep);
+    el('progressBar2').innerHTML = progressHtml(activeStep);
+  }
+
+  function renderServiceSwitch(){
+    var wrap = el('serviceSwitch');
+    wrap.innerHTML = Object.keys(TARIFFS.services).map(function(key){
+      var s = TARIFFS.services[key];
+      return '<button data-id="' + s.id + '" class="' + (s.id === state.service ? 'active' : '') + '">' + s.label + '</button>';
+    }).join('');
+    var btns = wrap.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function(e){
+        state.service = e.currentTarget.dataset.id;
+        state.planId = null;
+        renderServiceSwitch();
+        renderDescription();
+        renderPlans();
+        updateConnectBtn();
+      });
+    }
+  }
+
+  function renderDescription(){
+    var svc = TARIFFS.services[state.service];
+    el('descBlock').innerHTML =
+      '<h3>' + svc.description.title + '</h3>' +
+      '<div class="desc-lead">' + svc.description.lead + '</div>' +
+      '<ul class="desc-list">' + svc.description.bullets.map(function(b){ return '<li>' + b + '</li>'; }).join('') + '</ul>';
+  }
+
+  function renderPlans(){
+    var svc = TARIFFS.services[state.service];
+    var grid = el('plansGrid');
+    grid.className = 'plans-grid' + (svc.plans.length > 2 ? ' cols-3' : '');
+
+    if (svc.id === 'omnirm') {
+      grid.innerHTML = svc.plans.map(function(p){
+        return '' +
+        '<div class="plan-card ' + (state.planId === p.id ? 'selected' : '') + '" data-id="' + p.id + '">' +
+          '<div class="plan-card-top">' +
+            '<div class="plan-name">' + p.name + '</div>' +
+            '<div class="radio-dot"></div>' +
+          '</div>' +
+          '<div class="plan-price num">' + p.priceLabel + (p.note ? '<span class="note">' + p.note + '</span>' : '') + '</div>' +
+          '<ul class="plan-features">' + p.features.map(function(f){ return '<li>' + f + '</li>'; }).join('') + '</ul>' +
+          (p.cons ? '<div class="plan-cons">' + p.cons + '</div>' : '') +
+          (p.footnote ? '<div class="plan-footnote">' + p.footnote + '</div>' : '') +
+        '</div>';
+      }).join('');
+    } else {
+      grid.innerHTML = svc.plans.map(function(p){
+        return '' +
+        '<div class="plan-card ' + (state.planId === p.id ? 'selected' : '') + '" data-id="' + p.id + '">' +
+          '<div class="plan-card-top">' +
+            '<div class="plan-name">' + p.name + '</div>' +
+            '<div class="radio-dot"></div>' +
+          '</div>' +
+          '<div class="plan-price num">' + p.priceLabel + '</div>' +
+          '<div class="agent-stats">' +
+            '<div class="stat-label">Минуты (вход + исход)</div><div class="stat-value num">' + p.minutes.toLocaleString('ru-RU') + '</div>' +
+            '<div class="stat-label">Текстовые обращения</div><div class="stat-value num">' + p.requests.toLocaleString('ru-RU') + '</div>' +
+            '<div class="stat-label">Каналы</div><div class="stat-value">все</div>' +
+            '<div class="stat-label">Обзвон-кампании</div><div class="stat-value">✓ (из пакета)</div>' +
+          '</div>' +
+          '<div class="agent-overage">Сверх пакета: <span class="num">' + p.overMinute + ' ₽/мин · ' + p.overRequest + ' ₽/обр</span></div>' +
+        '</div>';
+      }).join('');
+    }
+
+    var cards = grid.querySelectorAll('.plan-card');
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].addEventListener('click', function(e){
+        state.planId = e.currentTarget.dataset.id;
+        renderPlans();
+        updateConnectBtn();
+      });
+    }
+  }
+
+  function updateConnectBtn(){
+    var ready = !!state.planId && state.agree1 && state.agree2;
+    el('connectBtn').disabled = !ready;
+  }
+
+  el('agree1').addEventListener('change', function(e){ state.agree1 = e.target.checked; updateConnectBtn(); });
+  el('agree2').addEventListener('change', function(e){ state.agree2 = e.target.checked; updateConnectBtn(); });
+
+  function resetAll(){
+    state.service = 'omnirm';
+    state.planId = null;
+    state.agree1 = false;
+    state.agree2 = false;
+    state.bundleId = null;
+    state.step1Selection = null;
+    el('agree1').checked = false;
+    el('agree2').checked = false;
+    renderServiceSwitch();
+    renderDescription();
+    renderPlans();
+    updateConnectBtn();
+    showScreen(1);
+  }
+
+  el('closeBtn2').addEventListener('click', resetAll);
+
+  // ---------------------------------------------------------------
+  // Переход на ШАГ 2
+  // ---------------------------------------------------------------
+  el('connectBtn').addEventListener('click', function(){
+    var svc = TARIFFS.services[state.service];
+    var plan = null;
+    for (var i = 0; i < svc.plans.length; i++) { if (svc.plans[i].id === state.planId) { plan = svc.plans[i]; break; } }
+    state.step1Selection = {
+      serviceId: svc.id,
+      serviceLabel: svc.label,
+      planName: plan.name,
+      price: plan.price,
+      priceLabel: plan.priceLabel
+    };
+    state.bundleId = null;
+    renderScreen2();
+    showScreen(2);
+  });
+
+  function renderScreen2(){
+    var sel = state.step1Selection;
+    el('summaryLine').textContent = sel.serviceLabel + ', тариф «' + sel.planName + '»';
+    el('summaryPrice').textContent = sel.priceLabel;
+
+    el('upsellLine').textContent = sel.serviceId === 'omnirm'
+      ? 'Добавьте ИИ-агентов — обрабатывайте больше обращений без найма новых операторов.'
+      : 'Добавьте рабочее место оператора — подключайте сложные диалоги к живому человеку.';
+
+    var grid = el('bundlesGrid');
+    grid.innerHTML = TARIFFS.bundles.map(function(b){
+      var diff = b.price - sel.price;
+      var diffLabel, diffClass;
+      if (diff > 0) { diffLabel = '+' + fmtPrice(diff) + ' к вашему выбору'; diffClass = ''; }
+      else if (diff === 0) { diffLabel = 'столько же'; diffClass = 'zero'; }
+      else { diffLabel = 'дешевле на ' + fmtPrice(Math.abs(diff)); diffClass = 'negative'; }
+
+      return '' +
+        '<div class="bundle-card ' + (state.bundleId === b.id ? 'selected' : '') + '" data-id="' + b.id + '">' +
+          '<div class="bundle-top">' +
+            '<div class="bundle-name-row">' +
+              '<div class="radio-dot"></div>' +
+              '<div class="plan-name">' + b.name + '</div>' +
+            '</div>' +
+            '<div class="plan-price num">' + b.priceLabel + '</div>' +
+          '</div>' +
+          '<ul class="bundle-comp-list">' +
+            '<li>' + b.operators + '</li>' +
+            '<li>' + b.agents + '</li>' +
+          '</ul>' +
+          '<div class="bundle-package num">' + b.package + '</div>' +
+          '<div class="bundle-overage num">' + b.overage + '</div>' +
+          '<div class="bundle-diff ' + diffClass + '">' + diffLabel + '</div>' +
+        '</div>';
+    }).join('');
+
+    var cards = grid.querySelectorAll('.bundle-card');
+    for (var i = 0; i < cards.length; i++) {
+      cards[i].addEventListener('click', function(e){
+        state.bundleId = e.currentTarget.dataset.id;
+        renderScreen2();
+        updateBundleBtn();
+      });
+    }
+
+    updateBundleBtn();
+  }
+
+  function updateBundleBtn(){
+    el('connectBundleBtn').disabled = !state.bundleId;
+  }
+
+  el('connectBundleBtn').addEventListener('click', function(){
+    var bundle = null;
+    for (var i = 0; i < TARIFFS.bundles.length; i++) { if (TARIFFS.bundles[i].id === state.bundleId) { bundle = TARIFFS.bundles[i]; break; } }
+    el('finalSummary').innerHTML =
+      '<div><span class="label">Бандл:</span> ' + bundle.name + ' — <span class="num">' + bundle.priceLabel + '</span></div>' +
+      '<div><span class="label">Состав:</span> ' + bundle.composition + '</div>' +
+      '<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>';
+    showScreen(3);
+  });
+
+  el('skipBundleBtn').addEventListener('click', function(){
+    var sel = state.step1Selection;
+    el('finalSummary').innerHTML =
+      '<div><span class="label">Услуга:</span> ' + sel.serviceLabel + ' — тариф «' + sel.planName + '»</div>' +
+      '<div><span class="label">Стоимость:</span> <span class="num">' + sel.priceLabel + '</span></div>';
+    showScreen(3);
+  });
+
+  // ---------------------------------------------------------------
+  // Навигация между экранами
+  // ---------------------------------------------------------------
+  function showScreen(n){
+    state.currentScreen = n;
+    el('screen1').hidden = n !== 1;
+    el('screen2').hidden = n !== 2;
+    el('screen3').hidden = n !== 3;
+    el('footer1').hidden = n !== 1;
+    el('footer2').hidden = n !== 2;
+    if (n <= 2) renderProgress(n);
+
+    var back = el('protoBack');
+    var sep = el('protoSep');
+    var showBack = n !== 1;
+    back.style.display = showBack ? 'inline' : 'none';
+    sep.style.display = showBack ? 'inline' : 'none';
+
+    window.scrollTo(0, 0);
+  }
+
+  function goBack(){
+    if (state.currentScreen === 3) {
+      renderScreen2();
+      showScreen(2);
+    } else if (state.currentScreen === 2) {
+      showScreen(1);
+    }
+  }
+
+  el('protoBack').addEventListener('click', goBack);
+  el('protoRestart').addEventListener('click', resetAll);
+
+  // ---------------------------------------------------------------
+  // Инициализация
+  // ---------------------------------------------------------------
+  renderServiceSwitch();
+  renderDescription();
+  renderPlans();
+  renderProgress(1);
+  updateConnectBtn();
+  showScreen(1);
+</script>
+</body>
+</html>
