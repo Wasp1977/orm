@@ -15,7 +15,6 @@
   --accent-green:#1E9E4A;--accent-green-bg:#EAF7EE;
   --accent-magenta:#E91E63;--accent-magenta-bg:#FCE4EC;
   --btn-secondary-border:#D8DBE0;--btn-secondary-text:#15171A;
-  --btn-disabled-bg:#EFF0F2;--btn-disabled-text:#B7BCC3;
   --radius-lg:16px;--radius-md:12px;--radius-pill:999px;--bar-h:88px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -31,7 +30,7 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
 
 .animate-fade-up{animation:fadeUp .6s ease both;}
-.delay-1{animation-delay:.15s;}.delay-2{animation-delay:.3s;}
+.delay-1{animation-delay:.15s;}.delay-2{animation-delay:.3s;}.delay-3{animation-delay:.45s;}
 .shake{animation:shake .4s ease;}
 
 .page{max-width:840px;margin:0 auto;padding:0 24px calc(var(--bar-h) + 24px);}
@@ -40,6 +39,18 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .proto-nav{position:fixed;top:14px;right:16px;z-index:80;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border:1px solid var(--card-border);border-radius:8px;padding:6px 10px;font-size:12px;line-height:1.2;color:var(--text-tertiary);box-shadow:0 2px 10px rgba(21,23,26,.08);}
 .proto-link{background:none;border:none;padding:0;margin:0;font:inherit;color:var(--text-secondary);cursor:pointer;}.proto-link:hover{color:var(--text-primary);text-decoration:underline;}
 .proto-sep{color:var(--card-border);}
+
+/* Sticky CTA bar */
+.sticky-cta{
+  position:fixed;left:0;right:0;bottom:0;z-index:75;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+  border-top:1px solid var(--card-border);padding:12px 24px;
+  display:flex;justify-content:center;align-items:center;gap:12px;
+  box-shadow:0 -4px 20px rgba(21,23,26,.06);
+}
+.sticky-cta[hidden]{display:none;}
+.sticky-cta .cta-text{font-size:14px;color:var(--text-secondary);}
+.sticky-cta .cta-price{font-size:18px;font-weight:800;color:var(--text-primary);}
 
 .hero{background:linear-gradient(135deg,#1A1D29,#2D3250);border-radius:24px;padding:48px 36px;color:#fff;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,221,91,.15) 0%,transparent 70%);border-radius:50%;}
@@ -53,6 +64,25 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .stat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);padding:16px 18px;text-align:center;}
 .stat-num{font-size:28px;font-weight:800;letter-spacing:-.01em;color:var(--accent-yellow);}
 .stat-label{font-size:13px;opacity:.7;margin-top:4px;}
+
+/* Pain points */
+.pains-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.pain-card{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-lg);padding:20px;display:flex;gap:14px;align-items:flex-start;}
+.pain-icon{width:40px;height:40px;border-radius:12px;background:#FEE2E2;color:#DC2626;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:20px;}
+.pain-text{display:flex;flex-direction:column;gap:4px;}
+.pain-title{font-size:14.5px;font-weight:700;color:#991B1B;}
+.pain-desc{font-size:13px;color:#7F1D1D;line-height:1.5;opacity:.85;}
+
+/* How it works */
+.how-steps{display:flex;flex-direction:column;gap:0;}
+.how-step{display:flex;gap:20px;align-items:flex-start;position:relative;padding-bottom:24px;}
+.how-step:last-child{padding-bottom:0;}
+.how-step::before{content:'';position:absolute;left:19px;top:42px;bottom:0;width:2px;background:var(--card-border);}
+.how-step:last-child::before{display:none;}
+.how-num{width:40px;height:40px;border-radius:50%;background:var(--info-icon-bg);color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.how-content{display:flex;flex-direction:column;gap:4px;padding-top:4px;}
+.how-title{font-size:16px;font-weight:700;}
+.how-desc{font-size:14px;color:var(--text-secondary);line-height:1.6;}
 
 .panel{background:var(--panel-bg);border-radius:24px;box-shadow:0 24px 64px rgba(21,23,26,.10),0 2px 8px rgba(21,23,26,.05);padding:28px;display:flex;flex-direction:column;gap:24px;}
 
@@ -81,15 +111,6 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .kit-recommend{display:inline-flex;align-items:center;gap:6px;background:var(--accent-magenta-bg);color:var(--accent-magenta);font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);}
 .savings-badge{display:inline-flex;align-items:center;gap:4px;background:#FFF3CC;color:#7A5B00;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);}
 
-.savings-visual{background:linear-gradient(135deg,#F0FDF4,#ECFDF5);border:1px solid #BBF7D0;border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:16px;}
-.savings-title{font-size:17px;font-weight:700;color:#16A34A;display:flex;align-items:center;gap:8px;}
-.savings-comparison{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;}
-.savings-col{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px;}
-.savings-bar{height:8px;border-radius:4px;transition:width 1s ease;}
-.savings-bar.separate{background:#FECACA;}.savings-bar.bundle{background:#4ADE80;}
-.savings-label{font-size:13px;color:var(--text-secondary);}
-.savings-amount{font-size:22px;font-weight:800;}.savings-amount.red{color:#DC2626;}.savings-amount.green{color:#16A34A;}
-
 .kit-card{position:relative;text-align:left;background:var(--card-bg);border:2px solid transparent;border-radius:var(--radius-lg);padding:22px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;width:100%;transition:border-color .15s ease,background .15s ease,transform .15s ease;}
 .kit-card:hover{background:var(--card-bg-hover);transform:translateY(-1px);}
 .kit-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);}
@@ -103,11 +124,15 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .kit-overage{font-size:12px;color:var(--text-secondary);border-top:1px solid var(--card-border);padding-top:8px;margin-top:2px;}
 .kit-badges{display:flex;gap:8px;flex-wrap:wrap;}
 
+/* Kit layout (Screen 1) — same grid as constructor */
+.kit-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
+.kit-layout-col{display:flex;flex-direction:column;gap:14px;}
+
 /* Constructor layout (Screen 2) */
 .constructor-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
 .constructor-col{display:flex;flex-direction:column;gap:20px;}
 
-/* Checkout sidebar */
+/* Checkout sidebar (shared for Screen 1 & 2) */
 .checkout{
   background:var(--panel-bg);border-radius:var(--radius-lg);
   box-shadow:0 8px 32px rgba(21,23,26,.08);padding:24px;
@@ -154,7 +179,7 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .agreement-alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-md);padding:10px 14px;font-size:13px;color:#DC2626;display:none;align-items:center;gap:8px;}
 .agreement-alert.show{display:flex;}
 
-/* Plan cards for constructor */
+/* Plan cards */
 .plans-row{display:flex;gap:10px;flex-wrap:wrap;}
 .plan-card{background:#fff;border:2px solid var(--card-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;}
 .plan-card:hover{background:var(--card-bg-hover);}
@@ -175,7 +200,7 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .selected .radio-dot{border-color:var(--text-primary);background:var(--text-primary);}
 .selected .radio-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff;}
 
-/* Info button on plan/kit cards */
+/* Info button */
 .info-btn{
   width:24px;height:24px;border-radius:50%;border:1.5px solid var(--card-border);
   background:#fff;color:var(--text-tertiary);font-size:13px;font-weight:700;
@@ -185,7 +210,7 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 }
 .info-btn:hover{border-color:var(--info-icon-bg);color:var(--info-icon-bg);background:var(--info-bg);}
 
-/* Info modal overlay */
+/* Info modal */
 .info-overlay{
   position:fixed;inset:0;z-index:100;background:rgba(21,23,26,.45);
   display:flex;align-items:center;justify-content:center;padding:20px;
@@ -264,10 +289,11 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
   h1.screen-title{font-size:22px;}.section-title{font-size:16px;}.subtitle{font-size:14px;}
   .proto-nav{top:8px;right:8px;font-size:11px;padding:5px 8px;gap:6px;}.action-bar-inner{padding:12px 16px;gap:8px;}.btn{padding:12px 18px;font-size:14px;}
   .hero{padding:32px 24px;border-radius:18px;}.hero-title{font-size:26px;}.hero-subtitle{font-size:15px;}
-  .stats-row{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}.savings-comparison{flex-direction:column;}.kit-card{padding:18px 20px;}.kit-top{flex-direction:column;gap:6px;}
-  .constructor-layout{grid-template-columns:1fr;}.checkout{position:static;}
+  .stats-row{grid-template-columns:1fr;}.compare-grid{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}.pains-grid{grid-template-columns:1fr;}.kit-card{padding:18px 20px;}.kit-top{flex-direction:column;gap:6px;}
+  .kit-layout,.constructor-layout{grid-template-columns:1fr;}.checkout{position:static;}
   .plans-row{flex-direction:column;}.plan-card{min-width:0;}
   .info-modal{padding:24px;margin:12px;}
+  .sticky-cta{padding:10px 16px;}.sticky-cta .cta-price{font-size:16px;}
 }
 </style>
 </head>
@@ -294,36 +320,55 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
       <div class="stat-card"><div class="stat-num num">24/7</div><div class="stat-label">ИИ-агенты не спят</div></div>
     </div>
   </div>
+
+  <!-- БОЛИ -->
   <div class="panel animate-fade-up delay-1">
-    <div class="compare-section">
-      <h2 class="section-title">Зачем нужен ОмниРМ?</h2>
-      <div class="compare-grid">
-        <div class="compare-card before">
-          <div class="compare-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg> Без ОмниРМ</div>
-          <div class="compare-title">Хаос в каналах</div>
-          <ul class="compare-items">
-            <li><span class="icon">&#x2717;</span> Звонки в одной программе, чаты в другой</li>
-            <li><span class="icon">&#x2717;</span> Оператор переключается между 3&ndash;4 окнами</li>
-            <li><span class="icon">&#x2717;</span> Нет общей истории диалогов с клиентом</li>
-            <li><span class="icon">&#x2717;</span> Ночью &mdash; пропущенные обращения</li>
-            <li><span class="icon">&#x2717;</span> Каждый новый канал &mdash; новый сотрудник</li>
-          </ul>
-        </div>
-        <div class="compare-card after">
-          <div class="compare-label"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> С ОмниРМ</div>
-          <div class="compare-title">Всё в одном месте</div>
-          <ul class="compare-items">
-            <li><span class="icon">&#x2713;</span> Звонки и переписка &mdash; единый интерфейс</li>
-            <li><span class="icon">&#x2713;</span> Карточка клиента со всей историей</li>
-            <li><span class="icon">&#x2713;</span> Умная очередь распределяет автоматически</li>
-            <li><span class="icon">&#x2713;</span> ИИ-агенты работают ночью без людей</li>
-            <li><span class="icon">&#x2713;</span> Добавляйте каналы без найма</li>
-          </ul>
-        </div>
+    <h2 class="section-title">Знакомо?</h2>
+    <div class="pains-grid">
+      <div class="pain-card">
+        <div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        <div class="pain-text"><div class="pain-title">Оператор в 4 окнах</div><div class="pain-desc">Звонки в софтфоне, чаты в Telegram, заявки в CRM &mdash; оператор путается и теряет время.</div></div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="pain-text"><div class="pain-title">Ночью &mdash; тишина</div><div class="pain-desc">После 18:00 обращения висят до утра. Клиент уходит к конкурентам, пока вы спите.</div></div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="pain-text"><div class="pain-title">Новый канал = новый сотрудник</div><div class="pain-desc">Подключили Telegram &mdash; наняли ещё одного. Виджет на сайт &mdash; ещё одного. Растут расходы, а не выручка.</div></div>
+      </div>
+      <div class="pain-card">
+        <div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="2" rx="2"/><path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2"/></svg></div>
+        <div class="pain-text"><div class="pain-title">Нет общей истории</div><div class="pain-desc">Клиент звонил, писал в чат и оставил заявку &mdash; но для оператора это три разных диалога без связи.</div></div>
       </div>
     </div>
   </div>
+
+  <!-- КАК ЭТО РАБОТАЕТ -->
   <div class="panel animate-fade-up delay-2">
+    <h2 class="section-title">Как это работает</h2>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-content"><div class="how-title">Подключаете каналы</div><div class="how-desc">Виджет на сайт, Telegram, MAX, Облачная АТС &mdash; всё из личного кабинета за пару кликов. Никаких разработчиков.</div></div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-content"><div class="how-title">Оператор работает в одном окне</div><div class="how-desc">Звонки и переписка &mdash; в едином интерфейсе ОмниРМ. Карточка клиента со всей историей, умная очередь, распределение обращений.</div></div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-content"><div class="how-title">ИИ-агент берёт рутину</div><div class="how-desc">Ночью и в выходные ИИ-агент отвечает на типовые вопросы голосом и текстом. Сложные диалоги &mdash; передаёт оператору.</div></div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div class="how-content"><div class="how-title">Платите только за нужное</div><div class="how-desc">Один оператор &mdash; от 0 ₽. Комплект с ИИ-агентом &mdash; от 2 490 ₽/мес. Добавляйте операторов и каналы по мере роста.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЧТО ПОЛУЧАЕТЕ -->
+  <div class="panel animate-fade-up delay-3">
     <h2 class="section-title">Что вы получаете &mdash; простыми словами</h2>
     <div class="benefits-grid">
       <div class="benefit-card">
@@ -332,7 +377,7 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
       </div>
       <div class="benefit-card">
         <div class="benefit-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112 2z" stroke="currentColor" stroke-width="1.8"/></svg></div>
-        <div class="benefit-text"><div class="benefit-title">5+ каналов одновременно</div><div class="benefit-desc">Виджет на сайте, Telegram, MAX, звонки Облачной АТС &mdash; всё подключается в пару кликов из личного кабинета.</div></div>
+        <div class="benefit-text"><div class="benefit-title">5+ каналов одновременно</div><div class="benefit-desc">Виджет на сайте, Telegram, MAX, звонки Облачной АТС &mdash; всё подключается в пару кликов.</div></div>
       </div>
       <div class="benefit-card">
         <div class="benefit-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
@@ -355,21 +400,33 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
       <h1 class="screen-title">Вместе выгоднее</h1>
       <div class="subtitle">Комплект = операторы + ИИ-агенты. Экономия до 14% по сравнению с покупкой по отдельности.</div>
     </div>
-    <div class="savings-visual" id="savingsVisual"></div>
-    <div>
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-        <div class="section-title">Выберите комплект</div>
-        <div class="kit-recommend"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>
+
+    <div class="kit-layout">
+      <div class="kit-layout-col">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div class="section-title">Выберите комплект</div>
+          <div class="kit-recommend"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;" id="kitsGrid"></div>
+        <div class="hint">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+          <span>Хочу собрать свой тариф &mdash; <button class="btn-ghost" id="goConstructor">конструктор тарифа</button></span>
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:14px;" id="kitsGrid"></div>
+
+      <!-- Checkout sidebar for kits -->
+      <div class="checkout" id="kitCheckout">
+        <div class="checkout-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>
+          Ваш заказ
+        </div>
+        <div id="kitCheckoutContent"></div>
+      </div>
     </div>
+
     <div class="info-block">
       <div class="info-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg></div>
       <div class="info-text">Подключение комплекта: 0 &#8381;. Тарификация начинается после выбора.</div>
-    </div>
-    <div class="hint">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
-      <span>Хочу собрать свой тариф &mdash; <button class="btn-ghost" id="goConstructor">конструктор тарифа</button></span>
     </div>
     <div class="agreements">
       <label class="agreement"><input type="checkbox" id="agree1"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label>
@@ -390,7 +447,6 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
 
     <div class="constructor-layout">
       <div class="constructor-col">
-        <!-- Section: ОмниРМ -->
         <div class="constructor-section" id="sectionOmniRM">
           <div class="cs-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -399,8 +455,6 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
           <div class="cs-subtitle">Единый интерфейс для звонков и переписки. Каналы: виджет, Telegram, MAX.</div>
           <div class="plans-row" id="omnirmPlans"></div>
         </div>
-
-        <!-- Section: ОмниАгенты -->
         <div class="constructor-section" id="sectionAgents">
           <div class="cs-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--accent-magenta)" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="var(--accent-magenta)" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -411,8 +465,6 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
           <div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div>
         </div>
       </div>
-
-      <!-- Checkout sidebar -->
       <div class="checkout" id="checkoutSidebar">
         <div class="checkout-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>
@@ -460,6 +512,13 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
   </div>
 </div>
 
+<!-- STICKY CTA (Screen 0 only) -->
+<div class="sticky-cta" id="stickyCta" hidden>
+  <span class="cta-text">ОмниРМ</span>
+  <span class="cta-price num">от 0 ₽/мес</span>
+  <button class="btn btn-primary" id="stickyCtaBtn" style="padding:10px 22px;font-size:14px;">Подключить</button>
+</div>
+
 <!-- FOOTER 1 (комплекты) -->
 <div class="action-bar" id="footer1">
   <div class="action-bar-inner split">
@@ -492,7 +551,7 @@ var TARIFFS={
           description:{
             title:'Тариф «Соло»',
             lead:'Для одного оператора, который принимает обращения из одного канала. Идеально, чтобы попробовать ОмниРМ без затрат.',
-            bullets:['1 рабочее место оператора','1 текстовый канал: виджет на сайте или MAX','До 100 диалогов в месяц','История диалогов &mdash; 30 дней','Входит в тариф Облачной АТС &mdash; доплачивать не нужно'],
+            bullets:['1 рабочее место оператора','1 текстовый канал: виджет на сайте или MAX','До 100 диалогов в месяц','История диалогов — 30 дней','Входит в тариф Облачной АТС — доплачивать не нужно'],
             goodFor:'Для малого бизнеса или старта: один оператор, один канал, нулевая стоимость.'
           }
         },
@@ -501,8 +560,8 @@ var TARIFFS={
           footnote:'+990 ₽ за оператора с 6-го',
           description:{
             title:'Тариф «Команда 5»',
-            lead:'Полный функционал ОмниРМ для команды до 5 операторов. Очереди, супервизор, аналитика, рассылки &mdash; всё включено.',
-            bullets:['До 5 рабочих мест операторов','Все текстовые каналы: виджет, Telegram, MAX','Неограниченное число диалогов','Полная история диалогов','Общая очередь и распределение обращений','Супервизор: мониторинг и вмешательство в реальном времени','Аналитика: отчёты по операторам, каналам, нагрузке','Рассылки и шаблоны ответов','Каждый дополнительный оператор с 6-го &mdash; +990 ₽/мес'],
+            lead:'Полный функционал ОмниРМ для команды до 5 операторов. Очереди, супервизор, аналитика, рассылки — всё включено.',
+            bullets:['До 5 рабочих мест операторов','Все текстовые каналы: виджет, Telegram, MAX','Неограниченное число диалогов','Полная история диалогов','Общая очередь и распределение обращений','Супервизор: мониторинг и вмешательство в реальном времени','Аналитика: отчёты по операторам, каналам, нагрузке','Рассылки и шаблоны ответов','Каждый дополнительный оператор с 6-го — +990 ₽/мес'],
             goodFor:'Для растущих команд: когда один оператор не справляется и нужен полный инструментарий.'
           }
         }
@@ -513,30 +572,30 @@ var TARIFFS={
       description:{
         title:'ОмниАгенты — ИИ-агенты',
         lead:'Агент принимает звонки и обращения без оператора: отвечает на типовые вопросы и передаёт диалог сотруднику, когда нужно.',
-        bullets:['Голос и текст в едином пакете минут и обращений','Все каналы на любом тарифе','Обзвон-кампании &mdash; минуты из пакета','Передача диалога на оператора ОмниРМ','Оплата сверх пакета по факту, без блокировки']
+        bullets:['Голос и текст в едином пакете минут и обращений','Все каналы на любом тарифе','Обзвон-кампании — минуты из пакета','Передача диалога на оператора ОмниРМ','Оплата сверх пакета по факту, без блокировки']
       },
       plans:[
         {id:'start',name:'Старт',price:2700,priceLabel:'2 700 ₽/мес',minutes:300,requests:300,overMinute:10,overRequest:5,
           description:{
             title:'ИИ-агенты «Старт»',
-            lead:'Автоответчик на типовые вопросы &mdash; голосом и текстом. Пакет 300 минут и 300 обращений в месяц.',
-            bullets:['300 минут голосового автоответа в месяц','300 текстовых обращений (чат, виджет, Telegram) в месяц','Голос и текст &mdash; единый пакет, можно комбинировать','Все каналы: виджет, Telegram, MAX','Передача диалога оператору, если вопрос сложный','Сверх пакета: 10 ₽/мин, 5 ₽/обращение &mdash; без блокировки'],
-            goodFor:'Для малого бизнеса: ночью и в выходные агент отвечает за вас, днём &mdash; передаёт оператору.'
+            lead:'Автоответчик на типовые вопросы — голосом и текстом. Пакет 300 минут и 300 обращений в месяц.',
+            bullets:['300 минут голосового автоответа в месяц','300 текстовых обращений (чат, виджет, Telegram) в месяц','Голос и текст — единый пакет, можно комбинировать','Все каналы: виджет, Telegram, MAX','Передача диалога оператору, если вопрос сложный','Сверх пакета: 10 ₽/мин, 5 ₽/обращение — без блокировки'],
+            goodFor:'Для малого бизнеса: ночью и в выходные агент отвечает за вас, днём — передаёт оператору.'
           }
         },
         {id:'business',name:'Бизнес',price:6500,priceLabel:'6 500 ₽/мес',minutes:800,requests:1000,overMinute:9,overRequest:4,
           description:{
             title:'ИИ-агенты «Бизнес»',
             lead:'Расширенный пакет для компаний с устойчивым потоком обращений. 800 минут голоса и 1 000 текстовых обращений.',
-            bullets:['800 минут голосового автоответа в месяц','1 000 текстовых обращений в месяц','Голос и текст &mdash; единый пакет','Все каналы: виджет, Telegram, MAX','Обзвон-кампании: исходящие звонки из пакета минут','Передача диалога оператору с контекстом','Сверх пакета: 9 ₽/мин, 4 ₽/обращение'],
-            goodFor:'Для среднего бизнеса: агент берёт на себя 60&ndash;80% обращений, операторы &mdash; только сложные.'
+            bullets:['800 минут голосового автоответа в месяц','1 000 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы: виджет, Telegram, MAX','Обзвон-кампании: исходящие звонки из пакета минут','Передача диалога оператору с контекстом','Сверх пакета: 9 ₽/мин, 4 ₽/обращение'],
+            goodFor:'Для среднего бизнеса: агент берёт на себя 60–80% обращений, операторы — только сложные.'
           }
         },
         {id:'pro',name:'Про',price:18700,priceLabel:'18 700 ₽/мес',minutes:2000,requests:3000,overMinute:8,overRequest:3,
           description:{
             title:'ИИ-агенты «Про»',
             lead:'Максимальный пакет для компаний с высоким потоком. 2 000 минут голоса и 3 000 текстовых обращений.',
-            bullets:['2 000 минут голосового автоответа в месяц','3 000 текстовых обращений в месяц','Голос и текст &mdash; единый пакет','Все каналы: виджет, Telegram, MAX','Обзвон-кампании без ограничений','Приоритетная передача с полным контекстом диалога','Персональный менеджер по тарифу','Сверх пакета: 8 ₽/мин, 3 ₽/обращение'],
+            bullets:['2 000 минут голосового автоответа в месяц','3 000 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы: виджет, Telegram, MAX','Обзвон-кампании без ограничений','Приоритетная передача с полным контекстом диалога','Персональный менеджер по тарифу','Сверх пакета: 8 ₽/мин, 3 ₽/обращение'],
             goodFor:'Для крупного бизнеса и кол-центров: максимальная автоматизация при минимальной цене за минуту.'
           }
         }
@@ -575,7 +634,6 @@ var TARIFFS={
   setupFee:0
 };
 
-/* Separate (individual) prices — for savings calculation */
 var SEPARATE_PRICES={
   'start-plus':{omnirm:0,agents:2700},
   'business-plus':{omnirm:3990,agents:6500},
@@ -613,38 +671,22 @@ function buildPlanModalHtml(svcId,planId){
   if(!plan||!plan.description) return '';
   var d=plan.description;
   var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div>';
-  /* Tag */
   var tag=svcId==='omnirm'?'Рабочее место оператора':'ИИ-агенты';
   html+='<div class="detail-tag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="currentColor"/></svg> '+tag+'</div>';
-  /* Stats for agents */
   if(svcId==='agents'&&plan.minutes){
-    html+='<div class="detail-stats">'+
-      '<div class="detail-stat"><div class="ds-val num">'+plan.minutes.toLocaleString('ru-RU')+'</div><div class="ds-label">минут голоса/мес</div></div>'+
-      '<div class="detail-stat"><div class="ds-val num">'+plan.requests.toLocaleString('ru-RU')+'</div><div class="ds-label">текстовых обращений/мес</div></div>'+
-    '</div>';
+    html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val num">'+plan.minutes.toLocaleString('ru-RU')+'</div><div class="ds-label">минут голоса/мес</div></div><div class="detail-stat"><div class="ds-val num">'+plan.requests.toLocaleString('ru-RU')+'</div><div class="ds-label">текстовых обращений/мес</div></div></div>';
   }
-  /* Stats for omnirm */
   if(svcId==='omnirm'){
     if(plan.id==='solo'){
-      html+='<div class="detail-stats">'+
-        '<div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">оператор</div></div>'+
-        '<div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">канал</div></div>'+
-      '</div>';
+      html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">оператор</div></div><div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">канал</div></div></div>';
     } else if(plan.id==='team5'){
-      html+='<div class="detail-stats">'+
-        '<div class="detail-stat"><div class="ds-val">до 5</div><div class="ds-label">операторов</div></div>'+
-        '<div class="detail-stat"><div class="ds-val">5+</div><div class="ds-label">каналов</div></div>'+
-      '</div>';
+      html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val">до 5</div><div class="ds-label">операторов</div></div><div class="detail-stat"><div class="ds-val">5+</div><div class="ds-label">каналов</div></div></div>';
     }
   }
-  /* Bullets */
   html+='<div class="detail-section"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="var(--accent-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Что входит</h3><ul>';
   for(var i=0;i<d.bullets.length;i++){html+='<li>'+d.bullets[i]+'</li>';}
   html+='</ul></div>';
-  /* Good for */
-  if(d.goodFor){
-    html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';
-  }
+  if(d.goodFor){html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';}
   return html;
 }
 
@@ -658,20 +700,9 @@ function buildKitModalHtml(kitId){
   var savings=separateTotal-kit.price;
   var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div>';
   html+='<div class="detail-tag"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Комплект</div>';
-  /* Price comparison */
-  html+='<div class="detail-stats">'+
-    '<div class="detail-stat"><div class="ds-val num" style="color:#DC2626;">'+fmtPrice(separateTotal)+'/мес</div><div class="ds-label">по отдельности</div></div>'+
-    '<div class="detail-stat"><div class="ds-val num" style="color:#16A34A;">'+kit.priceLabel+'</div><div class="ds-label">комплектом (экономия '+fmtPrice(savings)+')</div></div>'+
-  '</div>';
-  /* Components */
-  html+='<div class="kit-modal-comp">';
-  html+='<div class="kit-comp-block"><div class="kcb-title">ОмниРМ</div><div class="kcb-detail">'+d.compOmniRM+'</div></div>';
-  html+='<div class="kit-comp-block"><div class="kcb-title">ОмниАгенты</div><div class="kcb-detail">'+d.compAgents+'</div></div>';
-  html+='</div>';
-  /* Good for */
-  if(d.goodFor){
-    html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';
-  }
+  html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val num" style="color:#DC2626;">'+fmtPrice(separateTotal)+'/мес</div><div class="ds-label">по отдельности</div></div><div class="detail-stat"><div class="ds-val num" style="color:#16A34A;">'+kit.priceLabel+'</div><div class="ds-label">комплектом (экономия '+fmtPrice(savings)+')</div></div></div>';
+  html+='<div class="kit-modal-comp"><div class="kit-comp-block"><div class="kcb-title">ОмниРМ</div><div class="kcb-detail">'+d.compOmniRM+'</div></div><div class="kit-comp-block"><div class="kcb-title">ОмниАгенты</div><div class="kcb-detail">'+d.compAgents+'</div></div></div>';
+  if(d.goodFor){html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';}
   return html;
 }
 
@@ -679,7 +710,6 @@ function infoBtnHtml(type,id){
   return '<button class="info-btn" data-info-type="'+type+'" data-info-id="'+id+'" onclick="event.stopPropagation();" title="Подробнее">i</button>';
 }
 
-/* Delegate info button clicks */
 document.addEventListener('click',function(e){
   var btn=e.target.closest('.info-btn');
   if(!btn) return;
@@ -710,22 +740,10 @@ function renderProgress(activeStep){
 
 /* ---- SCREEN 0 ---- */
 el('heroCta').addEventListener('click',function(){renderScreen1();showScreen(1);});
+el('stickyCtaBtn').addEventListener('click',function(){renderScreen1();showScreen(1);});
 
 /* ---- SCREEN 1: Комплекты ---- */
-function renderSavingsVisual(){
-  var b=TARIFFS.kits[1]; // Бизнес+
-  var sep=SEPARATE_PRICES['business-plus'];
-  var separateTotal=sep.omnirm+sep.agents;
-  var savings=separateTotal-b.price;
-  el('savingsVisual').innerHTML=
-    '<div class="savings-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.8"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Сколько вы сэкономите на комплекте &laquo;'+b.name+'&raquo;</div>'+
-    '<div class="savings-comparison">'+
-      '<div class="savings-col"><div class="savings-label">По отдельности</div><div class="savings-amount red num">'+fmtPrice(separateTotal)+'/мес</div><div class="savings-bar separate" style="width:100%"></div><div style="font-size:12px;color:var(--text-tertiary);">ОмниРМ '+fmtPrice(sep.omnirm)+' + Агенты '+fmtPrice(sep.agents)+'</div></div>'+
-      '<div class="savings-col"><div class="savings-label">Комплект '+b.name+'</div><div class="savings-amount green num">'+b.priceLabel+'</div><div class="savings-bar bundle" style="width:'+Math.round(b.price/separateTotal*100)+'%"></div><div style="font-size:12px;color:var(--accent-green);font-weight:700;">Экономия '+fmtPrice(savings)+'/мес</div></div>'+
-    '</div>';
-}
-
-function renderScreen1(){renderSavingsVisual();renderKits();renderProgress(1);}
+function renderScreen1(){renderKits();updateKitCheckout();renderProgress(1);}
 
 function renderKits(){
   var grid=el('kitsGrid');
@@ -736,7 +754,7 @@ function renderKits(){
     var savingsPct=Math.round(savings/separateTotal*100);
     var selected=state.kitId===b.id;
     var isRec=b.recommended;
-    return '<div class="kit-card '+(selected?'selected ':'')+(isRec?'recommended':'')+'" data-id="'+b.id+'">'+
+    return '<div class="kit-card '+(selected?'selected ':'')+(isRec&& !selected?'recommended':'')+'" data-id="'+b.id+'">'+
       '<div class="kit-top"><div class="kit-name-row"><div class="radio-dot"></div><div class="plan-name">'+b.name+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="plan-price num">'+b.priceLabel+'</div>'+infoBtnHtml('kit',b.id)+'</div></div>'+
       '<div class="kit-badges">'+(isRec?'<div class="kit-recommend"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>':'')+(savings>0?'<div class="savings-badge">Экономия '+savingsPct+'%</div>':'')+'</div>'+
       '<ul class="kit-comp-list"><li>'+b.operators+'</li><li>'+b.agents+'</li></ul>'+
@@ -745,8 +763,36 @@ function renderKits(){
   }).join('');
   var cards=grid.querySelectorAll('.kit-card');
   for(var i=0;i<cards.length;i++){
-    cards[i].addEventListener('click',function(e){state.kitId=e.currentTarget.dataset.id;renderKits();});
+    cards[i].addEventListener('click',function(e){state.kitId=e.currentTarget.dataset.id;renderKits();updateKitCheckout();});
   }
+}
+
+function updateKitCheckout(){
+  var cont=el('kitCheckoutContent');
+  if(!state.kitId){
+    cont.innerHTML='<div class="checkout-empty">Выберите комплект,<br>чтобы увидеть заказ</div>';
+    return;
+  }
+  var kit=null;
+  for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===state.kitId){kit=TARIFFS.kits[i];break;}}
+  var sep=SEPARATE_PRICES[kit.id];
+  var separateTotal=sep.omnirm+sep.agents;
+  var savings=separateTotal-kit.price;
+  var savingsPct=Math.round(savings/separateTotal*100);
+  var html='<div class="checkout-items">'+
+    '<div class="checkout-item"><span class="c-label">'+kit.operators+'</span></div>'+
+    '<div class="checkout-item"><span class="c-label">'+kit.agents+'</span></div>'+
+  '</div>'+
+  '<div class="checkout-divider"></div>'+
+  '<div class="checkout-item"><span class="c-label">Пакет</span></div>'+
+  '<div style="font-size:13px;color:var(--text-secondary);line-height:1.5;">'+kit.pkg+'</div>'+
+  '<div class="checkout-divider"></div>'+
+  '<div class="checkout-item"><span class="c-label">По отдельности</span><span class="c-value num" style="text-decoration:line-through;color:var(--text-tertiary);">'+fmtPrice(separateTotal)+'/мес</span></div>'+
+  '<div class="checkout-total"><span>Комплект '+kit.name+'</span><span class="num">'+kit.priceLabel+'</span></div>';
+  if(savings>0){
+    html+='<div class="checkout-savings"><div class="s-label">Экономия '+savingsPct+'%</div><div class="s-value num">'+fmtPrice(savings)+'/мес</div></div>';
+  }
+  cont.innerHTML=html;
 }
 
 el('agree1').addEventListener('change',function(e){state.agree1=e.target.checked;el('alert1').classList.remove('show');});
@@ -844,16 +890,14 @@ function updateCheckout(){
   }
 
   if(state.omnirmPlanId){
-    var plan=null;
-    var svc=TARIFFS.services.omnirm;
+    var plan=null;var svc=TARIFFS.services.omnirm;
     for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}
     total+=plan.price;
     html+='<div class="checkout-item"><span class="c-label">ОмниРМ, «'+plan.name+'»</span><span class="c-value num">'+fmtPrice(plan.price)+'/мес</span></div>';
   }
 
   if(state.agentsPlanId){
-    var plan=null;
-    var svc=TARIFFS.services.agents;
+    var plan=null;var svc=TARIFFS.services.agents;
     for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}
     total+=plan.price;
     html+='<div class="checkout-item"><span class="c-label">ОмниАгенты, «'+plan.name+'»</span><span class="c-value num">'+fmtPrice(plan.price)+'/мес</span></div>';
@@ -862,14 +906,13 @@ function updateCheckout(){
   items.innerHTML=html;
   totalRow.innerHTML='<div class="checkout-total"><span>Итого</span><span class="num">'+fmtPrice(total)+'/мес</span></div>';
 
-  // Check for matching kit
   var kit=findMatchingKit();
   if(kit){
     var savings=total-kit.price;
     matchDiv.innerHTML=
       '<div class="checkout-kit-match">'+
         '<div class="m-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Это комплект «'+kit.name+'»</div>'+
-        '<div class="m-text">Этот набор входит в готовый комплект &mdash; и стоит <b>'+kit.priceLabel+'</b> вместо '+fmtPrice(total)+'/мес. Экономия '+fmtPrice(savings)+'/мес!</div>'+
+        '<div class="m-text">Этот набор входит в готовый комплект — и стоит <b>'+kit.priceLabel+'</b> вместо '+fmtPrice(total)+'/мес. Экономия '+fmtPrice(savings)+'/мес!</div>'+
         '<button class="m-btn" data-kit-id="'+kit.id+'">Взять комплектом</button>'+
       '</div>';
     savingsDiv.innerHTML='';
@@ -877,11 +920,9 @@ function updateCheckout(){
       state.kitId=kit.id;renderScreen1();showScreen(1);
     });
   } else if(state.omnirmPlanId&&state.agentsPlanId){
-    // Both selected but no exact kit match — find closest kit
     var bestKit=null;var bestSavings=0;
     for(var i=0;i<TARIFFS.kits.length;i++){
-      var k=TARIFFS.kits[i];
-      var sep=SEPARATE_PRICES[k.id];
+      var k=TARIFFS.kits[i];var sep=SEPARATE_PRICES[k.id];
       var s=sep.omnirm+sep.agents-k.price;
       if(s>bestSavings){bestSavings=s;bestKit=k;}
     }
@@ -889,7 +930,7 @@ function updateCheckout(){
       matchDiv.innerHTML=
         '<div class="checkout-kit-match">'+
           '<div class="m-title"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Комплектом выгоднее</div>'+
-          '<div class="m-text">Готовый комплект «'+bestKit.name+'» включает оба сервиса и стоит <b>'+bestKit.priceLabel+'</b> &mdash; экономия до '+Math.round(bestSavings/(SEPARATE_PRICES[bestKit.id].omnirm+SEPARATE_PRICES[bestKit.id].agents)*100)+'%.</div>'+
+          '<div class="m-text">Готовый комплект «'+bestKit.name+'» включает оба сервиса и стоит <b>'+bestKit.priceLabel+'</b> — экономия до '+Math.round(bestSavings/(SEPARATE_PRICES[bestKit.id].omnirm+SEPARATE_PRICES[bestKit.id].agents)*100)+'%.</div>'+
           '<button class="m-btn" data-kit-id="'+bestKit.id+'">Посмотреть комплект</button>'+
         '</div>';
       matchDiv.querySelector('.m-btn').addEventListener('click',function(){
@@ -901,7 +942,6 @@ function updateCheckout(){
     matchDiv.innerHTML='';savingsDiv.innerHTML='';
   }
 
-  // Highlight sections
   el('sectionOmniRM').classList.toggle('highlight',!!state.omnirmPlanId);
   el('sectionAgents').classList.toggle('highlight',!!state.agentsPlanId);
 }
@@ -924,13 +964,13 @@ el('connectConstBtn').addEventListener('click',function(){
     var plan=null;var svc=TARIFFS.services.omnirm;
     for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}
     total+=plan.price;
-    lines.push('<div><span class="label">Услуга:</span> ОмниРМ &mdash; тариф «'+plan.name+'»</div>');
+    lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+plan.name+'»</div>');
   }
   if(state.agentsPlanId){
     var plan=null;var svc=TARIFFS.services.agents;
     for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}
     total+=plan.price;
-    lines.push('<div><span class="label">Услуга:</span> ОмниАгенты &mdash; тариф «'+plan.name+'»</div>');
+    lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+plan.name+'»</div>');
   }
   lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');
   lines.push('<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>');
@@ -946,6 +986,7 @@ function showScreen(n){
   state.currentScreen=n;
   el('screen0').hidden=n!==0;el('screen1').hidden=n!==1;el('screen2').hidden=n!==2;el('screen3').hidden=n!==3;
   el('footer1').hidden=n!==1;el('footer2').hidden=n!==2;
+  el('stickyCta').hidden=n!==0;
   var back=el('protoBack'),sep=el('protoSep'),showBack=n!==0;
   back.style.display=showBack?'inline':'none';sep.style.display=showBack?'inline':'none';
   window.scrollTo({top:0,behavior:'smooth'});
