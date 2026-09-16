@@ -707,7 +707,7 @@ function buildKitModalHtml(kitId){
 }
 
 function infoBtnHtml(type,id){
-  return '<button class="info-btn" data-info-type="'+type+'" data-info-id="'+id+'" onclick="event.stopPropagation();" title="Подробнее">i</button>';
+  return '<button class="info-btn" data-info-type="'+type+'" data-info-id="'+id+'" title="Подробнее">i</button>';
 }
 
 document.addEventListener('click',function(e){
@@ -763,7 +763,7 @@ function renderKits(){
   }).join('');
   var cards=grid.querySelectorAll('.kit-card');
   for(var i=0;i<cards.length;i++){
-    cards[i].addEventListener('click',function(e){state.kitId=e.currentTarget.dataset.id;renderKits();updateKitCheckout();});
+    cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;state.kitId=e.currentTarget.dataset.id;renderKits();updateKitCheckout();});
   }
 }
 
@@ -832,7 +832,7 @@ function renderOmniRMPlans(){
   }).join('');
   var cards=container.querySelectorAll('.plan-card');
   for(var i=0;i<cards.length;i++){
-    cards[i].addEventListener('click',function(e){state.omnirmPlanId=e.currentTarget.dataset.id;renderOmniRMPlans();updateCheckout();});
+    cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;state.omnirmPlanId=e.currentTarget.dataset.id;renderOmniRMPlans();updateCheckout();});
   }
 }
 
@@ -859,6 +859,7 @@ function renderAgentsPlans(){
   var cards=container.querySelectorAll('.plan-card');
   for(var i=0;i<cards.length;i++){
     cards[i].addEventListener('click',function(e){
+      if(e.target.closest('.info-btn'))return;
       var id=e.currentTarget.dataset.id;
       state.agentsPlanId=id==='__none__'?null:id;
       renderAgentsPlans();updateCheckout();
