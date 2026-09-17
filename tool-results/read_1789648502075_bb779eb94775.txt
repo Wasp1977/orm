@@ -1,0 +1,202 @@
+   400→      <div class="dash-widget">
+   401→        <div class="dw-title">Тариф</div>
+   402→        <div class="dw-tariff">Стандартный</div>
+   403→        <div class="dw-price-row"><span>Пакет</span><span class="num">3 490 ₽</span></div>
+   404→        <div class="dw-price-row"><span>Сверх пакета</span><span class="num">0 ₽</span></div>
+   405→        <div class="dw-price-row"><span class="total">Итого</span><span class="total num">3 490 ₽</span></div>
+   406→        <button class="dw-btn">Открыть счета</button>
+   407→      </div>
+   408→      <div class="dash-widget">
+   409→        <div class="dw-title">Номера</div>
+   410→        <div class="dw-num-header num">20 из 20</div>
+   411→        <div class="dw-bar"><div class="dw-bar-fill" style="width:100%"></div></div>
+   412→        <div class="dw-num-detail">
+   413→          <span>2 многоканальных номера</span>
+   414→          <span>0 номеров сотрудников</span>
+   415→        </div>
+   416→      </div>
+   417→      <!-- ОмниРМ promo banner -->
+   418→      <div class="dash-promo" id="omnirmBanner">
+   419→        <div class="dash-promo-title">ОмниРМ</div>
+   420→        <div class="dash-promo-text">Омниканальное рабочее место оператора + ИИ-агенты. Звонки, чаты, Telegram &mdash; в одном окне.</div>
+   421→        <div class="dash-promo-link">Подробнее <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+   422→      </div>
+   423→    </div>
+   424→    <!-- Table -->
+   425→    <div class="dash-table">
+   426→      <div class="dt-header">
+   427→        <div class="dt-title">Управление номерами</div>
+   428→        <div class="dt-tabs">
+   429→          <div class="dt-tab active">Номера сотрудников</div>
+   430→          <div class="dt-tab">Многоканальные номера</div>
+   431→        </div>
+   432→      </div>
+   433→      <div class="dt-toolbar"><input class="dt-search" placeholder="Поиск по номеру или имени&hellip;"></div>
+   434→      <div class="dt-row dt-row-head"><span>Номер</span><span>Сотрудник</span><span>Статус</span></div>
+   435→      <div class="dt-row"><span class="num">+7 (495) 123-45-01</span><span>Иванов А.С.</span><span class="dt-status"><span class="dot on"></span>Подключён</span></div>
+   436→      <div class="dt-row"><span class="num">+7 (495) 123-45-02</span><span>Петрова М.В.</span><span class="dt-status"><span class="dot on"></span>Подключён</span></div>
+   437→      <div class="dt-row"><span class="num">+7 (495) 123-45-10</span><span>Многоканальный</span><span class="dt-status"><span class="dot on"></span>Активен</span></div>
+   438→      <div class="dt-row"><span class="num">+7 (495) 123-45-11</span><span>Многоканальный</span><span class="dt-status"><span class="dot on"></span>Активен</span></div>
+   439→    </div>
+   440→  </div>
+   441→</div>
+   442→
+   443→<!-- SCREEN 1: LANDING -->
+   444→<section class="screen" id="screen1" hidden>
+   445→<div class="page">
+   446→  <div class="hero animate-fade-up">
+   447→    <div class="hero-badge"><span class="dot"></span> Подключение бесплатно</div>
+   448→    <h1 class="hero-title">Все каналы &mdash; в одном окне оператора</h1>
+   449→    <div class="hero-subtitle">Звонки, чаты, Telegram &mdash; всё в ОмниРМ. Не нужно переключаться между программами, не нужно нанимать лишних людей. ИИ-агенты берут рутину, операторы &mdash; сложные диалоги.</div>
+   450→    <div class="hero-cta-row"><button class="btn btn-primary" id="heroCta" style="font-size:17px;padding:15px 32px;">Подключить ОмниРМ</button></div>
+   451→    <div class="stats-row">
+   452→      <div class="stat-card"><div class="stat-num num">5+</div><div class="stat-label">каналов в одном окне</div></div>
+   453→      <div class="stat-card"><div class="stat-num num">до 14%</div><div class="stat-label">экономия с комплектом</div></div>
+   454→      <div class="stat-card"><div class="stat-num num">24/7</div><div class="stat-label">ИИ-агенты не спят</div></div>
+   455→    </div>
+   456→  </div>
+   457→  <div class="panel animate-fade-up delay-1">
+   458→    <h2 class="section-title">Знакомо?</h2>
+   459→    <div class="pains-grid">
+   460→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div><div class="pain-text"><div class="pain-title">Оператор в 4 окнах</div><div class="pain-desc">Звонки в софтфоне, чаты в Telegram, заявки в CRM &mdash; оператор путается и теряет время.</div></div></div>
+   461→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="pain-text"><div class="pain-title">Ночью &mdash; тишина</div><div class="pain-desc">После 18:00 обращения висят до утра. Клиент уходит к конкурентам, пока вы спите.</div></div></div>
+   462→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="pain-text"><div class="pain-title">Новый канал = новый сотрудник</div><div class="pain-desc">Подключили Telegram &mdash; наняли ещё одного. Виджет на сайт &mdash; ещё одного. Растут расходы, а не выручка.</div></div></div>
+   463→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="2" rx="2"/><path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2"/></svg></div><div class="pain-text"><div class="pain-title">Нет общей истории</div><div class="pain-desc">Клиент звонил, писал в чат и оставил заявку &mdash; но для оператора это три разных диалога без связи.</div></div></div>
+   464→    </div>
+   465→  </div>
+   466→  <div class="panel animate-fade-up delay-2">
+   467→    <h2 class="section-title">Как это работает</h2>
+   468→    <div class="how-steps">
+   469→      <div class="how-step"><div class="how-num">1</div><div class="how-content"><div class="how-title">Подключаете каналы</div><div class="how-desc">Виджет на сайт, Telegram, MAX, Облачная АТС &mdash; всё из личного кабинета за пару кликов.</div></div></div>
+   470→      <div class="how-step"><div class="how-num">2</div><div class="how-content"><div class="how-title">Оператор работает в одном окне</div><div class="how-desc">Звонки и переписка &mdash; в едином интерфейсе ОмниРМ. Карточка клиента со всей историей.</div></div></div>
+   471→      <div class="how-step"><div class="how-num">3</div><div class="how-content"><div class="how-title">ИИ-агент берёт рутину</div><div class="how-desc">Ночью и в выходные ИИ-агент отвечает на типовые вопросы голосом и текстом.</div></div></div>
+   472→      <div class="how-step"><div class="how-num">4</div><div class="how-content"><div class="how-title">Платите только за нужное</div><div class="how-desc">Один оператор &mdash; от 0 ₽. Комплект с ИИ-агентом &mdash; от 2 490 ₽/мес.</div></div></div>
+   473→    </div>
+   474→  </div>
+   475→  <div class="panel animate-fade-up delay-3">
+   476→    <h2 class="section-title">Что вы получаете</h2>
+   477→    <div class="benefits-grid">
+   478→      <div class="benefit-card"><div class="benefit-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="benefit-text"><div class="benefit-title">Единый экран оператора</div><div class="benefit-desc">Все звонки и чаты видны в одном окне. Оператор работает быстрее.</div></div></div>
+   479→      <div class="benefit-card"><div class="benefit-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112 2z" stroke="currentColor" stroke-width="1.8"/></svg></div><div class="benefit-text"><div class="benefit-title">5+ каналов одновременно</div><div class="benefit-desc">Виджет, Telegram, MAX, звонки Облачной АТС &mdash; всё в пару кликов.</div></div></div>
+   480→      <div class="benefit-card"><div class="benefit-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="benefit-text"><div class="benefit-title">ИИ работает 24/7</div><div class="benefit-desc">ИИ-агенты отвечают на типовые вопросы ночью и в выходные.</div></div></div>
+   481→      <div class="benefit-card"><div class="benefit-icon magenta"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg></div><div class="benefit-text"><div class="benefit-title">Комплект &mdash; экономия до 14%</div><div class="benefit-desc">Операторы + ИИ-агенты вместе дешевле. Бизнес+ экономит 1&thinsp;500&thinsp;&#8381;/мес.</div></div></div>
+   482→    </div>
+   483→  </div>
+   484→  <div class="connector">перейдём к тарифам</div>
+   485→</div>
+   486→</section>
+   487→
+   488→<!-- SCREEN 2: КОМПЛЕКТЫ -->
+   489→<section class="screen" id="screen2" hidden>
+   490→<div class="page">
+   491→  <div class="progress" id="progressBar1"></div>
+   492→  <div class="panel">
+   493→    <div><h1 class="screen-title">Вместе выгоднее</h1><div class="subtitle">Комплект = операторы + ИИ-агенты. Экономия до 14% по сравнению с покупкой по отдельности.</div></div>
+   494→    <div class="kit-layout">
+   495→      <div class="kit-layout-col">
+   496→        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div class="section-title">Выберите комплект</div><div class="kit-recommend"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div></div>
+   497→        <div style="display:flex;flex-direction:column;gap:14px;" id="kitsGrid"></div>
+   498→        <div class="hint"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg><span>Хочу собрать свой тариф &mdash; <button class="btn-ghost" id="goConstructor">конструктор тарифа</button></span></div>
+   499→      </div>
+   500→      <div class="checkout" id="kitCheckout"><div class="checkout-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>Ваш заказ</div><div id="kitCheckoutContent"></div></div>
+   501→    </div>
+   502→    <div class="info-block"><div class="info-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg></div><div class="info-text">Подключение комплекта: 0 &#8381;. Тарификация начинается после выбора.</div></div>
+   503→    <div class="agreements"><label class="agreement"><input type="checkbox" id="agree1"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label><label class="agreement"><input type="checkbox" id="agree2"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных</a></span></label></div>
+   504→    <div class="agreement-alert" id="alert1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="currentColor"/></svg> Пожалуйста, отметьте условия, чтобы продолжить</div>
+   505→  </div>
+   506→</div>
+   507→</section>
+   508→
+   509→<!-- SCREEN 3: КОНСТРУКТОР -->
+   510→<section class="screen" id="screen3" hidden>
+   511→<div class="page">
+   512→  <div class="progress" id="progressBar2"></div>
+   513→  <div class="panel">
+   514→    <div><h1 class="screen-title">Соберите свой тариф</h1><div class="subtitle">Выберите, что вам нужно. Комплектом всегда дешевле &mdash; мы покажем подходящий.</div></div>
+   515→    <div class="constructor-layout">
+   516→      <div class="constructor-col">
+   517→        <div class="constructor-section" id="sectionOmniRM"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниРМ &mdash; рабочее место оператора</div><div class="cs-subtitle">Единый интерфейс для звонков и переписки. Каналы: виджет, Telegram, MAX.</div><div class="plans-row" id="omnirmPlans"></div><div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div></div>
+   518→        <div class="constructor-section" id="sectionAgents"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--accent-magenta)" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="var(--accent-magenta)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниАгенты &mdash; ИИ-агенты</div><div class="cs-subtitle">Автоответ на типовые вопросы 24/7. Голос и текст из единого пакета.</div><div class="plans-row" id="agentsPlans"></div><div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div></div>
+   519→      </div>
+   520→      <div class="checkout" id="checkoutSidebar"><div class="checkout-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>Ваш заказ</div><div class="checkout-items" id="checkoutItems"></div><div class="checkout-divider"></div><div id="checkoutTotalRow"></div><div id="checkoutKitMatch"></div><div id="checkoutSavings"></div></div>
+   521→    </div>
+   522→    <div class="hint"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg><span>Комплектом выгоднее! <button class="btn-ghost" id="goKits">Выбрать готовый комплект</button></span></div>
+   523→    <div class="agreements"><label class="agreement"><input type="checkbox" id="agree3"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label><label class="agreement"><input type="checkbox" id="agree4"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных</a></span></label></div>
+   524→    <div class="agreement-alert" id="alert3"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="currentColor"/></svg> Пожалуйста, отметьте условия, чтобы продолжить</div>
+   525→  </div>
+   526→</div>
+   527→</section>
+   528→
+   529→<!-- SCREEN 4: CONFIRMATION -->
+   530→<section class="screen" id="screen4" hidden>
+   531→<div class="page">
+   532→  <div class="panel"><div class="stub-wrap"><div class="stub-check" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1 class="screen-title">Услуга подключена</h1><div class="subtitle">Итоговый состав подключения:</div><div class="stub-summary" id="finalSummary"></div><div class="stub-manage" id="manageBlock"><div class="manage-notice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M12 8v5" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="var(--info-icon-bg)"/></svg><span>Вы можете изменить или отключить любую услугу в любой момент. При отключении ОмниРМ ИИ-агенты продолжат работу.</span></div><div class="manage-actions"><button class="btn btn-secondary" id="changeTariffBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Изменить тариф</button><button class="btn btn-secondary" id="disableOmniRMBtn" style="display:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px;"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Отключить ОмниРМ</button></div></div></div></div>
+   533→</div>
+   534→</section>
+   535→
+   536→<!-- SCREEN 5: MANAGE SUBSCRIPTION -->
+   537→<section class="screen" id="screen5" hidden>
+   538→<div class="page">
+   539→  <div class="panel">
+   540→    <div style="margin-bottom:20px;"><h1 class="screen-title">Управление подпиской</h1><div class="subtitle">Измените состав подключения: отключите услугу, смените тариф или добавьте новую.</div></div>
+   541→    <div id="manageSummary"></div>
+   542→    <div class="manage-change-section" id="changeSection"></div>
+   543→    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;"><button class="btn btn-primary" id="applyChangesBtn">Сохранить изменения</button><button class="btn btn-secondary" id="cancelChangeBtn">Отмена</button></div>
+   544→  </div>
+   545→</div>
+   546→</section>
+   547→
+   548→<!-- INFO MODAL -->
+   549→<div class="info-overlay" id="infoOverlay"><div class="info-modal" id="infoModal" style="position:relative;"><button class="info-modal-close" id="infoModalClose" aria-label="Закрыть">&times;</button><div id="infoModalContent"></div></div></div>
+   550→
+   551→<!-- STICKY CTA (Screen 1 only) -->
+   552→<div class="sticky-cta" id="stickyCta" hidden><span class="cta-text">ОмниРМ</span><span class="cta-price num">от 0 ₽/мес</span><button class="btn btn-primary" id="stickyCtaBtn" style="padding:10px 22px;font-size:14px;">Подключить</button></div>
+   553→
+   554→<!-- FOOTER 2 (комплекты) -->
+   555→<div class="action-bar" id="footer2"><div class="action-bar-inner split"><button class="btn btn-secondary btn-wide" id="skipKitBtn">Собрать самому</button><button class="btn btn-primary btn-wide" id="connectKitBtn">Подключить комплект</button></div></div>
+   556→<!-- FOOTER 3 (конструктор) -->
+   557→<div class="action-bar" id="footer3" hidden><div class="action-bar-inner split"><button class="btn btn-secondary" id="backToKitsBtn">Готовые комплекты</button><button class="btn btn-primary" id="connectConstBtn">Подключить</button></div></div>
+   558→
+   559→<script>
+   560→var TARIFFS={services:{omnirm:{id:'omnirm',label:'ОмниРМ',plans:[
+   561→  {id:'solo',name:'Соло',price:0,priceLabel:'0 ₽',note:'в тарифе ОАТС',features:['1 оператор','1 канал (виджет или MAX)','100 диалогов/мес','история 30 дней'],cons:'без очередей, супервизора, аналитики и рассылок',description:{title:'Тариф «Соло»',lead:'Для одного оператора, который принимает обращения из одного канала.',bullets:['1 рабочее место оператора','1 текстовый канал: виджет на сайте или MAX','До 100 диалогов в месяц','История диалогов — 30 дней','Входит в тариф Облачной АТС'],goodFor:'Для малого бизнеса или старта: один оператор, один канал, нулевая стоимость.'}},
+   562→  {id:'team5',name:'Команда 5',price:3990,priceLabel:'3 990 ₽/мес',features:['до 5 операторов','полный функционал'],footnote:'+990 ₽ за оператора с 6-го',description:{title:'Тариф «Команда 5»',lead:'Полный функционал ОмниРМ для команды до 5 операторов.',bullets:['До 5 рабочих мест операторов','Все текстовые каналы: виджет, Telegram, MAX','Неограниченное число диалогов','Полная история диалогов','Общая очередь и распределение обращений','Супервизор: мониторинг в реальном времени','Аналитика: отчёты по операторам и каналам','Рассылки и шаблоны ответов','Каждый доп. оператор с 6-го — +990 ₽/мес'],goodFor:'Для растущих команд: когда один оператор не справляется.'}}
+   563→]},agents:{id:'agents',label:'ОмниАгенты',plans:[
+   564→  {id:'start',name:'Старт',price:2700,priceLabel:'2 700 ₽/мес',minutes:300,requests:300,overMinute:10,overRequest:5,description:{title:'ИИ-агенты «Старт»',lead:'Автоответчик на типовые вопросы — голосом и текстом.',bullets:['300 минут голосового автоответа в месяц','300 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы: виджет, Telegram, MAX','Передача диалога оператору','Сверх пакета: 10 ₽/мин, 5 ₽/обращение'],goodFor:'Для малого бизнеса: ночью агент отвечает за вас.'}},
+   565→  {id:'business',name:'Бизнес',price:6500,priceLabel:'6 500 ₽/мес',minutes:800,requests:1000,overMinute:9,overRequest:4,description:{title:'ИИ-агенты «Бизнес»',lead:'Расширенный пакет для компаний с устойчивым потоком обращений.',bullets:['800 минут голоса в месяц','1 000 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы','Обзвон-кампании из пакета минут','Передача диалога оператору с контекстом','Сверх пакета: 9 ₽/мин, 4 ₽/обращение'],goodFor:'Для среднего бизнеса: агент берёт 60–80% обращений.'}},
+   566→  {id:'pro',name:'Про',price:18700,priceLabel:'18 700 ₽/мес',minutes:2000,requests:3000,overMinute:8,overRequest:3,description:{title:'ИИ-агенты «Про»',lead:'Максимальный пакет для компаний с высоким потоком.',bullets:['2 000 минут голоса в месяц','3 000 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы','Обзвон-кампании без ограничений','Приоритетная передача с контекстом','Персональный менеджер','Сверх пакета: 8 ₽/мин, 3 ₽/обращение'],goodFor:'Для крупного бизнеса и кол-центров.'}}
+   567→]}},kits:[
+   568→  {id:'start-plus',name:'Старт+',price:2490,priceLabel:'2 490 ₽/мес',operators:'2 оператора ОмниРМ',agents:'ИИ-агенты, тариф Старт',pkg:'300 минут голоса · 300 текстовых обращений',overage:'Сверх пакета: 10 ₽/мин · 5 ₽/обр',recommended:false,omnirmPlan:'solo',agentsPlan:'start',description:{title:'Комплект «Старт+»',lead:'Всё для старта: 2 оператора ОмниРМ и ИИ-агент.',compOmniRM:'2 оператора ОмниРМ (тариф Соло). 1 канал, 100 диалогов/мес.',compAgents:'ИИ-агенты тариф Старт: 300 минут голоса + 300 обращений.',goodFor:'Для малого бизнеса: минимальный бюджет, но уже с ИИ-помощником.'}},
+   569→  {id:'business-plus',name:'Бизнес+',price:8990,priceLabel:'8 990 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ',agents:'ИИ-агенты, тариф Бизнес',pkg:'800 минут голоса · 1 000 текстовых обращений',overage:'Сверх пакета: 9 ₽/мин · 4 ₽/обр',recommended:true,omnirmPlan:'team5',agentsPlan:'business',description:{title:'Комплект «Бизнес+»',lead:'Оптимальный комплект для растущей команды.',compOmniRM:'Команда 5: до 5 операторов, полный функционал.',compAgents:'ИИ-агенты тариф Бизнес: 800 минут + 1 000 обращений.',goodFor:'Для среднего бизнеса: лучший баланс цены и возможностей.'}},
+   570→  {id:'pro-plus',name:'Про+',price:21900,priceLabel:'21 900 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ',agents:'ИИ-агенты, тариф Про',pkg:'2 000 минут голоса · 3 000 текстовых обращений',overage:'Сверх пакета: 8 ₽/мин · 3 ₽/обр',recommended:false,omnirmPlan:'team5',agentsPlan:'pro',description:{title:'Комплект «Про+»',lead:'Максимум возможностей: команда операторов и ИИ-агенты с наибольшим пакетом.',compOmniRM:'Команда 5: до 5 операторов, полный функционал.',compAgents:'ИИ-агенты тариф Про: 2 000 минут + 3 000 обращений. Персональный менеджер.',goodFor:'Для крупного бизнеса: максимальная автоматизация.'}}
+   571→],setupFee:0};
+   572→
+   573→var SEPARATE_PRICES={'start-plus':{omnirm:0,agents:2700},'business-plus':{omnirm:3990,agents:6500},'pro-plus':{omnirm:3990,agents:18700}};
+   574→
+   575→var state={service:'omnirm',kitId:null,omnirmPlanId:null,agentsPlanId:null,agree1:false,agree2:false,agree3:false,agree4:false,currentScreen:0,connectedOmniRM:null,connectedAgents:null,managedOmniRM:undefined,managedAgents:undefined};
+   576→
+   577→function el(id){return document.getElementById(id);}
+   578→function fmtPrice(n){return n.toLocaleString('ru-RU')+' ₽';}
+   579→
+   580→/* ---- INFO MODAL ---- */
+   581→function openInfoModal(html){el('infoModalContent').innerHTML=html;el('infoOverlay').classList.add('open');document.body.style.overflow='hidden';}
+   582→function closeInfoModal(){el('infoOverlay').classList.remove('open');document.body.style.overflow='';}
+   583→el('infoModalClose').addEventListener('click',closeInfoModal);
+   584→el('infoOverlay').addEventListener('click',function(e){if(e.target===el('infoOverlay'))closeInfoModal();});
+   585→document.addEventListener('keydown',function(e){if(e.key==='Escape')closeInfoModal();});
+   586→
+   587→function buildPlanModalHtml(svcId,planId){var svc=TARIFFS.services[svcId];var plan=null;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===planId){plan=svc.plans[i];break;}}if(!plan||!plan.description)return'';var d=plan.description;var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div>';var tag=svcId==='omnirm'?'Рабочее место оператора':'ИИ-агенты';html+='<div class="detail-tag">'+tag+'</div>';if(svcId==='agents'&&plan.minutes){html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val num">'+plan.minutes.toLocaleString('ru-RU')+'</div><div class="ds-label">минут голоса/мес</div></div><div class="detail-stat"><div class="ds-val num">'+plan.requests.toLocaleString('ru-RU')+'</div><div class="ds-label">обращений/мес</div></div></div>';}if(svcId==='omnirm'){if(plan.id==='solo'){html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">оператор</div></div><div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">канал</div></div></div>';}else{html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val">до 5</div><div class="ds-label">операторов</div></div><div class="detail-stat"><div class="ds-val">5+</div><div class="ds-label">каналы</div></div></div>';}}html+='<div class="detail-section"><h3>Что входит</h3><ul>';for(var i=0;i<d.bullets.length;i++){html+='<li>'+d.bullets[i]+'</li>';}html+='</ul></div>';if(d.goodFor){html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';}return html;}
+   588→
+   589→function buildKitModalHtml(kitId){var kit=null;for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===kitId){kit=TARIFFS.kits[i];break;}}if(!kit||!kit.description)return'';var d=kit.description;var sep=SEPARATE_PRICES[kit.id];var separateTotal=sep.omnirm+sep.agents;var savings=separateTotal-kit.price;var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div><div class="detail-tag">Комплект</div>';html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val num" style="color:#DC2626;">'+fmtPrice(separateTotal)+'/мес</div><div class="ds-label">по отдельности</div></div><div class="detail-stat"><div class="ds-val num" style="color:#16A34A;">'+kit.priceLabel+'</div><div class="ds-label">комплектом (экономия '+fmtPrice(savings)+')</div></div></div>';html+='<div class="kit-modal-comp"><div class="kit-comp-block"><div class="kcb-title">ОмниРМ</div><div class="kcb-detail">'+d.compOmniRM+'</div></div><div class="kit-comp-block"><div class="kcb-title">ОмниАгенты</div><div class="kcb-detail">'+d.compAgents+'</div></div></div>';if(d.goodFor){html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';}return html;}
+   590→
+   591→function infoBtnHtml(type,id){return '<button class="info-btn" data-info-type="'+type+'" data-info-id="'+id+'" title="Подробнее">i</button>';}
+   592→
+   593→document.addEventListener('click',function(e){var btn=e.target.closest('.info-btn');if(!btn)return;var type=btn.dataset.infoType;var id=btn.dataset.infoId;if(type==='omnirm'||type==='agents'){var html=buildPlanModalHtml(type,id);if(html)openInfoModal(html);}else if(type==='kit'){var html=buildKitModalHtml(id);if(html)openInfoModal(html);}});
+   594→
+   595→/* ---- PROGRESS ---- */
+   596→function progressHtml(activeStep){var steps=[{n:1,label:'Комплекты'},{n:2,label:'Конструктор'}];return steps.map(function(s,i){var cls=s.n===activeStep?'active':(s.n<activeStep?'done':'');var line=i<steps.length-1?'<div class="progress-line"></div>':'';return '<div class="progress-step '+cls+'"><span class="dot">'+(s.n<activeStep?'✓':s.n)+'</span>'+s.label+'</div>'+line;}).join('');}
+   597→function renderProgress(activeStep){el('progressBar1').innerHTML=progressHtml(activeStep);el('progressBar2').innerHTML=progressHtml(activeStep);}
+   598→
+   599→/* ---- SCREEN 0: Dashboard ---- */
+
+[showing lines 400-599 of 798; use offset=600 with limit to continue reading]
