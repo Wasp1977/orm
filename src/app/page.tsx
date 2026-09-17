@@ -36,6 +36,7 @@ import {
   UserCog,
   EyeOff,
   ExternalLink,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -499,8 +500,14 @@ function LandingConnectedScreen() {
   return (
     <div className="min-h-screen bg-white">
       {/* Nav */}
-      <div className="flex items-center justify-end px-6 pt-4 md:px-10">
-        <ProtoNav onBack={() => navigate("cabinet")} onReset />
+      <div className="flex items-center justify-between px-6 pt-4 md:px-10">
+        <button
+          onClick={() => navigate("vats")}
+          className="flex items-center gap-1 text-sm text-[#6B7280] hover:text-[#1A1D29] transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" /> Вернуться в АТС
+        </button>
+        <ProtoNav onReset />
       </div>
 
       {/* Hero */}
@@ -1146,9 +1153,15 @@ function ConfirmScreen() {
           <YellowBtn onClick={goToCabinet} className="w-full">
             Перейти в кабинет ОмниРМ
           </YellowBtn>
-          <OutlineBtn onClick={() => navigate("manage")} className="w-full">
-            Изменить тариф
+          <OutlineBtn onClick={() => navigate("vats")} className="w-full">
+            Вернуться в АТС
           </OutlineBtn>
+          <button
+            onClick={() => navigate("manage")}
+            className="text-sm font-medium text-[#6B7280] hover:text-[#1A1D29] transition-colors"
+          >
+            Изменить тариф
+          </button>
         </div>
       </div>
     </div>
@@ -1228,8 +1241,8 @@ function ManageScreen() {
           <YellowBtn onClick={() => navigate("cabinet")}>
             Сохранить изменения
           </YellowBtn>
-          <OutlineBtn onClick={() => navigate("landing-connected")}>
-            Отмена
+          <OutlineBtn onClick={() => navigate("vats")}>
+            Вернуться в АТС
           </OutlineBtn>
         </div>
       </div>
@@ -1308,12 +1321,26 @@ function CabinetScreen() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate("landing-connected")}
-          className="mt-10 text-sm font-medium text-[#FFDD5B] hover:underline"
-        >
-          Посмотреть подключенное состояние в ОАТС →
-        </button>
+        <div className="mt-10 flex flex-wrap items-center gap-6">
+          <button
+            onClick={() => navigate("vats")}
+            className="text-sm font-medium text-[#FFDD5B] hover:underline"
+          >
+            Вернуться в АТС →
+          </button>
+          <button
+            onClick={() => navigate("landing-connected")}
+            className="text-sm font-medium text-[#9CA3AF] hover:text-[#FFDD5B] hover:underline transition-colors"
+          >
+            Страница ОмниРМ →
+          </button>
+          <button
+            onClick={() => navigate("service-card")}
+            className="text-sm font-medium text-[#9CA3AF] hover:text-[#FFDD5B] hover:underline transition-colors"
+          >
+            Карточка услуги →
+          </button>
+        </div>
       </main>
     </div>
   );
@@ -1402,7 +1429,7 @@ function ServiceCardScreen() {
 
           {/* Search */}
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2.5">
-            <HelpCircle className="h-4 w-4 text-[#9CA3AF]" />
+            <Search className="h-4 w-4 text-[#9CA3AF]" />
             <span className="text-sm text-[#9CA3AF]">CRM</span>
           </div>
 
