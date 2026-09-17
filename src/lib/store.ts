@@ -32,6 +32,10 @@ export interface Kit {
   name: string;
   price: number;
   priceLabel: string;
+  operatorCount: number;
+  operatorLabel: string;
+  minutes: number;
+  requests: number;
   operators: string;
   agents: string;
   pkg: string;
@@ -92,6 +96,10 @@ export const KITS: Kit[] = [
     name: "Старт+",
     price: 2490,
     priceLabel: "2 490 ₽/мес",
+    operatorCount: 1,
+    operatorLabel: "1 оператор",
+    minutes: 300,
+    requests: 300,
     operators: "ОмниРМ: 1 оператор (Соло)",
     agents: "ИИ-агенты, тариф Старт",
     pkg: "300 мин голоса · 300 обращений",
@@ -105,6 +113,10 @@ export const KITS: Kit[] = [
     name: "Бизнес+",
     price: 7990,
     priceLabel: "7 990 ₽/мес",
+    operatorCount: 5,
+    operatorLabel: "до 5 операторов",
+    minutes: 300,
+    requests: 300,
     operators: "ОмниРМ: до 5 операторов (Команда 5)",
     agents: "ИИ-агенты, тариф Старт",
     pkg: "300 мин голоса · 300 обращений",
@@ -118,6 +130,10 @@ export const KITS: Kit[] = [
     name: "Про+",
     price: 21900,
     priceLabel: "21 900 ₽/мес",
+    operatorCount: 5,
+    operatorLabel: "до 5 операторов",
+    minutes: 2000,
+    requests: 3000,
     operators: "ОмниРМ: до 5 операторов (Команда 5)",
     agents: "ИИ-агенты, тариф Про",
     pkg: "2 000 мин голоса · 3 000 обращений",

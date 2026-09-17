@@ -540,6 +540,8 @@ function KitCard({
   const separate = SEPARATE_PRICES[kit.id];
   const savings = separate ? separate.omnirm + separate.agents - kit.price : 0;
 
+  const fmtNum = (n: number) => n.toLocaleString("ru-RU");
+
   return (
     <div
       onClick={onSelect}
@@ -551,6 +553,7 @@ function KitCard({
             : "border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:shadow-sm"
       }`}
     >
+      {/* Header: name + badge */}
       <div className="flex items-start justify-between">
         <h3 className="text-lg font-bold text-[#1A1D29]">{kit.name}</h3>
         {kit.recommended && (
@@ -559,13 +562,51 @@ function KitCard({
           </Badge>
         )}
       </div>
-      <p className="mt-1 text-xl font-bold text-[#1A1D29]">{kit.priceLabel}</p>
-      <div className="mt-3 space-y-1 text-sm text-[#6B7280]">
-        <p>{kit.operators}</p>
-        <p>{kit.agents}</p>
-        <p className="font-medium text-[#1A1D29]">{kit.pkg}</p>
-        <p>{kit.overage}</p>
+
+      {/* Price — biggest, most prominent */}
+      <div className="mt-2 flex items-baseline gap-1">
+        <span className="text-3xl font-extrabold text-[#1A1D29]">
+          {fmtNum(kit.price)}
+        </span>
+        <span className="text-sm font-medium text-[#6B7280]">₽/мес</span>
       </div>
+
+      {/* Key params — 3 prominent stat blocks */}
+      <div className="mt-4 grid grid-cols-3 gap-3">
+        {/* Operators */}
+        <div className="rounded-xl bg-[#F5F5F7] px-3 py-2.5 text-center">
+          <div className="flex items-center justify-center gap-1 text-[#4F46E5]">
+            <UsersRound className="h-3.5 w-3.5" />
+            <span className="text-xl font-bold">{kit.operatorCount}</span>
+          </div>
+          <p className="mt-0.5 text-[10px] font-medium text-[#6B7280]">
+            {kit.operatorCount === 1 ? "оператор" : "операторов"}
+          </p>
+        </div>
+        {/* Minutes */}
+        <div className="rounded-xl bg-[#F5F5F7] px-3 py-2.5 text-center">
+          <div className="flex items-center justify-center gap-1 text-[#1E9E4A]">
+            <Phone className="h-3.5 w-3.5" />
+            <span className="text-xl font-bold">{fmtNum(kit.minutes)}</span>
+          </div>
+          <p className="mt-0.5 text-[10px] font-medium text-[#6B7280]">мин голоса</p>
+        </div>
+        {/* Requests */}
+        <div className="rounded-xl bg-[#F5F5F7] px-3 py-2.5 text-center">
+          <div className="flex items-center justify-center gap-1 text-[#C026D3]">
+            <MessageSquare className="h-3.5 w-3.5" />
+            <span className="text-xl font-bold">{fmtNum(kit.requests)}</span>
+          </div>
+          <p className="mt-0.5 text-[10px] font-medium text-[#6B7280]">обращений</p>
+        </div>
+      </div>
+
+      {/* Secondary details */}
+      <div className="mt-3 space-y-0.5 text-xs text-[#9CA3AF]">
+        <p>{kit.agents}</p>
+        <p>Сверх: {kit.overage.replace("Сверх: ", "")}</p>
+      </div>
+
       {savings > 0 && (
         <div className="mt-3 inline-flex items-center gap-1 rounded-lg bg-[#EAF7EE] px-2.5 py-1 text-xs font-medium text-[#1E9E4A]">
           <TrendingUp className="h-3 w-3" /> Экономия {fmtPrice(savings)}/мес
