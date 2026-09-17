@@ -10,7 +10,8 @@ export type Screen =
   | "confirm"
   | "manage"
   | "cabinet"
-  | "transition";
+  | "transition"
+  | "service-card";
 
 export interface TariffPlan {
   id: string;

@@ -34,6 +34,8 @@ import {
   UsersRound,
   DollarSign,
   UserCog,
+  EyeOff,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -166,11 +168,11 @@ function VatsScreen() {
             </button>
           ))}
 
-          {/* ОмниРМ button */}
+          {/* ОмниРМ button — same style as others */}
           <button
             title="ОмниРМ"
             onClick={() => navigate("landing")}
-            className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#1A1D29] to-[#2D3250] text-white hover:from-[#2D3250] hover:to-[#3D4260] transition-all"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
           >
             <Monitor className="h-5 w-5" />
           </button>
@@ -194,7 +196,19 @@ function VatsScreen() {
 
       {/* Main content */}
       <main className="ml-16 flex-1 p-6 md:p-8">
-        <h1 className="text-2xl font-bold text-[#1A1D29]">Ваша АТС</h1>
+        {/* Header row with optional service card link */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-[#1A1D29]">Ваша АТС</h1>
+          {isConnected && (
+            <button
+              onClick={() => navigate("service-card")}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:underline"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Посмотреть карточку услуги
+            </button>
+          )}
+        </div>
 
         {/* Progress card */}
         <div className="mt-4 rounded-2xl bg-white p-6 shadow-sm">
@@ -242,18 +256,27 @@ function VatsScreen() {
                 {agentsPlan ? ` + ${agentsPlan.priceLabel}` : ""}
               </p>
               <p className="text-sm text-[#6B7280]">{ops} оператор(ов)</p>
-              <Button
-                size="sm"
-                className="mt-3 bg-[#1A1D29] text-white hover:bg-[#2D3250]"
-                onClick={() => navigate("cabinet")}
-              >
-                Перейти в кабинет ОмниРМ
-              </Button>
+              <div className="mt-3 flex gap-2">
+                <Button
+                  size="sm"
+                  className="bg-[#1A1D29] text-white hover:bg-[#2D3250]"
+                  onClick={() => navigate("cabinet")}
+                >
+                  Перейти в кабинет ОмниРМ
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate("service-card")}
+                >
+                  <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                  Карточка услуги
+                </Button>
+              </div>
             </div>
           ) : (
             <div
-              onClick={() => navigate("landing")}
-              className="cursor-pointer rounded-2xl bg-gradient-to-br from-[#1A1D29] to-[#2D3250] p-6 text-white shadow-sm hover:from-[#2D3250] hover:to-[#3D4260] transition-all"
+              className="rounded-2xl bg-gradient-to-br from-[#1A1D29] to-[#2D3250] p-6 text-white shadow-sm hover:from-[#2D3250] hover:to-[#3D4260] transition-all"
             >
               <div className="flex items-center gap-2">
                 <Monitor className="h-5 w-5" />
@@ -262,9 +285,9 @@ function VatsScreen() {
               <p className="mt-2 text-sm opacity-80">
                 Все каналы — в одном окне оператора. Звонки, чаты, Telegram и&nbsp;др.
               </p>
-              <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-[#FFDD5B]">
-                Подробнее <ChevronRight className="h-4 w-4" />
-              </span>
+              <YellowBtn onClick={() => navigate("landing")} className="mt-4 w-full">
+                Подключить
+              </YellowBtn>
             </div>
           )}
         </div>
@@ -991,14 +1014,27 @@ function ConstructorScreen() {
               </div>
             </div>
             {matchingKit && (
-              <div className="mt-3 rounded-lg bg-[#EEF2FF] p-3 text-xs text-[#4F46E5]">
-                Комплект «{matchingKit.name}» выгоднее — экономия {fmtPrice(
-                  SEPARATE_PRICES[matchingKit.id]
-                    ? SEPARATE_PRICES[matchingKit.id].omnirm +
-                        SEPARATE_PRICES[matchingKit.id].agents -
-                        matchingKit.price
-                    : 0
-                )}/мес
+              <div className="mt-3 rounded-lg bg-[#EEF2FF] p-3">
+                <p className="text-xs text-[#4F46E5]">
+                  Комплект «{matchingKit.name}» выгоднее — экономия {fmtPrice(
+                    SEPARATE_PRICES[matchingKit.id]
+                      ? SEPARATE_PRICES[matchingKit.id].omnirm +
+                          SEPARATE_PRICES[matchingKit.id].agents -
+                          matchingKit.price
+                      : 0
+                  )}/мес
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="mt-2 text-[#4F46E5] border-[#4F46E5] hover:bg-[#EEF2FF]"
+                  onClick={() => {
+                    selectKit(matchingKit.id);
+                    navigate("kits");
+                  }}
+                >
+                  Перейти к комплекту «{matchingKit.name}»
+                </Button>
               </div>
             )}
           </div>
@@ -1283,6 +1319,195 @@ function CabinetScreen() {
 }
 
 /* ═══════════════════════════════════════════
+   10. SERVICE CARD (ОмниРМ подключен)
+   ═══════════════════════════════════════════ */
+
+function ServiceCardScreen() {
+  const {
+    navigate,
+    connectedOmniPlan,
+    connectedAgentsPlan,
+  } = useAppStore();
+
+  const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
+  const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
+  const ops = getOperatorCount(connectedOmniPlan);
+  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const kit = KITS.find(
+    (k) => k.omnirmPlan === connectedOmniPlan && k.agentsPlan === connectedAgentsPlan
+  );
+
+  const fmtNum = (n: number) => n.toLocaleString("ru-RU");
+
+  /* Tabs */
+  const [activeTab, setActiveTab] = useState("Все");
+  const tabs = [
+    { label: "Подключенные", count: 17, icon: true },
+    { label: "Все", count: 8, icon: false },
+    { label: "Новинки", count: 5, icon: false },
+    { label: "Популярное", count: 8, icon: false },
+    { label: "Новые тарифы", count: 2, icon: false },
+  ];
+
+  return (
+    <div className="flex min-h-screen bg-white">
+      {/* Sidebar — same as VatsScreen */}
+      <aside className="fixed left-0 top-0 z-10 flex h-full w-16 flex-col items-center border-r border-[#E5E7EB] bg-white py-4">
+        <div className="flex flex-1 flex-col items-center gap-2">
+          {[Menu, Users, Store, BarChart3, FileIcon].map((Icon, i) => (
+            <button
+              key={i}
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+            >
+              <Icon className="h-5 w-5" />
+            </button>
+          ))}
+          <button
+            title="ОмниРМ"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+          >
+            <Monitor className="h-5 w-5" />
+          </button>
+          <div className="flex-1" />
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          {[Settings, Clock, HelpCircle].map((Icon, i) => (
+            <button
+              key={i}
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+            >
+              <Icon className="h-5 w-5" />
+            </button>
+          ))}
+        </div>
+      </aside>
+
+      {/* Main area */}
+      <main className="ml-16 flex-1">
+        {/* Header bar */}
+        <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("vats")}
+              className="flex items-center gap-1 text-sm text-[#6B7280] hover:text-[#1A1D29]"
+            >
+              <ArrowLeft className="h-4 w-4" /> Назад
+            </button>
+          </div>
+        </div>
+
+        <div className="px-6 py-6 md:px-8">
+          <h1 className="text-2xl font-bold text-[#111827]">Услуги</h1>
+
+          {/* Search */}
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2.5">
+            <HelpCircle className="h-4 w-4 text-[#9CA3AF]" />
+            <span className="text-sm text-[#9CA3AF]">CRM</span>
+          </div>
+
+          {/* Tabs */}
+          <div className="mt-4 flex items-center gap-6 border-b border-[#E5E7EB]">
+            {tabs.map((tab) => (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(tab.label)}
+                className={`relative pb-2.5 text-sm font-medium transition-colors ${
+                  activeTab === tab.label
+                    ? "text-[#111827]"
+                    : "text-[#6B7280] hover:text-[#111827]"
+                }`}
+              >
+                <span className="inline-flex items-center gap-1.5">
+                  {tab.icon && <Check className="h-3.5 w-3.5" />}
+                  {tab.label}
+                  <span className="text-xs text-[#9CA3AF]">({tab.count})</span>
+                </span>
+                {activeTab === tab.label && (
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FDB913]" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Service Card — matching screenshot 1:1 */}
+          <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+            {/* Badges row */}
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-3 py-1 text-xs font-medium text-white">
+                <Check className="h-3 w-3" /> Подключено
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-3 py-1 text-xs font-medium text-white">
+                <Zap className="h-3 w-3" /> Новый сервис
+              </span>
+            </div>
+
+            {/* Main info row */}
+            <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
+              {/* Logo + Name */}
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3B82F6]">
+                  <UsersRound className="h-5 w-5" />
+                </div>
+                <span className="text-xl font-semibold text-[#111827]">ОмниРМ</span>
+              </div>
+
+              {/* Price block */}
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
+                <span className="text-xs text-[#6B7280]">в месяц</span>
+                <button className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* Employees block */}
+              <div>
+                <p className="font-semibold text-[#111827]">{ops} сотрудников</p>
+                <p className="text-xs text-[#6B7280]">Доступно</p>
+                <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* Tariff block */}
+              <div>
+                <p className="font-semibold text-[#111827]">{kit?.name ?? (omniPlan?.name ?? "—")}</p>
+                <p className="text-xs text-[#6B7280]">тариф</p>
+                <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                  <EyeOff className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              {/* CTA button */}
+              <button
+                onClick={() => navigate("cabinet")}
+                className="ml-auto rounded-lg bg-[#000000] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#111827]"
+              >
+                Перейти в ОмниРМ
+              </button>
+            </div>
+
+            {/* Description */}
+            <div className="mt-5 flex items-start justify-between">
+              <p className="max-w-xl text-sm leading-relaxed text-[#4B5563]">
+                ОмниРМ — ваши сотрудники смогут общаться с клиентами в любых мессенджерах,
+                по телефону или по видеосвязи. История заказов будет в одном пространстве.
+              </p>
+              <button
+                onClick={() => navigate("landing-connected")}
+                className="shrink-0 text-sm font-medium text-[#2563EB] hover:underline"
+              >
+                На страницу ОмниРМ
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
    9. TRANSITION OVERLAY
    ═══════════════════════════════════════════ */
 
@@ -1318,6 +1543,7 @@ const SCREEN_MAP: Record<Screen, () => React.ReactNode> = {
   manage: () => <ManageScreen />,
   cabinet: () => <CabinetScreen />,
   transition: () => <TransitionScreen />,
+  "service-card": () => <ServiceCardScreen />,
 };
 
 export default function HomePage() {
