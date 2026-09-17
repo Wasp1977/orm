@@ -1,0 +1,620 @@
+     1→     1→<!DOCTYPE html>
+     2→     2→<html lang="ru">
+     3→     3→<head>
+     4→     4→<meta charset="UTF-8">
+     5→     5→<meta name="viewport" content="width=device-width, initial-scale=1">
+     6→     6→<title>ОмниРМ — подключение сервиса</title>
+     7→     7→<style>
+     8→     8→:root{
+     9→     9→  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    10→    10→  --bg-page:#EEF0F3;--panel-bg:#FFFFFF;--card-bg:#F4F5F7;--card-bg-hover:#ECEEF1;
+    11→    11→  --card-border:#E7E9EC;--card-selected-border:#15171A;--card-selected-tint:#FFFCF2;
+    12→    12→  --text-primary:#15171A;--text-secondary:#6B7280;--text-tertiary:#9AA1AB;
+    13→    13→  --divider:#E7E9EC;--link:#0B6FDB;--info-bg:#E8F2FE;--info-icon-bg:#1478F0;
+    14→    14→  --accent-yellow:#FFDD5B;--accent-yellow-hover:#FFD23D;
+    15→    15→  --accent-green:#1E9E4A;--accent-green-bg:#EAF7EE;
+    16→    16→  --accent-magenta:#E91E63;--accent-magenta-bg:#FCE4EC;
+    17→    17→  --btn-secondary-border:#D8DBE0;--btn-secondary-text:#15171A;
+    18→    18→  --radius-lg:16px;--radius-md:12px;--radius-pill:999px;--bar-h:88px;
+    19→    19→  --sidebar-w:64px;
+    20→    20→}
+    21→    21→*{box-sizing:border-box;margin:0;padding:0;}
+    22→    22→html{scroll-behavior:smooth;}html,body{height:100%;}
+    23→    23→body{background:var(--bg-page);color:var(--text-primary);font-family:var(--font-ui);-webkit-text-size-adjust:100%;overflow-x:hidden;}
+    24→    24→h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;}
+    25→    25→.num{font-variant-numeric:tabular-nums;}button{font-family:inherit;}
+    26→    26→a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
+    27→    27→:focus-visible{outline:2px solid var(--info-icon-bg);outline-offset:2px);}
+    28→    28→
+    29→    29→@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    30→    30→@keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
+    31→    31→@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-4px)}40%,80%{transform:translateX(4px)}}
+    32→    32→
+    33→    33→.animate-fade-up{animation:fadeUp .6s ease both;}
+    34→    34→.delay-1{animation-delay:.15s;}.delay-2{animation-delay:.3s;}.delay-3{animation-delay:.45s;}
+    35→    35→.shake{animation:shake .4s ease;}
+    36→    36→
+    37→    37→.page{max-width:840px;margin:0 auto;padding:0 24px calc(var(--bar-h) + 24px);}
+    38→    38→.screen{display:flex;flex-direction:column;gap:24px;}.screen[hidden]{display:none;}
+    39→    39→
+    40→    40→.proto-nav{position:fixed;top:14px;right:16px;z-index:80;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.94);border:1px solid var(--card-border);border-radius:8px;padding:6px 10px;font-size:12px;line-height:1.2;color:var(--text-tertiary);box-shadow:0 2px 10px rgba(21,23,26,.08);}
+    41→    41→.proto-link{background:none;border:none;padding:0;margin:0;font:inherit;color:var(--text-secondary);cursor:pointer;}.proto-link:hover{color:var(--text-primary);text-decoration:underline;}
+    42→    42→.proto-sep{color:var(--card-border);}
+    43→    43→
+    44→    44→/* ---- АТС DASHBOARD (Screen 0) ---- */
+    45→    45→.dash-layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;min-height:100vh;}
+    46→    46→.dash-sidebar{
+    47→    47→  background:#fff;border-right:1px solid var(--divider);
+    48→    48→  display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:4px;
+    49→    49→  position:sticky;top:0;height:100vh;
+    50→    50→}
+    51→    51→.sb-icon{
+    52→    52→  width:40px;height:40px;border-radius:10px;border:none;background:transparent;
+    53→    53→  color:#6B7280;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    54→    54→  transition:background .15s ease,color .15s ease;position:relative;
+    55→    55→}
+    56→    56→.sb-icon:hover{background:var(--card-bg);color:var(--text-primary);}
+    57→    57→.sb-icon.active{color:var(--accent-yellow-hover);background:rgba(255,210,61,.1);}
+    58→    58→.sb-icon.active::before{content:'';position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--accent-yellow-hover);}
+    59→    59→.sb-icon svg{width:22px;height:22px;}
+    60→    60→.sb-spacer{flex:1;}
+    61→    61→.sb-omnirm{background:linear-gradient(135deg,#1A1D29,#2D3250);color:#fff;border-radius:10px;margin-top:4px;}
+    62→    62→.sb-omnirm:hover{background:linear-gradient(135deg,#252840,#3A3F60);color:#fff;}
+    63→    63→.sb-omnirm svg{width:20px;height:20px;}
+    64→    64→
+    65→    65→.dash-main{padding:24px 32px;overflow-y:auto;}
+    66→    66→.dash-header{font-size:24px;font-weight:800;letter-spacing:-.01em;margin-bottom:24px;}
+    67→    67→
+    68→    68→/* Progress card */
+    69→    69→.progress-card{background:#fff;border-radius:var(--radius-lg);padding:24px;box-shadow:0 2px 12px rgba(21,23,26,.06);margin-bottom:20px;}
+    70→    70→.progress-card-top{display:flex;align-items:center;gap:20px;}
+    71→    71→.progress-circle{width:80px;height:80px;position:relative;flex:0 0 auto;}
+    72→    72→.progress-circle svg{transform:rotate(-90deg);}
+    73→    73→.progress-circle .pc-bg{stroke:#E7E9EC;fill:none;stroke-width:6;}
+    74→    74→.progress-circle .pc-fg{stroke:var(--accent-yellow-hover);fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+    75→    75→.progress-circle .pc-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;transform:none;}
+    76→    76→.progress-info{display:flex;flex-direction:column;gap:4px;}
+    77→    77→.progress-title{font-size:17px;font-weight:700;}
+    78→    78→.progress-subtitle{font-size:14px;color:var(--text-secondary);}
+    79→    79→.progress-steps{display:flex;flex-direction:column;gap:8px;margin-top:16px;}
+    80→    80→.progress-step-row{display:flex;align-items:center;gap:10px;font-size:14px;}
+    81→    81→.progress-step-row .check{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+    82→    82→.progress-step-row .check.done{background:var(--accent-green-bg);color:var(--accent-green);}
+    83→    83→.progress-step-row .check.pending{border:2px solid var(--card-border);color:transparent;}
+    84→    84→.progress-step-row.done-text{color:var(--text-tertiary);text-decoration:line-through;}
+    85→    85→
+    86→    86→/* Dashboard widgets row */
+    87→    87→.dash-widgets{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;}
+    88→    88→.dash-widget{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:0 2px 12px rgba(21,23,26,.06);}
+    89→    89→.dw-title{font-size:13px;color:var(--text-secondary);margin-bottom:8px;}
+    90→    90→.dw-tariff{font-size:16px;font-weight:700;}
+    91→    91→.dw-price-row{display:flex;justify-content:space-between;font-size:14px;color:var(--text-secondary);margin-top:8px;padding-top:8px;border-top:1px solid var(--card-border);}
+    92→    92→.dw-price-row .total{font-weight:700;color:var(--text-primary);}
+    93→    93→.dw-btn{margin-top:12px;width:100%;padding:10px;border:1px solid var(--card-border);border-radius:var(--radius-pill);background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-primary);transition:background .15s ease;}
+    94→    94→.dw-btn:hover{background:var(--card-bg);}
+    95→    95→
+    96→    96→/* Numbers widget */
+    97→    97→.dw-num-header{font-size:20px;font-weight:800;margin-bottom:8px;}
+    98→    98→.dw-bar{height:6px;background:#E7E9EC;border-radius:3px;overflow:hidden;margin-bottom:8px;}
+    99→    99→.dw-bar-fill{height:100%;background:var(--info-icon-bg);border-radius:3px;}
+   100→   100→.dw-num-detail{font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;}
+   101→   101→
+   102→   102→/* Promo banner (ОмниРМ) */
+   103→   103→.dash-promo{
+   104→   104→  background:linear-gradient(135deg,#1A1D29,#2D3250);border-radius:var(--radius-lg);
+   105→   105→  padding:24px;color:#fff;display:flex;flex-direction:column;gap:10px;
+   106→   106→  cursor:pointer;transition:transform .15s ease,box-shadow .15s ease;
+   107→   107→  box-shadow:0 2px 12px rgba(21,23,26,.06);
+   108→   108→}
+   109→   109→.dash-promo:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(21,23,26,.15);}
+   110→   110→.dash-promo-title{font-size:18px;font-weight:800;}
+   111→   111→.dash-promo-text{font-size:14px;line-height:1.5;opacity:.85;}
+   112→   112→.dash-promo-link{font-size:13px;font-weight:700;color:var(--accent-yellow);display:flex;align-items:center;gap:6px;margin-top:4px;}
+   113→   113→.dash-promo-link svg{transition:transform .15s ease;}
+   114→   114→.dash-promo:hover .dash-promo-link svg{transform:translateX(4px);}
+   115→   115→
+   116→   116→/* Table stub */
+   117→   117→.dash-table{background:#fff;border-radius:var(--radius-lg);box-shadow:0 2px 12px rgba(21,23,26,.06);overflow:hidden;}
+   118→   118→.dt-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--divider);}
+   119→   119→.dt-title{font-size:17px;font-weight:700;}
+   120→   120→.dt-tabs{display:flex;gap:0;}
+   121→   121→.dt-tab{padding:8px 16px;font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s ease,border-color .15s ease;}
+   122→   122→.dt-tab.active{color:var(--text-primary);border-bottom-color:var(--text-primary);}
+   123→   123→.dt-toolbar{display:flex;align-items:center;gap:10px;padding:12px 20px;border-bottom:1px solid var(--divider);}
+   124→   124→.dt-search{flex:1;padding:8px 12px;border:1px solid var(--card-border);border-radius:8px;font-size:13px;background:var(--card-bg);}
+   125→   125→.dt-row{display:grid;grid-template-columns:1fr 1fr 120px;gap:12px;padding:12px 20px;font-size:13px;border-bottom:1px solid var(--card-border);align-items:center;}
+   126→   126→.dt-row:last-child{border-bottom:none;}
+   127→   127→.dt-row-head{font-weight:600;color:var(--text-secondary);font-size:12px;text-transform:uppercase;letter-spacing:.04em;}
+   128→   128→.dt-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;}
+   129→   129→.dt-status .dot{width:7px;height:7px;border-radius:50%;}
+   130→   130→.dt-status .dot.on{background:#4ADE80;}.dt-status .dot.off{background:#9AA1AB;}
+   131→   131→
+   132→   132→/* Sticky CTA */
+   133→   133→.sticky-cta{
+   134→   134→  position:fixed;left:0;right:0;bottom:0;z-index:75;
+   135→   135→  background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+   136→   136→  border-top:1px solid var(--card-border);padding:12px 24px;
+   137→   137→  display:flex;justify-content:center;align-items:center;gap:12px;
+   138→   138→  box-shadow:0 -4px 20px rgba(21,23,26,.06);
+   139→   139→}
+   140→   140→.sticky-cta[hidden]{display:none;}
+   141→   141→.sticky-cta .cta-text{font-size:14px;color:var(--text-secondary);}
+   142→   142→.sticky-cta .cta-price{font-size:18px;font-weight:800;color:var(--text-primary);}
+   143→   143→
+   144→   144→.hero{background:linear-gradient(135deg,#1A1D29,#2D3250);border-radius:24px;padding:48px 36px;color:#fff;position:relative;overflow:hidden;}
+   145→   145→.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,221,91,.15) 0%,transparent 70%);border-radius:50%;}
+   146→   146→.hero::after{content:'';position:absolute;bottom:-40px;left:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(233,30,99,.1) 0%,transparent 70%);border-radius:50%;}
+   147→   147→.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius-pill);padding:6px 14px;font-size:13px;font-weight:700;margin-bottom:20px;}
+   148→   148→.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#4ADE80;animation:pulse 2s infinite;}
+   149→   149→.hero-title{font-size:36px;font-weight:800;letter-spacing:-.02em;line-height:1.15;margin-bottom:12px;}
+   150→   150→.hero-subtitle{font-size:17px;line-height:1.6;opacity:.85;max-width:520px;margin-bottom:28px;}
+   151→   151→.hero-cta-row{display:flex;gap:12px;flex-wrap:wrap;}
+   152→   152→.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
+   153→   153→.stat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius-md);padding:16px 18px;text-align:center;}
+   154→   154→.stat-num{font-size:28px;font-weight:800;letter-spacing:-.01em;color:var(--accent-yellow);}
+   155→   155→.stat-label{font-size:13px;opacity:.7;margin-top:4px;}
+   156→   156→
+   157→   157→.pains-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+   158→   158→.pain-card{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-lg);padding:20px;display:flex;gap:14px;align-items:flex-start;}
+   159→   159→.pain-icon{width:40px;height:40px;border-radius:12px;background:#FEE2E2;color:#DC2626;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+   160→   160→.pain-text{display:flex;flex-direction:column;gap:4px;}
+   161→   161→.pain-title{font-size:14.5px;font-weight:700;color:#991B1B;}
+   162→   162→.pain-desc{font-size:13px;color:#7F1D1D;line-height:1.5;opacity:.85;}
+   163→   163→
+   164→   164→.how-steps{display:flex;flex-direction:column;gap:0;}
+   165→   165→.how-step{display:flex;gap:20px;align-items:flex-start;position:relative;padding-bottom:24px;}
+   166→   166→.how-step:last-child{padding-bottom:0;}
+   167→   167→.how-step::before{content:'';position:absolute;left:19px;top:42px;bottom:0;width:2px;background:var(--card-border);}
+   168→   168→.how-step:last-child::before{display:none;}
+   169→   169→.how-num{width:40px;height:40px;border-radius:50%;background:var(--info-icon-bg);color:#fff;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+   170→   170→.how-content{display:flex;flex-direction:column;gap:4px;padding-top:4px;}
+   171→   171→.how-title{font-size:16px;font-weight:700;}
+   172→   172→.how-desc{font-size:14px;color:var(--text-secondary);line-height:1.6;}
+   173→   173→
+   174→   174→.panel{background:var(--panel-bg);border-radius:24px;box-shadow:0 24px 64px rgba(21,23,26,.10),0 2px 8px rgba(21,23,26,.05);padding:28px;display:flex;flex-direction:column;gap:24px;}
+   175→   175→
+   176→   176→.benefits-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+   177→   177→.benefit-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px;display:flex;gap:14px;align-items:flex-start;transition:transform .2s ease,box-shadow .2s ease;}
+   178→   178→.benefit-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(21,23,26,.08);}
+   179→   179→.benefit-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;}
+   180→   180→.benefit-icon.blue{background:#E8F2FE;color:#1478F0;}.benefit-icon.green{background:#EAF7EE;color:#16A34A;}
+   181→   181→.benefit-icon.yellow{background:#FFF8E1;color:#F59E0B;}.benefit-icon.magenta{background:#FCE4EC;color:#E91E63;}
+   182→   182→.benefit-text{display:flex;flex-direction:column;gap:4px;}
+   183→   183→.benefit-title{font-size:14.5px;font-weight:700;}.benefit-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+   184→   184→
+   185→   185→.kit-recommend{display:inline-flex;align-items:center;gap:6px;background:var(--accent-magenta-bg);color:var(--accent-magenta);font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);}
+   186→   186→.savings-badge{display:inline-flex;align-items:center;gap:4px;background:#FFF3CC;color:#7A5B00;font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);}
+   187→   187→
+   188→   188→.kit-card{position:relative;text-align:left;background:var(--card-bg);border:2px solid transparent;border-radius:var(--radius-lg);padding:22px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;width:100%;transition:border-color .15s ease,background .15s ease,transform .15s ease;}
+   189→   189→.kit-card:hover{background:var(--card-bg-hover);transform:translateY(-1px);}
+   190→   190→.kit-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);}
+   191→   191→.kit-card.recommended{border-color:var(--accent-magenta);}
+   192→   192→.kit-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+   193→   193→.kit-name-row{display:flex;align-items:center;gap:10px;}
+   194→   194→.kit-comp-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+   195→   195→.kit-comp-list li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+   196→   196→.kit-comp-list li::before{content:"\2022";color:var(--text-tertiary);flex:0 0 auto;}
+   197→   197→.kit-package{font-size:13px;color:var(--text-secondary);}
+   198→   198→.kit-overage{font-size:12px;color:var(--text-secondary);border-top:1px solid var(--card-border);padding-top:8px;margin-top:2px;}
+   199→   199→.kit-badges{display:flex;gap:8px;flex-wrap:wrap;}
+   200→   200→
+   201→   201→.kit-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
+   202→   202→.kit-layout-col{display:flex;flex-direction:column;gap:14px;}
+   203→   203→.constructor-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;}
+   204→   204→.constructor-col{display:flex;flex-direction:column;gap:20px;}
+   205→   205→
+   206→   206→.checkout{background:var(--panel-bg);border-radius:var(--radius-lg);box-shadow:0 8px 32px rgba(21,23,26,.08);padding:24px;display:flex;flex-direction:column;gap:16px;position:sticky;top:20px;}
+   207→   207→.checkout-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+   208→   208→.checkout-items{display:flex;flex-direction:column;gap:10px;}
+   209→   209→.checkout-item{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-size:14px;line-height:1.5;}
+   210→   210→.checkout-item .c-label{color:var(--text-secondary);flex:1;}
+   211→   211→.checkout-item .c-value{font-weight:700;white-space:nowrap;flex:0 0 auto;}
+   212→   212→.checkout-divider{height:1px;background:var(--card-border);}
+   213→   213→.checkout-total{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:800;}
+   214→   214→.checkout-savings{background:var(--accent-green-bg);border:1px solid #BBF7D0;border-radius:var(--radius-md);padding:12px 16px;display:flex;flex-direction:column;gap:4px;}
+   215→   215→.checkout-savings .s-label{font-size:12.5px;color:#16A34A;font-weight:600;}
+   216→   216→.checkout-savings .s-value{font-size:18px;font-weight:800;color:#16A34A;}
+   217→   217→.checkout-empty{font-size:14px;color:var(--text-tertiary);text-align:center;padding:24px 0;line-height:1.6;}
+   218→   218→.checkout-kit-match{background:linear-gradient(135deg,#FFF8E1,#FFFBEB);border:1px solid #FDE68A;border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px;}
+   219→   219→.checkout-kit-match .m-title{font-size:13px;font-weight:700;color:#92400E;display:flex;align-items:center;gap:6px;}
+   220→   220→.checkout-kit-match .m-text{font-size:12.5px;color:#78350F;line-height:1.5;}
+   221→   221→.checkout-kit-match .m-btn{display:inline-flex;align-self:flex-start;align-items:center;gap:4px;background:var(--accent-yellow);color:var(--text-primary);border:none;border-radius:var(--radius-pill);padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;transition:background .15s ease;}
+   222→   222→.checkout-kit-match .m-btn:hover{background:var(--accent-yellow-hover);}
+   223→   223→
+   224→   224→.constructor-section{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px 22px;display:flex;flex-direction:column;gap:14px;}
+   225→   225→.constructor-section.highlight{background:var(--card-selected-tint);border:2px solid var(--accent-yellow);}
+   226→   226→.cs-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+   227→   227→.cs-subtitle{font-size:13.5px;color:var(--text-secondary);line-height:1.5;}
+   228→   228→.cs-skip{font-size:13px;color:var(--text-tertiary);}
+   229→   229→
+   230→   230→.agreements{display:flex;flex-direction:column;gap:10px;}
+   231→   231→.agreement{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--text-secondary);cursor:pointer;}.agreement input{margin-top:3px;flex:0 0 auto;accent-color:var(--info-icon-bg);}
+   232→   232→.agreement-alert{background:#FEF2F2;border:1px solid #FECACA;border-radius:var(--radius-md);padding:10px 14px;font-size:13px;color:#DC2626;display:none;align-items:center;gap:8px;}
+   233→   233→.agreement-alert.show{display:flex;}
+   234→   234→
+   235→   235→.plans-row{display:flex;gap:10px;flex-wrap:wrap;}
+   236→   236→.plan-card{background:#fff;border:2px solid var(--card-border);border-radius:var(--radius-md);padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px;flex:1;min-width:120px;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;}
+   237→   237→.plan-card:hover{background:var(--card-bg-hover);}
+   238→   238→.plan-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);box-shadow:0 2px 8px rgba(21,23,26,.08);}
+   239→   239→.plan-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+   240→   240→.plan-name{font-size:14px;font-weight:700;}.plan-price{font-size:16px;font-weight:800;}
+   241→   241→.plan-price .note{font-size:11.5px;font-weight:500;color:var(--text-secondary);margin-left:4px;display:block;}
+   242→   242→.plan-features{list-style:none;display:flex;flex-direction:column;gap:3px;}
+   243→   243→.plan-features li{font-size:12.5px;color:var(--text-primary);display:flex;gap:6px;line-height:1.4;}
+   244→   244→.plan-features li::before{content:"\2022";color:var(--text-tertiary);flex:0 0 auto;font-size:10px;margin-top:2px;}
+   245→   245→.plan-cons{font-size:11.5px;color:var(--text-tertiary);font-style:italic;margin-top:2px;}
+   246→   246→.plan-footnote{font-size:11.5px;color:var(--text-secondary);margin-top:2px;}
+   247→   247→.agent-stats{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;}
+   248→   248→.agent-stats .stat-label{color:var(--text-secondary);}.agent-stats .stat-value{font-weight:600;}
+   249→   249→.agent-overage{font-size:11.5px;color:var(--text-secondary);margin-top:4px;}
+   250→   250→
+   251→   251→.radio-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--card-border);flex:0 0 auto;display:flex;align-items:center;justify-content:center;transition:border-color .15s ease,background .15s ease;}
+   252→   252→.selected .radio-dot{border-color:var(--text-primary);background:var(--text-primary);}
+   253→   253→.selected .radio-dot::after{content:'';width:7px;height:7px;border-radius:50%;background:#fff;}
+   254→   254→
+   255→   255→.info-btn{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--card-border);background:#fff;color:var(--text-tertiary);font-size:13px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto;transition:border-color .15s ease,color .15s ease,background .15s ease;font-style:italic;line-height:1;}
+   256→   256→.info-btn:hover{border-color:var(--info-icon-bg);color:var(--info-icon-bg);background:var(--info-bg);}
+   257→   257→
+   258→   258→.info-overlay{position:fixed;inset:0;z-index:100;background:rgba(21,23,26,.45);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+   259→   259→.info-overlay.open{opacity:1;pointer-events:auto;}
+   260→   260→.info-modal{background:#fff;border-radius:20px;max-width:540px;width:100%;max-height:85vh;overflow-y:auto;padding:32px;box-shadow:0 24px 80px rgba(21,23,26,.2);transform:translateY(12px);transition:transform .25s ease;}
+   261→   261→.info-overlay.open .info-modal{transform:translateY(0);}
+   262→   262→.info-modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:var(--card-bg);color:var(--text-secondary);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s ease;}
+   263→   263→.info-modal-close:hover{background:var(--card-bg-hover);}
+   264→   264→.info-modal h2{font-size:22px;font-weight:800;letter-spacing:-.01em;margin-bottom:6px;padding-right:32px;}
+   265→   265→.info-modal .lead{font-size:15px;line-height:1.6;color:var(--text-secondary);margin-bottom:20px;}
+   266→   266→.info-modal .detail-section{margin-bottom:18px;}
+   267→   267→.info-modal .detail-section h3{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+   268→   268→.info-modal .detail-section ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+   269→   269→.info-modal .detail-section ul li{font-size:14px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+   270→   270→.info-modal .detail-section ul li::before{content:"\2022";color:var(--info-icon-bg);flex:0 0 auto;font-size:10px;margin-top:5px;}
+   271→   271→.info-modal .detail-tag{display:inline-flex;align-items:center;gap:6px;background:var(--info-bg);border-radius:var(--radius-pill);padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--info-icon-bg);margin-bottom:16px;}
+   272→   272→.info-modal .detail-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+   273→   273→.info-modal .detail-stat{background:var(--card-bg);border-radius:var(--radius-md);padding:14px 16px;text-align:center;}
+   274→   274→.info-modal .detail-stat .ds-val{font-size:22px;font-weight:800;color:var(--text-primary);}
+   275→   275→.info-modal .detail-stat .ds-label{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+   276→   276→.info-modal .good-for{background:var(--accent-green-bg);border:1px solid #BBF7D0;border-radius:var(--radius-md);padding:14px 16px;font-size:13.5px;color:#15803d;line-height:1.5;margin-top:8px;}
+   277→   277→.info-modal .good-for b{display:block;margin-bottom:4px;font-size:14px;}
+   278→   278→.info-modal .kit-modal-comp{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+   279→   279→.info-modal .kit-comp-block{background:var(--card-bg);border-radius:var(--radius-md);padding:14px 16px;display:flex;flex-direction:column;gap:4px;}
+   280→   280→.info-modal .kit-comp-block .kcb-title{font-size:13px;font-weight:700;color:var(--text-primary);}
+   281→   281→.info-modal .kit-comp-block .kcb-detail{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+   282→   282→
+   283→   283→.info-block{display:flex;gap:14px;align-items:flex-start;background:var(--info-bg);border-radius:var(--radius-lg);padding:16px 18px;}
+   284→   284→.info-icon{flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--info-icon-bg);color:#fff;display:flex;align-items:center;justify-content:center;}
+   285→   285→.info-text{font-size:14.5px;line-height:1.5;color:var(--text-primary);}
+   286→   286→.hint{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text-secondary);line-height:1.5;}.hint svg{flex:0 0 auto;margin-top:2px;}
+   287→   287→
+   288→   288→.stub-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:24px 8px;}
+   289→   289→.stub-check{width:64px;height:64px;border-radius:50%;background:#EAF7EE;color:#1E9E4A;display:flex;align-items:center;justify-content:center;}
+   290→   290→.stub-summary{margin-top:8px;background:var(--card-bg);border-radius:var(--radius-lg);padding:18px 22px;text-align:left;max-width:420px;width:100%;}
+   291→   291→.stub-summary div{font-size:14px;line-height:1.7;}.stub-summary .label{color:var(--text-secondary);}
+   292→   292→
+   293→   293→.btn{appearance:none;border:none;border-radius:var(--radius-pill);padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s ease,opacity .15s ease,transform .05s ease,box-shadow .15s ease;}
+   294→   294→.btn:active{transform:scale(.98);}
+   295→   295→.btn-primary{background:var(--accent-yellow);color:var(--text-primary);}.btn-primary:hover{background:var(--accent-yellow-hover);box-shadow:0 4px 16px rgba(255,221,91,.3);}
+   296→   296→.btn-secondary{background:#fff;color:var(--btn-secondary-text);border:1px solid var(--btn-secondary-border);}.btn-secondary:hover{background:var(--card-bg);}
+   297→   297→.btn-ghost{background:transparent;color:var(--text-secondary);border:none;text-decoration:underline;text-underline-offset:3px;}.btn-ghost:hover{color:var(--text-primary);}
+   298→   298→.btn-wide{flex:1;}
+   299→   299→
+   300→   300→.progress{display:flex;align-items:center;gap:10px;}
+   301→   301→.progress-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-tertiary);}
+   302→   302→.progress-step .dot{width:22px;height:22px;border-radius:50%;background:var(--card-bg);color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--card-border);flex:0 0 auto;}
+   303→   303→.progress-step.active{color:var(--text-primary);}.progress-step.active .dot{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+   304→   304→.progress-step.done .dot{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+   305→   305→.progress-line{width:28px;height:1px;background:var(--card-border);flex:0 0 auto;}
+   306→   306→
+   307→   307→h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
+   308→   308→.subtitle{color:var(--text-secondary);font-size:15px;line-height:1.5;margin-top:6px;}
+   309→   309→.section-title{font-size:18px;font-weight:700;}
+   310→   310→
+   311→   311→.action-bar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--divider);}.action-bar[hidden]{display:none;}
+   312→   312→.action-bar-inner{max-width:840px;margin:0 auto;display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;}.action-bar-inner.split{justify-content:space-between;}
+   313→   313→
+   314→   314→.connector{text-align:center;padding:12px 0;font-size:14px;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;gap:8px;}
+   315→   315→.connector::before,.connector::after{content:'';width:60px;height:1px;background:var(--card-border);}
+   316→   316→
+   317→   317→@media(max-width:720px){
+   318→   318→  .page{padding:0 16px calc(var(--bar-h) + 20px);}.panel{padding:20px;border-radius:18px;gap:20px;}
+   319→   319→  h1.screen-title{font-size:22px;}.section-title{font-size:16px;}.subtitle{font-size:14px;}
+   320→   320→  .proto-nav{top:8px;right:8px;font-size:11px;padding:5px 8px;gap:6px;}.action-bar-inner{padding:12px 16px;gap:8px;}.btn{padding:12px 18px;font-size:14px;}
+   321→   321→  .hero{padding:32px 24px;border-radius:18px;}.hero-title{font-size:26px;}.hero-subtitle{font-size:15px;}
+   322→   322→  .stats-row{grid-template-columns:1fr;}.benefits-grid{grid-template-columns:1fr;}.pains-grid{grid-template-columns:1fr;}.kit-card{padding:18px 20px;}.kit-top{flex-direction:column;gap:6px;}
+   323→   323→  .kit-layout,.constructor-layout{grid-template-columns:1fr;}.checkout{position:static;}
+   324→   324→  .plans-row{flex-direction:column;}.plan-card{min-width:0;}
+   325→   325→  .info-modal{padding:24px;margin:12px;}
+   326→   326→  .sticky-cta{padding:10px 16px;}.sticky-cta .cta-price{font-size:16px;}
+   327→   327→  .dash-layout{grid-template-columns:1fr;}.dash-sidebar{display:none;}.dash-main{padding:16px;}
+   328→   328→  .dash-widgets{grid-template-columns:1fr;}
+   329→   329→}
+   330→   330→</style>
+   331→   331→</head>
+   332→   332→<body>
+   333→   333→<nav class="proto-nav" aria-label="Навигация по прототипу">
+   334→   334→  <button type="button" class="proto-link" id="protoBack">&larr; Назад</button>
+   335→   335→  <span class="proto-sep" id="protoSep">&middot;</span>
+   336→   336→  <button type="button" class="proto-link" id="protoRestart">Начать заново</button>
+   337→   337→</nav>
+   338→   338→
+   339→   339→<!-- SCREEN 0: АТС DASHBOARD -->
+   340→   340→<div class="dash-layout" id="screen0">
+   341→   341→  <div class="dash-sidebar">
+   342→   342→    <button class="sb-icon" title="Меню"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   343→   343→    <button class="sb-icon active" title="Сотрудники"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   344→   344→    <button class="sb-icon" title="Маркетплейс"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   345→   345→    <button class="sb-icon" title="Статистика"><svg viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   346→   346→    <button class="sb-icon" title="Файлы"><svg viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   347→   347→    <button class="sb-icon" title="Настройки"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" stroke-width="2"/></svg></button>
+   348→   348→    <button class="sb-icon" title="История"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   349→   349→    <button class="sb-icon" title="Справка"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M9 9a3 3 0 015.12 1.5c0 1.5-2.12 2-2.12 3.5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+   350→   350→    <div class="sb-spacer"></div>
+   351→   351→    <button class="sb-icon sb-omnirm" id="sbOmniRM" title="ОмниРМ"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="10" r="2" fill="currentColor"/></svg></button>
+   352→   352→  </div>
+   353→   353→  <div class="dash-main">
+   354→   354→    <h1 class="dash-header">Ваша АТС</h1>
+   355→   355→    <!-- Progress card -->
+   356→   356→    <div class="progress-card">
+   357→   357→      <div class="progress-card-top">
+   358→   358→        <div class="progress-circle">
+   359→   359→          <svg viewBox="0 0 80 80" width="80" height="80"><circle class="pc-bg" cx="40" cy="40" r="34"/><circle class="pc-fg" cx="40" cy="40" r="34" stroke-dasharray="213.6" stroke-dashoffset="160.2"/></svg>
+   360→   360→          <div class="pc-text num">25%</div>
+   361→   361→        </div>
+   362→   362→        <div class="progress-info"><div class="progress-title">Основные настройки АТС</div><div class="progress-subtitle">Осталось 3 шага</div></div>
+   363→   363→      </div>
+   364→   364→      <div class="progress-steps">
+   365→   365→        <div class="progress-step-row done-text"><span class="check done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Подключить Облачную АТС</div>
+   366→   366→        <div class="progress-step-row"><span class="check pending"></span>Настроить маршрутизацию</div>
+   367→   367→        <div class="progress-step-row"><span class="check pending"></span>Добавить сотрудников</div>
+   368→   368→        <div class="progress-step-row"><span class="check pending"></span>Подключить ОмниРМ</div>
+   369→   369→      </div>
+   370→   370→    </div>
+   371→   371→    <!-- Widgets -->
+   372→   372→    <div class="dash-widgets">
+   373→   373→      <div class="dash-widget">
+   374→   374→        <div class="dw-title">Тариф</div>
+   375→   375→        <div class="dw-tariff">Стандартный</div>
+   376→   376→        <div class="dw-price-row"><span>Пакет</span><span class="num">3 490 ₽</span></div>
+   377→   377→        <div class="dw-price-row"><span>Сверх пакета</span><span class="num">0 ₽</span></div>
+   378→   378→        <div class="dw-price-row"><span class="total">Итого</span><span class="total num">3 490 ₽</span></div>
+   379→   379→        <button class="dw-btn">Открыть счета</button>
+   380→   380→      </div>
+   381→   381→      <div class="dash-widget">
+   382→   382→        <div class="dw-title">Номера</div>
+   383→   383→        <div class="dw-num-header num">20 из 20</div>
+   384→   384→        <div class="dw-bar"><div class="dw-bar-fill" style="width:100%"></div></div>
+   385→   385→        <div class="dw-num-detail">
+   386→   386→          <span>2 многоканальных номера</span>
+   387→   387→          <span>0 номеров сотрудников</span>
+   388→   388→        </div>
+   389→   389→      </div>
+   390→   390→      <!-- ОмниРМ promo banner -->
+   391→   391→      <div class="dash-promo" id="omnirmBanner">
+   392→   392→        <div class="dash-promo-title">ОмниРМ</div>
+   393→   393→        <div class="dash-promo-text">Омниканальное рабочее место оператора + ИИ-агенты. Звонки, чаты, Telegram &mdash; в одном окне.</div>
+   394→   394→        <div class="dash-promo-link">Подробнее <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+   395→   395→      </div>
+   396→   396→    </div>
+   397→   397→    <!-- Table -->
+   398→   398→    <div class="dash-table">
+   399→   399→      <div class="dt-header">
+   400→   400→        <div class="dt-title">Управление номерами</div>
+   401→   401→        <div class="dt-tabs">
+   402→   402→          <div class="dt-tab active">Номера сотрудников</div>
+   403→   403→          <div class="dt-tab">Многоканальные номера</div>
+   404→   404→        </div>
+   405→   405→      </div>
+   406→   406→      <div class="dt-toolbar"><input class="dt-search" placeholder="Поиск по номеру или имени&hellip;"></div>
+   407→   407→      <div class="dt-row dt-row-head"><span>Номер</span><span>Сотрудник</span><span>Статус</span></div>
+   408→   408→      <div class="dt-row"><span class="num">+7 (495) 123-45-01</span><span>Иванов А.С.</span><span class="dt-status"><span class="dot on"></span>Подключён</span></div>
+   409→   409→      <div class="dt-row"><span class="num">+7 (495) 123-45-02</span><span>Петрова М.В.</span><span class="dt-status"><span class="dot on"></span>Подключён</span></div>
+   410→   410→      <div class="dt-row"><span class="num">+7 (495) 123-45-10</span><span>Многоканальный</span><span class="dt-status"><span class="dot on"></span>Активен</span></div>
+   411→   411→      <div class="dt-row"><span class="num">+7 (495) 123-45-11</span><span>Многоканальный</span><span class="dt-status"><span class="dot on"></span>Активен</span></div>
+   412→   412→    </div>
+   413→   413→  </div>
+   414→   414→</div>
+   415→   415→
+   416→   416→<!-- SCREEN 1: LANDING -->
+   417→   417→<section class="screen" id="screen1" hidden>
+   418→   418→<div class="page">
+   419→   419→  <div class="hero animate-fade-up">
+   420→   420→    <div class="hero-badge"><span class="dot"></span> Подключение бесплатно</div>
+   421→   421→    <h1 class="hero-title">Все каналы &mdash; в одном окне оператора</h1>
+   422→   422→    <div class="hero-subtitle">Звонки, чаты, Telegram &mdash; всё в ОмниРМ. Не нужно переключаться между программами, не нужно нанимать лишних людей. ИИ-агенты берут рутину, операторы &mdash; сложные диалоги.</div>
+   423→   423→    <div class="hero-cta-row"><button class="btn btn-primary" id="heroCta" style="font-size:17px;padding:15px 32px;">Подключить ОмниРМ</button></div>
+   424→   424→    <div class="stats-row">
+   425→   425→      <div class="stat-card"><div class="stat-num num">5+</div><div class="stat-label">каналов в одном окне</div></div>
+   426→   426→      <div class="stat-card"><div class="stat-num num">до 14%</div><div class="stat-label">экономия с комплектом</div></div>
+   427→   427→      <div class="stat-card"><div class="stat-num num">24/7</div><div class="stat-label">ИИ-агенты не спят</div></div>
+   428→   428→    </div>
+   429→   429→  </div>
+   430→   430→  <div class="panel animate-fade-up delay-1">
+   431→   431→    <h2 class="section-title">Знакомо?</h2>
+   432→   432→    <div class="pains-grid">
+   433→   433→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div><div class="pain-text"><div class="pain-title">Оператор в 4 окнах</div><div class="pain-desc">Звонки в софтфоне, чаты в Telegram, заявки в CRM &mdash; оператор путается и теряет время.</div></div></div>
+   434→   434→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 8v4M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="pain-text"><div class="pain-title">Ночью &mdash; тишина</div><div class="pain-desc">После 18:00 обращения висят до утра. Клиент уходит к конкурентам, пока вы спите.</div></div></div>
+   435→   435→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><div class="pain-text"><div class="pain-title">Новый канал = новый сотрудник</div><div class="pain-desc">Подключили Telegram &mdash; наняли ещё одного. Виджет на сайт &mdash; ещё одного. Растут расходы, а не выручка.</div></div></div>
+   436→   436→      <div class="pain-card"><div class="pain-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4z" stroke="currentColor" stroke-width="2" rx="2"/><path d="M9 9h6v6H9z" stroke="currentColor" stroke-width="2"/></svg></div><div class="pain-text"><div class="pain-title">Нет общей истории</div><div class="pain-desc">Клиент звонил, писал в чат и оставил заявку &mdash; но для оператора это три разных диалога без связи.</div></div></div>
+   437→   437→    </div>
+   438→   438→  </div>
+   439→   439→  <div class="panel animate-fade-up delay-2">
+   440→   440→    <h2 class="section-title">Как это работает</h2>
+   441→   441→    <div class="how-steps">
+   442→   442→      <div class="how-step"><div class="how-num">1</div><div class="how-content"><div class="how-title">Подключаете каналы</div><div class="how-desc">Виджет на сайт, Telegram, MAX, Облачная АТС &mdash; всё из личного кабинета за пару кликов.</div></div></div>
+   443→   443→      <div class="how-step"><div class="how-num">2</div><div class="how-content"><div class="how-title">Оператор работает в одном окне</div><div class="how-desc">Звонки и переписка &mdash; в едином интерфейсе ОмниРМ. Карточка клиента со всей историей.</div></div></div>
+   444→   444→      <div class="how-step"><div class="how-num">3</div><div class="how-content"><div class="how-title">ИИ-агент берёт рутину</div><div class="how-desc">Ночью и в выходные ИИ-агент отвечает на типовые вопросы голосом и текстом.</div></div></div>
+   445→   445→      <div class="how-step"><div class="how-num">4</div><div class="how-content"><div class="how-title">Платите только за нужное</div><div class="how-desc">Один оператор &mdash; от 0 ₽. Комплект с ИИ-агентом &mdash; от 2 490 ₽/мес.</div></div></div>
+   446→   446→    </div>
+   447→   447→  </div>
+   448→   448→  <div class="panel animate-fade-up delay-3">
+   449→   449→    <h2 class="section-title">Что вы получаете</h2>
+   450→   450→    <div class="benefits-grid">
+   451→   451→      <div class="benefit-card"><div class="benefit-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="benefit-text"><div class="benefit-title">Единый экран оператора</div><div class="benefit-desc">Все звонки и чаты видны в одном окне. Оператор работает быстрее.</div></div></div>
+   452→   452→      <div class="benefit-card"><div class="benefit-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112 2z" stroke="currentColor" stroke-width="1.8"/></svg></div><div class="benefit-text"><div class="benefit-title">5+ каналов одновременно</div><div class="benefit-desc">Виджет, Telegram, MAX, звонки Облачной АТС &mdash; всё в пару кликов.</div></div></div>
+   453→   453→      <div class="benefit-card"><div class="benefit-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div><div class="benefit-text"><div class="benefit-title">ИИ работает 24/7</div><div class="benefit-desc">ИИ-агенты отвечают на типовые вопросы ночью и в выходные.</div></div></div>
+   454→   454→      <div class="benefit-card"><div class="benefit-icon magenta"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg></div><div class="benefit-text"><div class="benefit-title">Комплект &mdash; экономия до 14%</div><div class="benefit-desc">Операторы + ИИ-агенты вместе дешевле. Бизнес+ экономит 1&thinsp;500&thinsp;&#8381;/мес.</div></div></div>
+   455→   455→    </div>
+   456→   456→  </div>
+   457→   457→  <div class="connector">перейдём к тарифам</div>
+   458→   458→</div>
+   459→   459→</section>
+   460→   460→
+   461→   461→<!-- SCREEN 2: КОМПЛЕКТЫ -->
+   462→   462→<section class="screen" id="screen2" hidden>
+   463→   463→<div class="page">
+   464→   464→  <div class="progress" id="progressBar1"></div>
+   465→   465→  <div class="panel">
+   466→   466→    <div><h1 class="screen-title">Вместе выгоднее</h1><div class="subtitle">Комплект = операторы + ИИ-агенты. Экономия до 14% по сравнению с покупкой по отдельности.</div></div>
+   467→   467→    <div class="kit-layout">
+   468→   468→      <div class="kit-layout-col">
+   469→   469→        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div class="section-title">Выберите комплект</div><div class="kit-recommend"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div></div>
+   470→   470→        <div style="display:flex;flex-direction:column;gap:14px;" id="kitsGrid"></div>
+   471→   471→        <div class="hint"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg><span>Хочу собрать свой тариф &mdash; <button class="btn-ghost" id="goConstructor">конструктор тарифа</button></span></div>
+   472→   472→      </div>
+   473→   473→      <div class="checkout" id="kitCheckout"><div class="checkout-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>Ваш заказ</div><div id="kitCheckoutContent"></div></div>
+   474→   474→    </div>
+   475→   475→    <div class="info-block"><div class="info-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg></div><div class="info-text">Подключение комплекта: 0 &#8381;. Тарификация начинается после выбора.</div></div>
+   476→   476→    <div class="agreements"><label class="agreement"><input type="checkbox" id="agree1"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label><label class="agreement"><input type="checkbox" id="agree2"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных</a></span></label></div>
+   477→   477→    <div class="agreement-alert" id="alert1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="currentColor"/></svg> Пожалуйста, отметьте условия, чтобы продолжить</div>
+   478→   478→  </div>
+   479→   479→</div>
+   480→   480→</section>
+   481→   481→
+   482→   482→<!-- SCREEN 3: КОНСТРУКТОР -->
+   483→   483→<section class="screen" id="screen3" hidden>
+   484→   484→<div class="page">
+   485→   485→  <div class="progress" id="progressBar2"></div>
+   486→   486→  <div class="panel">
+   487→   487→    <div><h1 class="screen-title">Соберите свой тариф</h1><div class="subtitle">Выберите, что вам нужно. Комплектом всегда дешевле &mdash; мы покажем подходящий.</div></div>
+   488→   488→    <div class="constructor-layout">
+   489→   489→      <div class="constructor-col">
+   490→   490→        <div class="constructor-section" id="sectionOmniRM"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниРМ &mdash; рабочее место оператора</div><div class="cs-subtitle">Единый интерфейс для звонков и переписки. Каналы: виджет, Telegram, MAX.</div><div class="plans-row" id="omnirmPlans"></div></div>
+   491→   491→        <div class="constructor-section" id="sectionAgents"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--accent-magenta)" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="var(--accent-magenta)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниАгенты &mdash; ИИ-агенты</div><div class="cs-subtitle">Автоответ на типовые вопросы 24/7. Голос и текст из единого пакета.</div><div class="plans-row" id="agentsPlans"></div><div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div></div>
+   492→   492→      </div>
+   493→   493→      <div class="checkout" id="checkoutSidebar"><div class="checkout-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>Ваш заказ</div><div class="checkout-items" id="checkoutItems"></div><div class="checkout-divider"></div><div id="checkoutTotalRow"></div><div id="checkoutKitMatch"></div><div id="checkoutSavings"></div></div>
+   494→   494→    </div>
+   495→   495→    <div class="hint"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg><span>Комплектом выгоднее! <button class="btn-ghost" id="goKits">Выбрать готовый комплект</button></span></div>
+   496→   496→    <div class="agreements"><label class="agreement"><input type="checkbox" id="agree3"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label><label class="agreement"><input type="checkbox" id="agree4"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных</a></span></label></div>
+   497→   497→    <div class="agreement-alert" id="alert3"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="currentColor"/></svg> Пожалуйста, отметьте условия, чтобы продолжить</div>
+   498→   498→  </div>
+   499→   499→</div>
+   500→   500→</section>
+   501→   501→
+   502→   502→<!-- SCREEN 4: CONFIRMATION -->
+   503→   503→<section class="screen" id="screen4" hidden>
+   504→   504→<div class="page">
+   505→   505→  <div class="panel"><div class="stub-wrap"><div class="stub-check" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1 class="screen-title">Услуга подключена</h1><div class="subtitle">Итоговый состав подключения:</div><div class="stub-summary" id="finalSummary"></div></div></div>
+   506→   506→</div>
+   507→   507→</section>
+   508→   508→
+   509→   509→<!-- INFO MODAL -->
+   510→   510→<div class="info-overlay" id="infoOverlay"><div class="info-modal" id="infoModal" style="position:relative;"><button class="info-modal-close" id="infoModalClose" aria-label="Закрыть">&times;</button><div id="infoModalContent"></div></div></div>
+   511→   511→
+   512→   512→<!-- STICKY CTA (Screen 1 only) -->
+   513→   513→<div class="sticky-cta" id="stickyCta" hidden><span class="cta-text">ОмниРМ</span><span class="cta-price num">от 0 ₽/мес</span><button class="btn btn-primary" id="stickyCtaBtn" style="padding:10px 22px;font-size:14px;">Подключить</button></div>
+   514→   514→
+   515→   515→<!-- FOOTER 2 (комплекты) -->
+   516→   516→<div class="action-bar" id="footer2"><div class="action-bar-inner split"><button class="btn btn-secondary btn-wide" id="skipKitBtn">Собрать самому</button><button class="btn btn-primary btn-wide" id="connectKitBtn">Подключить комплект</button></div></div>
+   517→   517→<!-- FOOTER 3 (конструктор) -->
+   518→   518→<div class="action-bar" id="footer3" hidden><div class="action-bar-inner split"><button class="btn btn-secondary" id="backToKitsBtn">Готовые комплекты</button><button class="btn btn-primary" id="connectConstBtn">Подключить</button></div></div>
+   519→   519→
+   520→   520→<script>
+   521→   521→var TARIFFS={services:{omnirm:{id:'omnirm',label:'ОмниРМ',plans:[
+   522→   522→  {id:'solo',name:'Соло',price:0,priceLabel:'0 ₽',note:'в тарифе ОАТС',features:['1 оператор','1 канал (виджет или MAX)','100 диалогов/мес','история 30 дней'],cons:'без очередей, супервизора, аналитики и рассылок',description:{title:'Тариф «Соло»',lead:'Для одного оператора, который принимает обращения из одного канала.',bullets:['1 рабочее место оператора','1 текстовый канал: виджет на сайте или MAX','До 100 диалогов в месяц','История диалогов — 30 дней','Входит в тариф Облачной АТС'],goodFor:'Для малого бизнеса или старта: один оператор, один канал, нулевая стоимость.'}},
+   523→   523→  {id:'team5',name:'Команда 5',price:3990,priceLabel:'3 990 ₽/мес',features:['до 5 операторов','полный функционал'],footnote:'+990 ₽ за оператора с 6-го',description:{title:'Тариф «Команда 5»',lead:'Полный функционал ОмниРМ для команды до 5 операторов.',bullets:['До 5 рабочих мест операторов','Все текстовые каналы: виджет, Telegram, MAX','Неограниченное число диалогов','Полная история диалогов','Общая очередь и распределение обращений','Супервизор: мониторинг в реальном времени','Аналитика: отчёты по операторам и каналам','Рассылки и шаблоны ответов','Каждый доп. оператор с 6-го — +990 ₽/мес'],goodFor:'Для растущих команд: когда один оператор не справляется.'}}
+   524→   524→]},agents:{id:'agents',label:'ОмниАгенты',plans:[
+   525→   525→  {id:'start',name:'Старт',price:2700,priceLabel:'2 700 ₽/мес',minutes:300,requests:300,overMinute:10,overRequest:5,description:{title:'ИИ-агенты «Старт»',lead:'Автоответчик на типовые вопросы — голосом и текстом.',bullets:['300 минут голосового автоответа в месяц','300 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы: виджет, Telegram, MAX','Передача диалога оператору','Сверх пакета: 10 ₽/мин, 5 ₽/обращение'],goodFor:'Для малого бизнеса: ночью агент отвечает за вас.'}},
+   526→   526→  {id:'business',name:'Бизнес',price:6500,priceLabel:'6 500 ₽/мес',minutes:800,requests:1000,overMinute:9,overRequest:4,description:{title:'ИИ-агенты «Бизнес»',lead:'Расширенный пакет для компаний с устойчивым потоком обращений.',bullets:['800 минут голоса в месяц','1 000 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы','Обзвон-кампании из пакета минут','Передача диалога оператору с контекстом','Сверх пакета: 9 ₽/мин, 4 ₽/обращение'],goodFor:'Для среднего бизнеса: агент берёт 60–80% обращений.'}},
+   527→   527→  {id:'pro',name:'Про',price:18700,priceLabel:'18 700 ₽/мес',minutes:2000,requests:3000,overMinute:8,overRequest:3,description:{title:'ИИ-агенты «Про»',lead:'Максимальный пакет для компаний с высоким потоком.',bullets:['2 000 минут голоса в месяц','3 000 текстовых обращений в месяц','Голос и текст — единый пакет','Все каналы','Обзвон-кампании без ограничений','Приоритетная передача с контекстом','Персональный менеджер','Сверх пакета: 8 ₽/мин, 3 ₽/обращение'],goodFor:'Для крупного бизнеса и кол-центров.'}}
+   528→   528→]}},kits:[
+   529→   529→  {id:'start-plus',name:'Старт+',price:2490,priceLabel:'2 490 ₽/мес',operators:'2 оператора ОмниРМ',agents:'ИИ-агенты, тариф Старт',pkg:'300 минут голоса · 300 текстовых обращений',overage:'Сверх пакета: 10 ₽/мин · 5 ₽/обр',recommended:false,omnirmPlan:'solo',agentsPlan:'start',description:{title:'Комплект «Старт+»',lead:'Всё для старта: 2 оператора ОмниРМ и ИИ-агент.',compOmniRM:'2 оператора ОмниРМ (тариф Соло). 1 канал, 100 диалогов/мес.',compAgents:'ИИ-агенты тариф Старт: 300 минут голоса + 300 обращений.',goodFor:'Для малого бизнеса: минимальный бюджет, но уже с ИИ-помощником.'}},
+   530→   530→  {id:'business-plus',name:'Бизнес+',price:8990,priceLabel:'8 990 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ',agents:'ИИ-агенты, тариф Бизнес',pkg:'800 минут голоса · 1 000 текстовых обращений',overage:'Сверх пакета: 9 ₽/мин · 4 ₽/обр',recommended:true,omnirmPlan:'team5',agentsPlan:'business',description:{title:'Комплект «Бизнес+»',lead:'Оптимальный комплект для растущей команды.',compOmniRM:'Команда 5: до 5 операторов, полный функционал.',compAgents:'ИИ-агенты тариф Бизнес: 800 минут + 1 000 обращений.',goodFor:'Для среднего бизнеса: лучший баланс цены и возможностей.'}},
+   531→   531→  {id:'pro-plus',name:'Про+',price:21900,priceLabel:'21 900 ₽/мес',operators:'Команда 5: до 5 операторов ОмниРМ',agents:'ИИ-агенты, тариф Про',pkg:'2 000 минут голоса · 3 000 текстовых обращений',overage:'Сверх пакета: 8 ₽/мин · 3 ₽/обр',recommended:false,omnirmPlan:'team5',agentsPlan:'pro',description:{title:'Комплект «Про+»',lead:'Максимум возможностей: команда операторов и ИИ-агенты с наибольшим пакетом.',compOmniRM:'Команда 5: до 5 операторов, полный функционал.',compAgents:'ИИ-агенты тариф Про: 2 000 минут + 3 000 обращений. Персональный менеджер.',goodFor:'Для крупного бизнеса: максимальная автоматизация.'}}
+   532→   532→],setupFee:0};
+   533→   533→
+   534→   534→var SEPARATE_PRICES={'start-plus':{omnirm:0,agents:2700},'business-plus':{omnirm:3990,agents:6500},'pro-plus':{omnirm:3990,agents:18700}};
+   535→   535→
+   536→   536→var state={service:'omnirm',kitId:null,omnirmPlanId:null,agentsPlanId:null,agree1:false,agree2:false,agree3:false,agree4:false,currentScreen:0};
+   537→   537→
+   538→   538→function el(id){return document.getElementById(id);}
+   539→   539→function fmtPrice(n){return n.toLocaleString('ru-RU')+' ₽';}
+   540→   540→
+   541→   541→/* ---- INFO MODAL ---- */
+   542→   542→function openInfoModal(html){el('infoModalContent').innerHTML=html;el('infoOverlay').classList.add('open');document.body.style.overflow='hidden';}
+   543→   543→function closeInfoModal(){el('infoOverlay').classList.remove('open');document.body.style.overflow='';}
+   544→   544→el('infoModalClose').addEventListener('click',closeInfoModal);
+   545→   545→el('infoOverlay').addEventListener('click',function(e){if(e.target===el('infoOverlay'))closeInfoModal();});
+   546→   546→document.addEventListener('keydown',function(e){if(e.key==='Escape')closeInfoModal();});
+   547→   547→
+   548→   548→function buildPlanModalHtml(svcId,planId){var svc=TARIFFS.services[svcId];var plan=null;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===planId){plan=svc.plans[i];break;}}if(!plan||!plan.description)return'';var d=plan.description;var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div>';var tag=svcId==='omnirm'?'Рабочее место оператора':'ИИ-агенты';html+='<div class="detail-tag">'+tag+'</div>';if(svcId==='agents'&&plan.minutes){html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val num">'+plan.minutes.toLocaleString('ru-RU')+'</div><div class="ds-label">минут голоса/мес</div></div><div class="detail-stat"><div class="ds-val num">'+plan.requests.toLocaleString('ru-RU')+'</div><div class="ds-label">обращений/мес</div></div></div>';}if(svcId==='omnirm'){if(plan.id==='solo'){html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">оператор</div></div><div class="detail-stat"><div class="ds-val">1</div><div class="ds-label">канал</div></div></div>';}else{html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val">до 5</div><div class="ds-label">операторов</div></div><div class="detail-stat"><div class="ds-val">5+</div><div class="ds-label">каналы</div></div></div>';}}html+='<div class="detail-section"><h3>Что входит</h3><ul>';for(var i=0;i<d.bullets.length;i++){html+='<li>'+d.bullets[i]+'</li>';}html+='</ul></div>';if(d.goodFor){html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';}return html;}
+   549→   549→
+   550→   550→function buildKitModalHtml(kitId){var kit=null;for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===kitId){kit=TARIFFS.kits[i];break;}}if(!kit||!kit.description)return'';var d=kit.description;var sep=SEPARATE_PRICES[kit.id];var separateTotal=sep.omnirm+sep.agents;var savings=separateTotal-kit.price;var html='<h2>'+d.title+'</h2><div class="lead">'+d.lead+'</div><div class="detail-tag">Комплект</div>';html+='<div class="detail-stats"><div class="detail-stat"><div class="ds-val num" style="color:#DC2626;">'+fmtPrice(separateTotal)+'/мес</div><div class="ds-label">по отдельности</div></div><div class="detail-stat"><div class="ds-val num" style="color:#16A34A;">'+kit.priceLabel+'</div><div class="ds-label">комплектом (экономия '+fmtPrice(savings)+')</div></div></div>';html+='<div class="kit-modal-comp"><div class="kit-comp-block"><div class="kcb-title">ОмниРМ</div><div class="kcb-detail">'+d.compOmniRM+'</div></div><div class="kit-comp-block"><div class="kcb-title">ОмниАгенты</div><div class="kcb-detail">'+d.compAgents+'</div></div></div>';if(d.goodFor){html+='<div class="good-for"><b>Кому подойдёт</b>'+d.goodFor+'</div>';}return html;}
+   551→   551→
+   552→   552→function infoBtnHtml(type,id){return '<button class="info-btn" data-info-type="'+type+'" data-info-id="'+id+'" title="Подробнее">i</button>';}
+   553→   553→
+   554→   554→document.addEventListener('click',function(e){var btn=e.target.closest('.info-btn');if(!btn)return;var type=btn.dataset.infoType;var id=btn.dataset.infoId;if(type==='omnirm'||type==='agents'){var html=buildPlanModalHtml(type,id);if(html)openInfoModal(html);}else if(type==='kit'){var html=buildKitModalHtml(id);if(html)openInfoModal(html);}});
+   555→   555→
+   556→   556→/* ---- PROGRESS ---- */
+   557→   557→function progressHtml(activeStep){var steps=[{n:1,label:'Комплекты'},{n:2,label:'Конструктор'}];return steps.map(function(s,i){var cls=s.n===activeStep?'active':(s.n<activeStep?'done':'');var line=i<steps.length-1?'<div class="progress-line"></div>':'';return '<div class="progress-step '+cls+'"><span class="dot">'+(s.n<activeStep?'✓':s.n)+'</span>'+s.label+'</div>'+line;}).join('');}
+   558→   558→function renderProgress(activeStep){el('progressBar1').innerHTML=progressHtml(activeStep);el('progressBar2').innerHTML=progressHtml(activeStep);}
+   559→   559→
+   560→   560→/* ---- SCREEN 0: Dashboard ---- */
+   561→   561→el('sbOmniRM').addEventListener('click',function(){renderScreen1();showScreen(1);});
+   562→   562→el('omnirmBanner').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   563→   563→
+   564→   564→/* ---- SCREEN 1: Landing ---- */
+   565→   565→el('heroCta').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   566→   566→el('stickyCtaBtn').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   567→   567→
+   568→   568→/* ---- SCREEN 2: Комплекты ---- */
+   569→   569→function renderScreen1(){}
+   570→   570→function renderScreen2(){renderKits();updateKitCheckout();renderProgress(1);}
+   571→   571→
+   572→   572→function renderKits(){var grid=el('kitsGrid');grid.innerHTML=TARIFFS.kits.map(function(b){var sep=SEPARATE_PRICES[b.id];var separateTotal=sep.omnirm+sep.agents;var savings=separateTotal-b.price;var savingsPct=Math.round(savings/separateTotal*100);var selected=state.kitId===b.id;var isRec=b.recommended;return '<div class="kit-card '+(selected?'selected ':'')+(isRec&&!selected?'recommended':'')+'" data-id="'+b.id+'"><div class="kit-top"><div class="kit-name-row"><div class="radio-dot"></div><div class="plan-name">'+b.name+'</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="plan-price num">'+b.priceLabel+'</div>'+infoBtnHtml('kit',b.id)+'</div></div><div class="kit-badges">'+(isRec?'<div class="kit-recommend">Рекомендуем</div>':'')+(savings>0?'<div class="savings-badge">Экономия '+savingsPct+'%</div>':'')+'</div><ul class="kit-comp-list"><li>'+b.operators+'</li><li>'+b.agents+'</li></ul><div class="kit-package num">'+b.pkg+'</div><div class="kit-overage num">'+b.overage+'</div></div>';}).join('');var cards=grid.querySelectorAll('.kit-card');for(var i=0;i<cards.length;i++){cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;state.kitId=e.currentTarget.dataset.id;renderKits();updateKitCheckout();});}}
+   573→   573→
+   574→   574→function updateKitCheckout(){var cont=el('kitCheckoutContent');if(!state.kitId){cont.innerHTML='<div class="checkout-empty">Выберите комплект,<br>чтобы увидеть заказ</div>';return;}var kit=null;for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===state.kitId){kit=TARIFFS.kits[i];break;}}var sep=SEPARATE_PRICES[kit.id];var separateTotal=sep.omnirm+sep.agents;var savings=separateTotal-kit.price;var savingsPct=Math.round(savings/separateTotal*100);var html='<div class="checkout-items"><div class="checkout-item"><span class="c-label">'+kit.operators+'</span></div><div class="checkout-item"><span class="c-label">'+kit.agents+'</span></div></div><div class="checkout-divider"></div><div class="checkout-item"><span class="c-label">Пакет</span></div><div style="font-size:13px;color:var(--text-secondary);line-height:1.5;">'+kit.pkg+'</div><div class="checkout-divider"></div><div class="checkout-item"><span class="c-label">По отдельности</span><span class="c-value num" style="text-decoration:line-through;color:var(--text-tertiary);">'+fmtPrice(separateTotal)+'/мес</span></div><div class="checkout-total"><span>Комплект '+kit.name+'</span><span class="num">'+kit.priceLabel+'</span></div>';if(savings>0){html+='<div class="checkout-savings"><div class="s-label">Экономия '+savingsPct+'%</div><div class="s-value num">'+fmtPrice(savings)+'/мес</div></div>';}cont.innerHTML=html;}
+   575→   575→
+   576→   576→el('agree1').addEventListener('change',function(e){state.agree1=e.target.checked;el('alert1').classList.remove('show');});
+   577→   577→el('agree2').addEventListener('change',function(e){state.agree2=e.target.checked;el('alert1').classList.remove('show');});
+   578→   578→
+   579→   579→el('connectKitBtn').addEventListener('click',function(){if(!state.kitId){return;}if(!state.agree1||!state.agree2){el('alert1').classList.add('show');el('alert1').classList.add('shake');setTimeout(function(){el('alert1').classList.remove('shake');},400);return;}var kit=null;for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===state.kitId){kit=TARIFFS.kits[i];break;}}var sep=SEPARATE_PRICES[kit.id];var savings=(sep.omnirm+sep.agents)-kit.price;el('finalSummary').innerHTML='<div><span class="label">Комплект:</span> '+kit.name+' — <span class="num">'+kit.priceLabel+'</span></div><div><span class="label">Состав:</span> '+kit.operators+', '+kit.agents+'</div><div><span class="label">Пакет:</span> '+kit.pkg+'</div>'+(savings>0?'<div><span class="label">Экономия:</span> <span class="num" style="color:#16A34A;">'+fmtPrice(savings)+'/мес</span></div>':'')+'<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>';showScreen(4);});
+   580→   580→
+   581→   581→el('skipKitBtn').addEventListener('click',function(){renderScreen3();showScreen(3);});
+   582→   582→el('goConstructor').addEventListener('click',function(){renderScreen3();showScreen(3);});
+   583→   583→
+   584→   584→/* ---- SCREEN 3: Конструктор ---- */
+   585→   585→function renderOmniRMPlans(){var svc=TARIFFS.services.omnirm;var container=el('omnirmPlans');container.innerHTML=svc.plans.map(function(p){return '<div class="plan-card '+(state.omnirmPlanId===p.id?'selected':'')+'" data-id="'+p.id+'"><div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('omnirm',p.id)+'</div></div><div class="plan-price num">'+p.priceLabel+(p.note?'<span class="note">'+p.note+'</span>':'')+'</div><ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+(p.cons?'<div class="plan-cons">'+p.cons+'</div>':'')+(p.footnote?'<div class="plan-footnote">'+p.footnote+'</div>':'')+'</div>';}).join('');var cards=container.querySelectorAll('.plan-card');for(var i=0;i<cards.length;i++){cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;state.omnirmPlanId=e.currentTarget.dataset.id;renderOmniRMPlans();updateCheckout();});}}
+   586→   586→
+   587→   587→function renderAgentsPlans(){var svc=TARIFFS.services.agents;var container=el('agentsPlans');var html='<div class="plan-card '+(state.agentsPlanId===null?'selected':'')+'" data-id="__none__"><div class="plan-card-top"><div class="plan-name">Не нужны</div><div class="radio-dot"></div></div><div class="plan-price num">&mdash;</div></div>';html+=svc.plans.map(function(p){return '<div class="plan-card '+(state.agentsPlanId===p.id?'selected':'')+'" data-id="'+p.id+'"><div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('agents',p.id)+'</div></div><div class="plan-price num">'+p.priceLabel+'</div><div class="agent-stats"><div class="stat-label">Минуты</div><div class="stat-value num">'+p.minutes.toLocaleString('ru-RU')+'</div><div class="stat-label">Обращения</div><div class="stat-value num">'+p.requests.toLocaleString('ru-RU')+'</div><div class="stat-label">Каналы</div><div class="stat-value">все</div></div><div class="agent-overage">Сверх: '+p.overMinute+' ₽/мин · '+p.overRequest+' ₽/обр</div></div>';}).join('');container.innerHTML=html;var cards=container.querySelectorAll('.plan-card');for(var i=0;i<cards.length;i++){cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;var id=e.currentTarget.dataset.id;state.agentsPlanId=id==='__none__'?null:id;renderAgentsPlans();updateCheckout();});}}
+   588→   588→
+   589→   589→function findMatchingKit(){if(!state.omnirmPlanId||!state.agentsPlanId)return null;for(var i=0;i<TARIFFS.kits.length;i++){var k=TARIFFS.kits[i];if(k.omnirmPlan===state.omnirmPlanId&&k.agentsPlan===state.agentsPlanId)return k;}return null;}
+   590→   590→
+   591→   591→function updateCheckout(){var items=el('checkoutItems');var totalRow=el('checkoutTotalRow');var matchDiv=el('checkoutKitMatch');var savingsDiv=el('checkoutSavings');var total=0;var html='';if(!state.omnirmPlanId&&!state.agentsPlanId){items.innerHTML='<div class="checkout-empty">Выберите тариф,<br>чтобы увидеть заказ</div>';totalRow.innerHTML='';matchDiv.innerHTML='';savingsDiv.innerHTML='';return;}if(state.omnirmPlanId){var plan=null;var svc=TARIFFS.services.omnirm;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}total+=plan.price;html+='<div class="checkout-item"><span class="c-label">ОмниРМ, «'+plan.name+'»</span><span class="c-value num">'+fmtPrice(plan.price)+'/мес</span></div>';}if(state.agentsPlanId){var plan=null;var svc=TARIFFS.services.agents;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}total+=plan.price;html+='<div class="checkout-item"><span class="c-label">ОмниАгенты, «'+plan.name+'»</span><span class="c-value num">'+fmtPrice(plan.price)+'/мес</span></div>';}items.innerHTML=html;totalRow.innerHTML='<div class="checkout-total"><span>Итого</span><span class="num">'+fmtPrice(total)+'/мес</span></div>';var kit=findMatchingKit();if(kit){var savings=total-kit.price;matchDiv.innerHTML='<div class="checkout-kit-match"><div class="m-title">Это комплект «'+kit.name+'»</div><div class="m-text">Стоит <b>'+kit.priceLabel+'</b> вместо '+fmtPrice(total)+'/мес. Экономия '+fmtPrice(savings)+'/мес!</div><button class="m-btn">Взять комплектом</button></div>';savingsDiv.innerHTML='';matchDiv.querySelector('.m-btn').addEventListener('click',function(){state.kitId=kit.id;renderScreen2();showScreen(2);});}else if(state.omnirmPlanId&&state.agentsPlanId){var bestKit=null;var bestSavings=0;for(var i=0;i<TARIFFS.kits.length;i++){var k=TARIFFS.kits[i];var sep=SEPARATE_PRICES[k.id];var s=sep.omnirm+sep.agents-k.price;if(s>bestSavings){bestSavings=s;bestKit=k;}}if(bestKit){matchDiv.innerHTML='<div class="checkout-kit-match"><div class="m-title">Комплектом выгоднее</div><div class="m-text">Комплект «'+bestKit.name+'» стоит <b>'+bestKit.priceLabel+'</b> — экономия до '+Math.round(bestSavings/(SEPARATE_PRICES[bestKit.id].omnirm+SEPARATE_PRICES[bestKit.id].agents)*100)+'%.</div><button class="m-btn">Посмотреть комплект</button></div>';matchDiv.querySelector('.m-btn').addEventListener('click',function(){state.kitId=bestKit.id;renderScreen2();showScreen(2);});}savingsDiv.innerHTML='';}else{matchDiv.innerHTML='';savingsDiv.innerHTML='';}el('sectionOmniRM').classList.toggle('highlight',!!state.omnirmPlanId);el('sectionAgents').classList.toggle('highlight',!!state.agentsPlanId);}
+   592→   592→
+   593→   593→el('agree3').addEventListener('change',function(e){state.agree3=e.target.checked;el('alert3').classList.remove('show');});
+   594→   594→el('agree4').addEventListener('change',function(e){state.agree4=e.target.checked;el('alert3').classList.remove('show');});
+   595→   595→
+   596→   596→function renderScreen3(){state.omnirmPlanId=null;state.agentsPlanId=null;el('agree3').checked=false;el('agree4').checked=false;state.agree3=false;state.agree4=false;renderOmniRMPlans();renderAgentsPlans();updateCheckout();renderProgress(2);}
+   597→   597→
+   598→   598→el('connectConstBtn').addEventListener('click',function(){if(!state.omnirmPlanId&&!state.agentsPlanId){return;}if(!state.agree3||!state.agree4){el('alert3').classList.add('show');el('alert3').classList.add('shake');setTimeout(function(){el('alert3').classList.remove('shake');},400);return;}var total=0;var lines=[];if(state.omnirmPlanId){var plan=null;var svc=TARIFFS.services.omnirm;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}total+=plan.price;lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+plan.name+'»</div>');}if(state.agentsPlanId){var plan=null;var svc=TARIFFS.services.agents;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}total+=plan.price;lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+plan.name+'»</div>');}lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');lines.push('<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>');el('finalSummary').innerHTML=lines.join('');showScreen(4);});
+   599→   599→
+   600→   600→el('goKits').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   601→   601→el('backToKitsBtn').addEventListener('click',function(){renderScreen2();showScreen(2);});
+   602→   602→
+   603→   603→/* ---- Navigation ---- */
+   604→   604→function showScreen(n){
+   605→   605→  state.currentScreen=n;
+   606→   606→  el('screen0').hidden=n!==0;el('screen1').hidden=n!==1;el('screen2').hidden=n!==2;el('screen3').hidden=n!==3;el('screen4').hidden=n!==4;
+   607→   607→  el('footer2').hidden=n!==2;el('footer3').hidden=n!==3;
+   608→   608→  el('stickyCta').hidden=n!==1;
+   609→   609→  var back=el('protoBack'),sep=el('protoSep'),showBack=n!==0;
+   610→   610→  back.style.display=showBack?'inline':'none';sep.style.display=showBack?'inline':'none';
+   611→   611→  window.scrollTo({top:0,behavior:'smooth'});
+   612→   612→}
+   613→   613→function goBack(){if(state.currentScreen===4){if(state.kitId){renderScreen2();showScreen(2);}else{renderScreen3();showScreen(3);}}else if(state.currentScreen===3){renderScreen2();showScreen(2);}else if(state.currentScreen===2){showScreen(1);}else if(state.currentScreen===1){showScreen(0);}}
+   614→   614→function resetAll(){state.omnirmPlanId=null;state.agentsPlanId=null;state.kitId=null;state.agree1=false;state.agree2=false;state.agree3=false;state.agree4=false;el('agree1').checked=false;el('agree2').checked=false;el('agree3').checked=false;el('agree4').checked=false;el('alert1').classList.remove('show');el('alert3').classList.remove('show');showScreen(0);}
+   615→   615→el('protoBack').addEventListener('click',goBack);
+   616→   616→el('protoRestart').addEventListener('click',resetAll);
+   617→   617→showScreen(0);
+   618→   618→</script>
+   619→   619→</body>
+   620→   620→</html>

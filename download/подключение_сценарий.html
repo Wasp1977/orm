@@ -290,6 +290,33 @@ a{color:var(--link);text-decoration:none;}a:hover{text-decoration:underline;}
 .stub-summary{margin-top:8px;background:var(--card-bg);border-radius:var(--radius-lg);padding:18px 22px;text-align:left;max-width:420px;width:100%;}
 .stub-summary div{font-size:14px;line-height:1.7;}.stub-summary .label{color:var(--text-secondary);}
 
+/* Manage block on confirmation */
+.stub-manage{margin-top:24px;padding-top:20px;border-top:1px solid var(--divider);}
+.manage-notice{display:flex;gap:12px;align-items:flex-start;background:var(--info-bg);border-radius:var(--radius-md);padding:14px 18px;font-size:14px;line-height:1.5;color:var(--text-primary);}
+.manage-notice svg{flex:0 0 auto;margin-top:2px;}
+.manage-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;}
+
+/* Manage subscription page */
+.manage-change-section{margin-top:20px;}
+.manage-svc-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;background:var(--card-bg);border-radius:var(--radius-md);margin-bottom:12px;border:1px solid var(--card-border);}
+.manage-svc-row.disabled{opacity:.55;background:var(--bg-page);border-style:dashed;}
+.manage-svc-info{display:flex;flex-direction:column;gap:4px;}
+.manage-svc-name{font-size:16px;font-weight:700;}
+.manage-svc-detail{font-size:13px;color:var(--text-secondary);}
+.manage-svc-price{font-size:18px;font-weight:800;white-space:nowrap;}
+.manage-svc-actions{display:flex;gap:8px;}
+.manage-svc-row.disabled .manage-svc-actions{display:none;}
+.btn-sm{padding:8px 16px;font-size:13px;border-radius:var(--radius-pill);border:1px solid var(--btn-secondary-border);background:#fff;cursor:pointer;font-weight:600;transition:background .15s ease;}
+.btn-sm:hover{background:var(--card-bg);}
+.btn-sm.danger{color:#DC2626;border-color:#FECACA;}
+.btn-sm.danger:hover{background:#FEF2F2;}
+.manage-add-row{display:flex;align-items:center;gap:12px;padding:14px 20px;border:2px dashed var(--card-border);border-radius:var(--radius-md);cursor:pointer;color:var(--text-secondary);font-size:14px;font-weight:600;transition:border-color .15s ease,color .15s ease;}
+.manage-add-row:hover{border-color:var(--info-icon-bg);color:var(--info-icon-bg);}
+.manage-result{margin-top:20px;padding:18px;background:var(--accent-green-bg);border-radius:var(--radius-md);border:1px solid #BBF7D0;font-size:14px;line-height:1.6;}
+.manage-result .mr-title{font-weight:700;color:var(--accent-green);margin-bottom:6px;}
+.manage-result .mr-old{text-decoration:line-through;color:var(--text-tertiary);}
+.manage-result .mr-new{font-weight:700;color:var(--accent-green);}
+
 .btn{appearance:none;border:none;border-radius:var(--radius-pill);padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;transition:background .15s ease,opacity .15s ease,transform .05s ease,box-shadow .15s ease;}
 .btn:active{transform:scale(.98);}
 .btn-primary{background:var(--accent-yellow);color:var(--text-primary);}.btn-primary:hover{background:var(--accent-yellow-hover);box-shadow:0 4px 16px rgba(255,221,91,.3);}
@@ -487,7 +514,7 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
     <div><h1 class="screen-title">Соберите свой тариф</h1><div class="subtitle">Выберите, что вам нужно. Комплектом всегда дешевле &mdash; мы покажем подходящий.</div></div>
     <div class="constructor-layout">
       <div class="constructor-col">
-        <div class="constructor-section" id="sectionOmniRM"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниРМ &mdash; рабочее место оператора</div><div class="cs-subtitle">Единый интерфейс для звонков и переписки. Каналы: виджет, Telegram, MAX.</div><div class="plans-row" id="omnirmPlans"></div></div>
+        <div class="constructor-section" id="sectionOmniRM"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M8 21h8M12 17v4" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниРМ &mdash; рабочее место оператора</div><div class="cs-subtitle">Единый интерфейс для звонков и переписки. Каналы: виджет, Telegram, MAX.</div><div class="plans-row" id="omnirmPlans"></div><div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div></div>
         <div class="constructor-section" id="sectionAgents"><div class="cs-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--accent-magenta)" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="var(--accent-magenta)" stroke-width="1.8" stroke-linecap="round"/></svg>ОмниАгенты &mdash; ИИ-агенты</div><div class="cs-subtitle">Автоответ на типовые вопросы 24/7. Голос и текст из единого пакета.</div><div class="plans-row" id="agentsPlans"></div><div class="cs-skip">Можно подключить позже &mdash; это необязательный шаг</div></div>
       </div>
       <div class="checkout" id="checkoutSidebar"><div class="checkout-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6z" stroke="var(--text-primary)" stroke-width="1.6" fill="none"/><path d="M3 6h18M16 10a4 4 0 01-8 0" stroke="var(--text-primary)" stroke-width="1.6" stroke-linecap="round"/></svg>Ваш заказ</div><div class="checkout-items" id="checkoutItems"></div><div class="checkout-divider"></div><div id="checkoutTotalRow"></div><div id="checkoutKitMatch"></div><div id="checkoutSavings"></div></div>
@@ -502,7 +529,19 @@ h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-.01em;}
 <!-- SCREEN 4: CONFIRMATION -->
 <section class="screen" id="screen4" hidden>
 <div class="page">
-  <div class="panel"><div class="stub-wrap"><div class="stub-check" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1 class="screen-title">Услуга подключена</h1><div class="subtitle">Итоговый состав подключения:</div><div class="stub-summary" id="finalSummary"></div></div></div>
+  <div class="panel"><div class="stub-wrap"><div class="stub-check" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h1 class="screen-title">Услуга подключена</h1><div class="subtitle">Итоговый состав подключения:</div><div class="stub-summary" id="finalSummary"></div><div class="stub-manage" id="manageBlock"><div class="manage-notice"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--info-icon-bg)" stroke-width="1.8"/><path d="M12 8v5" stroke="var(--info-icon-bg)" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="16" r=".9" fill="var(--info-icon-bg)"/></svg><span>Вы можете изменить или отключить любую услугу в любой момент. При отключении ОмниРМ ИИ-агенты продолжат работу.</span></div><div class="manage-actions"><button class="btn btn-secondary" id="changeTariffBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Изменить тариф</button><button class="btn btn-secondary" id="disableOmniRMBtn" style="display:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:6px;"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Отключить ОмниРМ</button></div></div></div></div>
+</div>
+</section>
+
+<!-- SCREEN 5: MANAGE SUBSCRIPTION -->
+<section class="screen" id="screen5" hidden>
+<div class="page">
+  <div class="panel">
+    <div style="margin-bottom:20px;"><h1 class="screen-title">Управление подпиской</h1><div class="subtitle">Измените состав подключения: отключите услугу, смените тариф или добавьте новую.</div></div>
+    <div id="manageSummary"></div>
+    <div class="manage-change-section" id="changeSection"></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;"><button class="btn btn-primary" id="applyChangesBtn">Сохранить изменения</button><button class="btn btn-secondary" id="cancelChangeBtn">Отмена</button></div>
+  </div>
 </div>
 </section>
 
@@ -533,7 +572,7 @@ var TARIFFS={services:{omnirm:{id:'omnirm',label:'ОмниРМ',plans:[
 
 var SEPARATE_PRICES={'start-plus':{omnirm:0,agents:2700},'business-plus':{omnirm:3990,agents:6500},'pro-plus':{omnirm:3990,agents:18700}};
 
-var state={service:'omnirm',kitId:null,omnirmPlanId:null,agentsPlanId:null,agree1:false,agree2:false,agree3:false,agree4:false,currentScreen:0};
+var state={service:'omnirm',kitId:null,omnirmPlanId:null,agentsPlanId:null,agree1:false,agree2:false,agree3:false,agree4:false,currentScreen:0,connectedOmniRM:null,connectedAgents:null,managedOmniRM:undefined,managedAgents:undefined};
 
 function el(id){return document.getElementById(id);}
 function fmtPrice(n){return n.toLocaleString('ru-RU')+' ₽';}
@@ -559,7 +598,7 @@ function renderProgress(activeStep){el('progressBar1').innerHTML=progressHtml(ac
 
 /* ---- SCREEN 0: Dashboard ---- */
 el('sbOmniRM').addEventListener('click',function(){renderScreen1();showScreen(1);});
-el('omnirmBanner').addEventListener('click',function(){renderScreen2();showScreen(2);});
+el('omnirmBanner').addEventListener('click',function(){renderScreen1();showScreen(1);});
 
 /* ---- SCREEN 1: Landing ---- */
 el('heroCta').addEventListener('click',function(){renderScreen2();showScreen(2);});
@@ -576,13 +615,13 @@ function updateKitCheckout(){var cont=el('kitCheckoutContent');if(!state.kitId){
 el('agree1').addEventListener('change',function(e){state.agree1=e.target.checked;el('alert1').classList.remove('show');});
 el('agree2').addEventListener('change',function(e){state.agree2=e.target.checked;el('alert1').classList.remove('show');});
 
-el('connectKitBtn').addEventListener('click',function(){if(!state.kitId){return;}if(!state.agree1||!state.agree2){el('alert1').classList.add('show');el('alert1').classList.add('shake');setTimeout(function(){el('alert1').classList.remove('shake');},400);return;}var kit=null;for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===state.kitId){kit=TARIFFS.kits[i];break;}}var sep=SEPARATE_PRICES[kit.id];var savings=(sep.omnirm+sep.agents)-kit.price;el('finalSummary').innerHTML='<div><span class="label">Комплект:</span> '+kit.name+' — <span class="num">'+kit.priceLabel+'</span></div><div><span class="label">Состав:</span> '+kit.operators+', '+kit.agents+'</div><div><span class="label">Пакет:</span> '+kit.pkg+'</div>'+(savings>0?'<div><span class="label">Экономия:</span> <span class="num" style="color:#16A34A;">'+fmtPrice(savings)+'/мес</span></div>':'')+'<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>';showScreen(4);});
+el('connectKitBtn').addEventListener('click',function(){if(!state.kitId){return;}if(!state.agree1||!state.agree2){el('alert1').classList.add('show');el('alert1').classList.add('shake');setTimeout(function(){el('alert1').classList.remove('shake');},400);return;}var kit=null;for(var i=0;i<TARIFFS.kits.length;i++){if(TARIFFS.kits[i].id===state.kitId){kit=TARIFFS.kits[i];break;}}var sep=SEPARATE_PRICES[kit.id];var savings=(sep.omnirm+sep.agents)-kit.price;state.connectedOmniRM=kit.omnirmPlan;state.connectedAgents=kit.agentsPlan;el('finalSummary').innerHTML='<div><span class="label">Комплект:</span> '+kit.name+' — <span class="num">'+kit.priceLabel+'</span></div><div><span class="label">Состав:</span> '+kit.operators+', '+kit.agents+'</div><div><span class="label">Пакет:</span> '+kit.pkg+'</div>'+(savings>0?'<div><span class="label">Экономия:</span> <span class="num" style="color:#16A34A;">'+fmtPrice(savings)+'/мес</span></div>':'')+'<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>';el('disableOmniRMBtn').style.display=state.connectedOmniRM?'inline-flex':'none';showScreen(4);});
 
 el('skipKitBtn').addEventListener('click',function(){renderScreen3();showScreen(3);});
 el('goConstructor').addEventListener('click',function(){renderScreen3();showScreen(3);});
 
 /* ---- SCREEN 3: Конструктор ---- */
-function renderOmniRMPlans(){var svc=TARIFFS.services.omnirm;var container=el('omnirmPlans');container.innerHTML=svc.plans.map(function(p){return '<div class="plan-card '+(state.omnirmPlanId===p.id?'selected':'')+'" data-id="'+p.id+'"><div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('omnirm',p.id)+'</div></div><div class="plan-price num">'+p.priceLabel+(p.note?'<span class="note">'+p.note+'</span>':'')+'</div><ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+(p.cons?'<div class="plan-cons">'+p.cons+'</div>':'')+(p.footnote?'<div class="plan-footnote">'+p.footnote+'</div>':'')+'</div>';}).join('');var cards=container.querySelectorAll('.plan-card');for(var i=0;i<cards.length;i++){cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;state.omnirmPlanId=e.currentTarget.dataset.id;renderOmniRMPlans();updateCheckout();});}}
+function renderOmniRMPlans(){var svc=TARIFFS.services.omnirm;var container=el('omnirmPlans');var html='<div class="plan-card '+(state.omnirmPlanId===null?'selected':'')+'" data-id="__none__"><div class="plan-card-top"><div class="plan-name">Не нужна</div><div class="radio-dot"></div></div><div class="plan-price num">&mdash;</div><div class="plan-features" style="font-size:13px;color:var(--text-secondary);padding:0 16px 14px;">Операторы ОмниРМ не подключаются. Можно добавить позже.</div></div>';html+=svc.plans.map(function(p){return '<div class="plan-card '+(state.omnirmPlanId===p.id?'selected':'')+'" data-id="'+p.id+'"><div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('omnirm',p.id)+'</div></div><div class="plan-price num">'+p.priceLabel+(p.note?'<span class="note">'+p.note+'</span>':'')+'</div><ul class="plan-features">'+p.features.map(function(f){return '<li>'+f+'</li>';}).join('')+'</ul>'+(p.cons?'<div class="plan-cons">'+p.cons+'</div>':'')+(p.footnote?'<div class="plan-footnote">'+p.footnote+'</div>':'')+'</div>';}).join('');container.innerHTML=html;var cards=container.querySelectorAll('.plan-card');for(var i=0;i<cards.length;i++){cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;var id=e.currentTarget.dataset.id;state.omnirmPlanId=id==='__none__'?null:id;renderOmniRMPlans();updateCheckout();});}}
 
 function renderAgentsPlans(){var svc=TARIFFS.services.agents;var container=el('agentsPlans');var html='<div class="plan-card '+(state.agentsPlanId===null?'selected':'')+'" data-id="__none__"><div class="plan-card-top"><div class="plan-name">Не нужны</div><div class="radio-dot"></div></div><div class="plan-price num">&mdash;</div></div>';html+=svc.plans.map(function(p){return '<div class="plan-card '+(state.agentsPlanId===p.id?'selected':'')+'" data-id="'+p.id+'"><div class="plan-card-top"><div class="plan-name">'+p.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="radio-dot"></div>'+infoBtnHtml('agents',p.id)+'</div></div><div class="plan-price num">'+p.priceLabel+'</div><div class="agent-stats"><div class="stat-label">Минуты</div><div class="stat-value num">'+p.minutes.toLocaleString('ru-RU')+'</div><div class="stat-label">Обращения</div><div class="stat-value num">'+p.requests.toLocaleString('ru-RU')+'</div><div class="stat-label">Каналы</div><div class="stat-value">все</div></div><div class="agent-overage">Сверх: '+p.overMinute+' ₽/мин · '+p.overRequest+' ₽/обр</div></div>';}).join('');container.innerHTML=html;var cards=container.querySelectorAll('.plan-card');for(var i=0;i<cards.length;i++){cards[i].addEventListener('click',function(e){if(e.target.closest('.info-btn'))return;var id=e.currentTarget.dataset.id;state.agentsPlanId=id==='__none__'?null:id;renderAgentsPlans();updateCheckout();});}}
 
@@ -595,7 +634,139 @@ el('agree4').addEventListener('change',function(e){state.agree4=e.target.checked
 
 function renderScreen3(){state.omnirmPlanId=null;state.agentsPlanId=null;el('agree3').checked=false;el('agree4').checked=false;state.agree3=false;state.agree4=false;renderOmniRMPlans();renderAgentsPlans();updateCheckout();renderProgress(2);}
 
-el('connectConstBtn').addEventListener('click',function(){if(!state.omnirmPlanId&&!state.agentsPlanId){return;}if(!state.agree3||!state.agree4){el('alert3').classList.add('show');el('alert3').classList.add('shake');setTimeout(function(){el('alert3').classList.remove('shake');},400);return;}var total=0;var lines=[];if(state.omnirmPlanId){var plan=null;var svc=TARIFFS.services.omnirm;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}total+=plan.price;lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+plan.name+'»</div>');}if(state.agentsPlanId){var plan=null;var svc=TARIFFS.services.agents;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}total+=plan.price;lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+plan.name+'»</div>');}lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');lines.push('<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>');el('finalSummary').innerHTML=lines.join('');showScreen(4);});
+el('connectConstBtn').addEventListener('click',function(){if(!state.omnirmPlanId&&!state.agentsPlanId){el('alert3').classList.add('show');el('alert3').classList.add('shake');setTimeout(function(){el('alert3').classList.remove('shake');},400);return;}if(!state.agree3||!state.agree4){el('alert3').classList.add('show');el('alert3').classList.add('shake');setTimeout(function(){el('alert3').classList.remove('shake');},400);return;}var total=0;var lines=[];if(state.omnirmPlanId){var plan=null;var svc=TARIFFS.services.omnirm;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.omnirmPlanId){plan=svc.plans[i];break;}}total+=plan.price;lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+plan.name+'»</div>');}if(state.agentsPlanId){var plan=null;var svc=TARIFFS.services.agents;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.agentsPlanId){plan=svc.plans[i];break;}}total+=plan.price;lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+plan.name+'»</div>');}lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');lines.push('<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>');state.connectedOmniRM=state.omnirmPlanId;state.connectedAgents=state.agentsPlanId;el('finalSummary').innerHTML=lines.join('');el('disableOmniRMBtn').style.display=state.connectedOmniRM?'inline-flex':'none';showScreen(4);});
+
+/* ---- SCREEN 4: Manage ---- */
+el('changeTariffBtn').addEventListener('click',function(){renderManageScreen();showScreen(5);});
+
+el('disableOmniRMBtn').addEventListener('click',function(){state.managedOmniRM=null;state.managedAgents=state.connectedAgents;renderManageScreen();});
+
+function renderManageScreen(){
+  var omnirmPlanId=state.managedOmniRM!==undefined?state.managedOmniRM:state.connectedOmniRM;
+  var agentsPlanId=state.managedAgents!==undefined?state.managedAgents:state.connectedAgents;
+  var summHtml='';
+  var total=0;
+
+  /* ОмниРМ row */
+  if(omnirmPlanId){
+    var plan=null;var svc=TARIFFS.services.omnirm;
+    for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===omnirmPlanId){plan=svc.plans[i];break;}}
+    total+=plan.price;
+    summHtml+='<div class="manage-svc-row" id="mngOmniRM"><div class="manage-svc-info"><div class="manage-svc-name">ОмниРМ</div><div class="manage-svc-detail">Тариф «'+plan.name+'»</div></div><div style="display:flex;align-items:center;gap:12px;"><div class="manage-svc-price num">'+fmtPrice(plan.price)+'/мес</div><div class="manage-svc-actions"><button class="btn-sm" id="mngChangeOmniRM">Сменить</button><button class="btn-sm danger" id="mngDisableOmniRM">Отключить</button></div></div></div>';
+  }else{
+    summHtml+='<div class="manage-svc-row disabled" id="mngOmniRM"><div class="manage-svc-info"><div class="manage-svc-name">ОмниРМ</div><div class="manage-svc-detail">Не подключена</div></div><div class="manage-svc-price num">&mdash;</div></div>';
+  }
+
+  /* ОмниАгенты row */
+  if(agentsPlanId){
+    var plan=null;var svc=TARIFFS.services.agents;
+    for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===agentsPlanId){plan=svc.plans[i];break;}}
+    total+=plan.price;
+    summHtml+='<div class="manage-svc-row" id="mngAgents"><div class="manage-svc-info"><div class="manage-svc-name">ОмниАгенты</div><div class="manage-svc-detail">Тариф «'+plan.name+'»</div></div><div style="display:flex;align-items:center;gap:12px;"><div class="manage-svc-price num">'+fmtPrice(plan.price)+'/мес</div><div class="manage-svc-actions"><button class="btn-sm" id="mngChangeAgents">Сменить</button><button class="btn-sm danger" id="mngDisableAgents">Отключить</button></div></div></div>';
+  }else{
+    summHtml+='<div class="manage-svc-row disabled" id="mngAgents"><div class="manage-svc-info"><div class="manage-svc-name">ОмниАгенты</div><div class="manage-svc-detail">Не подключены</div></div><div class="manage-svc-price num">&mdash;</div></div>';
+  }
+
+  /* Add service row */
+  if(!omnirmPlanId||!agentsPlanId){
+    summHtml+='<div class="manage-add-row" id="mngAddService"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg> '+(omnirmPlanId?'Добавить ОмниРМ':'Добавить ОмниАгенты')+'</div>';
+  }
+
+  summHtml+='<div style="margin-top:16px;padding:14px 18px;background:#fff;border-radius:var(--radius-md);border:1px solid var(--card-border);display:flex;justify-content:space-between;align-items:center;"><span style="font-size:16px;font-weight:700;">Итого</span><span class="num" style="font-size:20px;font-weight:800;">'+fmtPrice(total)+'/мес</span></div>';
+
+  el('manageSummary').innerHTML=summHtml;
+
+  /* Change section placeholder */
+  el('changeSection').innerHTML='';
+
+  /* Bind manage buttons */
+  var changeOmniBtn=document.getElementById('mngChangeOmniRM');
+  var disableOmniBtn=document.getElementById('mngDisableOmniRM');
+  var changeAgentsBtn=document.getElementById('mngChangeAgents');
+  var disableAgentsBtn=document.getElementById('mngDisableAgents');
+  var addBtn=document.getElementById('mngAddService');
+
+  if(changeOmniBtn)changeOmniBtn.addEventListener('click',function(){renderChangePlanSection('omnirm',omnirmPlanId);});
+  if(disableOmniBtn)disableOmniBtn.addEventListener('click',function(){state.managedOmniRM=null;renderManageScreen();});
+  if(changeAgentsBtn)changeAgentsBtn.addEventListener('click',function(){renderChangePlanSection('agents',agentsPlanId);});
+  if(disableAgentsBtn)disableAgentsBtn.addEventListener('click',function(){state.managedAgents=null;renderManageScreen();});
+  if(addBtn)addBtn.addEventListener('click',function(){
+    if(!omnirmPlanId){state.managedOmniRM='solo';}else if(!agentsPlanId){state.managedAgents='start';}
+    renderManageScreen();
+  });
+}
+
+function renderChangePlanSection(svcId,currentPlanId){
+  var svc=TARIFFS.services[svcId];
+  var html='<div style="margin-bottom:12px;font-size:16px;font-weight:700;">Выберите новый тариф '+(svcId==='omnirm'?'ОмниРМ':'ОмниАгенты')+'</div>';
+  html+='<div style="display:flex;flex-direction:column;gap:12px;">';
+  for(var i=0;i<svc.plans.length;i++){
+    var p=svc.plans[i];
+    var isCurrent=p.id===currentPlanId;
+    html+='<div class="manage-svc-row'+(isCurrent?' disabled':'')+'" data-plan-id="'+p.id+'" style="cursor:pointer;">';
+    html+='<div class="manage-svc-info"><div class="manage-svc-name">'+p.name+(isCurrent?' (текущий)':'')+'</div></div>';
+    html+='<div class="manage-svc-price num">'+p.priceLabel+'</div>';
+    html+='</div>';
+  }
+  html+='</div>';
+  el('changeSection').innerHTML=html;
+  var rows=el('changeSection').querySelectorAll('.manage-svc-row:not(.disabled)');
+  for(var i=0;i<rows.length;i++){
+    rows[i].addEventListener('click',function(e){
+      var newId=e.currentTarget.dataset.planId;
+      if(svcId==='omnirm'){state.managedOmniRM=newId;}else{state.managedAgents=newId;}
+      renderManageScreen();
+    });
+  }
+}
+
+el('applyChangesBtn').addEventListener('click',function(){
+  var newOmniRM=state.managedOmniRM!==undefined?state.managedOmniRM:state.connectedOmniRM;
+  var newAgents=state.managedAgents!==undefined?state.managedAgents:state.connectedAgents;
+
+  /* Build new summary */
+  var total=0;var lines=[];
+  var oldTotal=0;
+
+  /* Calculate old total */
+  if(state.connectedOmniRM){var svc=TARIFFS.services.omnirm;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.connectedOmniRM){oldTotal+=svc.plans[i].price;break;}}}
+  if(state.connectedAgents){var svc=TARIFFS.services.agents;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===state.connectedAgents){oldTotal+=svc.plans[i].price;break;}}}
+
+  if(newOmniRM){var svc=TARIFFS.services.omnirm;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===newOmniRM){total+=svc.plans[i].price;lines.push('<div><span class="label">Услуга:</span> ОмниРМ — тариф «'+svc.plans[i].name+'»</div>');break;}}}
+  if(newAgents){var svc=TARIFFS.services.agents;for(var i=0;i<svc.plans.length;i++){if(svc.plans[i].id===newAgents){total+=svc.plans[i].price;lines.push('<div><span class="label">Услуга:</span> ОмниАгенты — тариф «'+svc.plans[i].name+'»</div>');break;}}}
+  lines.push('<div><span class="label">Стоимость:</span> <span class="num">'+fmtPrice(total)+'/мес</span></div>');
+
+  state.connectedOmniRM=newOmniRM;
+  state.connectedAgents=newAgents;
+  state.managedOmniRM=undefined;
+  state.managedAgents=undefined;
+
+  el('finalSummary').innerHTML=lines.join('');
+  el('disableOmniRMBtn').style.display=state.connectedOmniRM?'inline-flex':'none';
+
+  /* Show change result notice */
+  var diff=oldTotal-total;
+  var resultHtml='<div class="manage-result"><div class="mr-title">Тариф изменён</div>';
+  if(diff>0){resultHtml+='<div>Стоимость снизилась: <span class="mr-old">'+fmtPrice(oldTotal)+'/мес</span> → <span class="mr-new">'+fmtPrice(total)+'/мес</span> (экономия '+fmtPrice(diff)+'/мес)</div>';}
+  else if(diff<0){resultHtml+='<div>Стоимость изменилась: <span class="mr-old">'+fmtPrice(oldTotal)+'/мес</span> → <span class="mr-new">'+fmtPrice(total)+'/мес</span></div>';}
+  else{resultHtml+='<div>Состав подключения обновлён. Стоимость: <span class="mr-new">'+fmtPrice(total)+'/мес</span></div>';}
+  if(!newOmniRM&&newAgents){resultHtml+='<div style="margin-top:8px;color:var(--text-secondary);">ОмниРМ отключена. ИИ-агенты продолжат работу самостоятельно. Передача диалога на оператора будет недоступна.</div>';}
+  resultHtml+='</div>';
+
+  /* Insert result notice before the manage block */
+  var existingResult=document.querySelector('.manage-result');
+  if(existingResult)existingResult.remove();
+  var mngBlock=el('manageBlock');
+  mngBlock.insertAdjacentHTML('beforebegin',resultHtml);
+
+  showScreen(4);
+});
+
+el('cancelChangeBtn').addEventListener('click',function(){
+  state.managedOmniRM=undefined;
+  state.managedAgents=undefined;
+  showScreen(4);
+});
 
 el('goKits').addEventListener('click',function(){renderScreen2();showScreen(2);});
 el('backToKitsBtn').addEventListener('click',function(){renderScreen2();showScreen(2);});
@@ -603,15 +774,15 @@ el('backToKitsBtn').addEventListener('click',function(){renderScreen2();showScre
 /* ---- Navigation ---- */
 function showScreen(n){
   state.currentScreen=n;
-  el('screen0').hidden=n!==0;el('screen1').hidden=n!==1;el('screen2').hidden=n!==2;el('screen3').hidden=n!==3;el('screen4').hidden=n!==4;
+  el('screen0').hidden=n!==0;el('screen1').hidden=n!==1;el('screen2').hidden=n!==2;el('screen3').hidden=n!==3;el('screen4').hidden=n!==4;el('screen5').hidden=n!==5;
   el('footer2').hidden=n!==2;el('footer3').hidden=n!==3;
   el('stickyCta').hidden=n!==1;
   var back=el('protoBack'),sep=el('protoSep'),showBack=n!==0;
   back.style.display=showBack?'inline':'none';sep.style.display=showBack?'inline':'none';
   window.scrollTo({top:0,behavior:'smooth'});
 }
-function goBack(){if(state.currentScreen===4){if(state.kitId){renderScreen2();showScreen(2);}else{renderScreen3();showScreen(3);}}else if(state.currentScreen===3){renderScreen2();showScreen(2);}else if(state.currentScreen===2){showScreen(1);}else if(state.currentScreen===1){showScreen(0);}}
-function resetAll(){state.omnirmPlanId=null;state.agentsPlanId=null;state.kitId=null;state.agree1=false;state.agree2=false;state.agree3=false;state.agree4=false;el('agree1').checked=false;el('agree2').checked=false;el('agree3').checked=false;el('agree4').checked=false;el('alert1').classList.remove('show');el('alert3').classList.remove('show');showScreen(0);}
+function goBack(){if(state.currentScreen===5){showScreen(4);}else if(state.currentScreen===4){if(state.kitId){renderScreen2();showScreen(2);}else{renderScreen3();showScreen(3);}}else if(state.currentScreen===3){renderScreen2();showScreen(2);}else if(state.currentScreen===2){showScreen(1);}else if(state.currentScreen===1){showScreen(0);}}
+function resetAll(){state.omnirmPlanId=null;state.agentsPlanId=null;state.kitId=null;state.agree1=false;state.agree2=false;state.agree3=false;state.agree4=false;state.connectedOmniRM=null;state.connectedAgents=null;state.managedOmniRM=undefined;state.managedAgents=undefined;el('agree1').checked=false;el('agree2').checked=false;el('agree3').checked=false;el('agree4').checked=false;el('alert1').classList.remove('show');el('alert3').classList.remove('show');var existingResult=document.querySelector('.manage-result');if(existingResult)existingResult.remove();showScreen(0);}
 el('protoBack').addEventListener('click',goBack);
 el('protoRestart').addEventListener('click',resetAll);
 showScreen(0);

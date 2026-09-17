@@ -1,0 +1,991 @@
+     1→<!DOCTYPE html>
+     2→<html lang="ru">
+     3→<head>
+     4→<meta charset="UTF-8">
+     5→<meta name="viewport" content="width=device-width, initial-scale=1">
+     6→<title>Contact AI — подключение услуг, прототип</title>
+     7→<style>
+     8→  :root{
+     9→    --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    10→    --bg-page:#EEF0F3;
+    11→    --panel-bg:#FFFFFF;
+    12→    --card-bg:#F4F5F7;
+    13→    --card-bg-hover:#ECEEF1;
+    14→    --card-border:#E7E9EC;
+    15→    --card-selected-border:#15171A;
+    16→    --card-selected-tint:#FFFCF2;
+    17→    --text-primary:#15171A;
+    18→    --text-secondary:#6B7280;
+    19→    --text-tertiary:#9AA1AB;
+    20→    --divider:#E7E9EC;
+    21→    --link:#0B6FDB;
+    22→    --info-bg:#E8F2FE;
+    23→    --info-icon-bg:#1478F0;
+    24→    --accent-yellow:#FFDD5B;
+    25→    --accent-yellow-hover:#FFD23D;
+    26→    --btn-secondary-border:#D8DBE0;
+    27→    --btn-secondary-text:#15171A;
+    28→    --btn-disabled-bg:#EFF0F2;
+    29→    --btn-disabled-text:#B7BCC3;
+    30→    --con-text:#9AA1AB;
+    31→    --radius-lg:16px;
+    32→    --radius-md:12px;
+    33→    --radius-pill:999px;
+    34→    --bar-h:88px;
+    35→  }
+    36→
+    37→  *{box-sizing:border-box;}
+    38→  html,body{height:100%;}
+    39→  body{
+    40→    margin:0;
+    41→    background:var(--bg-page);
+    42→    color:var(--text-primary);
+    43→    font-family:var(--font-ui);
+    44→    -webkit-text-size-adjust:100%;
+    45→  }
+    46→
+    47→  h1,h2,h3{
+    48→    font-family:var(--font-ui);
+    49→    margin:0;
+    50→    text-wrap:balance;
+    51→  }
+    52→
+    53→  .num{font-variant-numeric:tabular-nums;}
+    54→
+    55→  button{font-family:inherit;}
+    56→  a{color:var(--link);text-decoration:none;}
+    57→  a:hover{text-decoration:underline;}
+    58→
+    59→  :focus-visible{
+    60→    outline:2px solid var(--info-icon-bg);
+    61→    outline-offset:2px;
+    62→  }
+    63→
+    64→  /* ---------- Page shell ---------- */
+    65→  .page{
+    66→    max-width:840px;
+    67→    margin:0 auto;
+    68→    padding:32px 24px calc(var(--bar-h) + 24px);
+    69→  }
+    70→
+    71→  .screen{
+    72→    display:flex;
+    73→    flex-direction:column;
+    74→    gap:24px;
+    75→  }
+    76→  .screen[hidden]{display:none;}
+    77→
+    78→  /* ---------- Prototype nav (demo-only, not product UI) ---------- */
+    79→  .proto-nav{
+    80→    position:fixed;
+    81→    top:14px;
+    82→    right:16px;
+    83→    z-index:80;
+    84→    display:flex;
+    85→    align-items:center;
+    86→    gap:8px;
+    87→    background:rgba(255,255,255,0.94);
+    88→    border:1px solid var(--card-border);
+    89→    border-radius:8px;
+    90→    padding:6px 10px;
+    91→    font-size:12px;
+    92→    line-height:1.2;
+    93→    color:var(--text-tertiary);
+    94→    box-shadow:0 2px 10px rgba(21,23,26,0.08);
+    95→  }
+    96→  .proto-link{
+    97→    background:none;
+    98→    border:none;
+    99→    padding:0;
+   100→    margin:0;
+   101→    font:inherit;
+   102→    color:var(--text-secondary);
+   103→    cursor:pointer;
+   104→  }
+   105→  .proto-link:hover{color:var(--text-primary);text-decoration:underline;}
+   106→  .proto-sep{color:var(--card-border);}
+   107→
+   108→  /* ---------- Progress ---------- */
+   109→  .progress{
+   110→    display:flex;
+   111→    align-items:center;
+   112→    gap:10px;
+   113→  }
+   114→  .progress-step{
+   115→    display:flex;
+   116→    align-items:center;
+   117→    gap:8px;
+   118→    font-size:13px;
+   119→    font-weight:600;
+   120→    color:var(--text-tertiary);
+   121→  }
+   122→  .progress-step .dot{
+   123→    width:22px;height:22px;
+   124→    border-radius:50%;
+   125→    background:var(--card-bg);
+   126→    color:var(--text-tertiary);
+   127→    display:flex;align-items:center;justify-content:center;
+   128→    font-size:12px;
+   129→    font-weight:700;
+   130→    border:1px solid var(--card-border);
+   131→    flex:0 0 auto;
+   132→  }
+   133→  .progress-step.active{color:var(--text-primary);}
+   134→  .progress-step.active .dot{
+   135→    background:var(--text-primary);
+   136→    color:#fff;
+   137→    border-color:var(--text-primary);
+   138→  }
+   139→  .progress-step.done .dot{
+   140→    background:var(--text-primary);
+   141→    color:#fff;
+   142→    border-color:var(--text-primary);
+   143→  }
+   144→  .progress-line{
+   145→    width:28px;height:1px;
+   146→    background:var(--card-border);
+   147→    flex:0 0 auto;
+   148→  }
+   149→
+   150→  /* ---------- Panel (card wrapper for each screen) ---------- */
+   151→  .panel{
+   152→    background:var(--panel-bg);
+   153→    border-radius:24px;
+   154→    box-shadow:0 24px 64px rgba(21,23,26,0.10), 0 2px 8px rgba(21,23,26,0.05);
+   155→    padding:28px;
+   156→    display:flex;
+   157→    flex-direction:column;
+   158→    gap:24px;
+   159→  }
+   160→
+   161→  /* ---------- Buttons ---------- */
+   162→  .btn{
+   163→    appearance:none;
+   164→    border:none;
+   165→    border-radius:var(--radius-pill);
+   166→    padding:13px 26px;
+   167→    font-size:15px;
+   168→    font-weight:700;
+   169→    cursor:pointer;
+   170→    transition:background .15s ease, opacity .15s ease, transform .05s ease;
+   171→  }
+   172→  .btn:active{transform:scale(0.98);}
+   173→  .btn-primary{
+   174→    background:var(--accent-yellow);
+   175→    color:var(--text-primary);
+   176→  }
+   177→  .btn-primary:hover{background:var(--accent-yellow-hover);}
+   178→  .btn-primary:disabled{
+   179→    background:var(--btn-disabled-bg);
+   180→    color:var(--btn-disabled-text);
+   181→    cursor:not-allowed;
+   182→  }
+   183→  .btn-secondary{
+   184→    background:#fff;
+   185→    color:var(--btn-secondary-text);
+   186→    border:1px solid var(--btn-secondary-border);
+   187→  }
+   188→  .btn-secondary:hover{background:var(--card-bg);}
+   189→  .btn-wide{flex:1;}
+   190→
+   191→  /* ---------- Headings / text ---------- */
+   192→  h1.screen-title{
+   193→    font-size:28px;
+   194→    font-weight:800;
+   195→    letter-spacing:-0.01em;
+   196→  }
+   197→  .subtitle{
+   198→    color:var(--text-secondary);
+   199→    font-size:15px;
+   200→    line-height:1.5;
+   201→    margin-top:6px;
+   202→  }
+   203→  .section-title{
+   204→    font-size:18px;
+   205→    font-weight:700;
+   206→  }
+   207→  .muted{color:var(--text-secondary);}
+   208→  .fine{font-size:12.5px;color:var(--text-tertiary);}
+   209→
+   210→  /* ---------- Info block ---------- */
+   211→  .info-block{
+   212→    display:flex;
+   213→    gap:14px;
+   214→    align-items:flex-start;
+   215→    background:var(--info-bg);
+   216→    border-radius:var(--radius-lg);
+   217→    padding:16px 18px;
+   218→  }
+   219→  .info-icon{
+   220→    flex:0 0 auto;
+   221→    width:28px;height:28px;
+   222→    border-radius:9px;
+   223→    background:var(--info-icon-bg);
+   224→    color:#fff;
+   225→    display:flex;align-items:center;justify-content:center;
+   226→  }
+   227→  .info-text{font-size:14.5px;line-height:1.5;color:var(--text-primary);}
+   228→
+   229→  /* ---------- Segmented control ---------- */
+   230→  .segmented{
+   231→    display:flex;
+   232→    background:var(--card-bg);
+   233→    border-radius:var(--radius-pill);
+   234→    padding:4px;
+   235→    gap:4px;
+   236→  }
+   237→  .segmented button{
+   238→    flex:1;
+   239→    border:none;
+   240→    background:transparent;
+   241→    padding:11px 16px;
+   242→    border-radius:var(--radius-pill);
+   243→    font-size:14.5px;
+   244→    font-weight:700;
+   245→    color:var(--text-secondary);
+   246→    cursor:pointer;
+   247→    transition:background .15s ease, color .15s ease, box-shadow .15s ease;
+   248→  }
+   249→  .segmented button.active{
+   250→    background:#fff;
+   251→    color:var(--text-primary);
+   252→    box-shadow:0 2px 8px rgba(21,23,26,0.10);
+   253→  }
+   254→
+   255→  /* ---------- Description block ---------- */
+   256→  .desc-block{
+   257→    background:var(--card-bg);
+   258→    border-radius:var(--radius-lg);
+   259→    padding:20px 22px;
+   260→    display:flex;
+   261→    flex-direction:column;
+   262→    gap:10px;
+   263→  }
+   264→  .desc-block h3{font-size:16px;font-weight:700;}
+   265→  .desc-lead{font-size:14px;color:var(--text-secondary);line-height:1.5;}
+   266→  .desc-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:9px;}
+   267→  .desc-list li{
+   268→    display:flex;gap:10px;
+   269→    font-size:14px;line-height:1.5;color:var(--text-primary);
+   270→  }
+   271→  .desc-list li::before{
+   272→    content:"•";
+   273→    color:var(--text-tertiary);
+   274→    font-weight:700;
+   275→    flex:0 0 auto;
+   276→  }
+   277→
+   278→  /* ---------- Plan cards ---------- */
+   279→  .plans-grid{
+   280→    display:grid;
+   281→    grid-template-columns:repeat(2, 1fr);
+   282→    gap:14px;
+   283→  }
+   284→  .plans-grid.cols-3{grid-template-columns:repeat(3, 1fr);}
+   285→
+   286→  .plan-card{
+   287→    position:relative;
+   288→    text-align:left;
+   289→    background:var(--card-bg);
+   290→    border:2px solid transparent;
+   291→    border-radius:var(--radius-lg);
+   292→    padding:18px 18px 16px;
+   293→    cursor:pointer;
+   294→    display:flex;
+   295→    flex-direction:column;
+   296→    gap:10px;
+   297→    transition:border-color .15s ease, background .15s ease;
+   298→    min-width:0;
+   299→  }
+   300→  .plan-card:hover{background:var(--card-bg-hover);}
+   301→  .plan-card.selected{
+   302→    background:var(--card-selected-tint);
+   303→    border-color:var(--card-selected-border);
+   304→  }
+   305→
+   306→  .plan-card-top{
+   307→    display:flex;
+   308→    align-items:flex-start;
+   309→    justify-content:space-between;
+   310→    gap:8px;
+   311→  }
+   312→  .plan-name{font-size:16px;font-weight:700;}
+   313→  .radio-dot{
+   314→    flex:0 0 auto;
+   315→    width:20px;height:20px;
+   316→    border-radius:50%;
+   317→    border:2px solid var(--btn-secondary-border);
+   318→    background:#fff;
+   319→    position:relative;
+   320→  }
+   321→  .plan-card.selected .radio-dot{border-color:var(--card-selected-border);}
+   322→  .plan-card.selected .radio-dot::after{
+   323→    content:"";
+   324→    position:absolute;
+   325→    inset:3px;
+   326→    border-radius:50%;
+   327→    background:var(--card-selected-border);
+   328→  }
+   329→
+   330→  .plan-price{font-size:20px;font-weight:800;}
+   331→  .plan-price .note{font-size:12.5px;font-weight:600;color:var(--text-secondary);margin-left:6px;}
+   332→
+   333→  .plan-features{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+   334→  .plan-features li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+   335→  .plan-features li::before{content:"•";color:var(--text-tertiary);}
+   336→  .plan-cons{font-size:12.5px;color:var(--con-text);line-height:1.4;margin-top:2px;}
+   337→  .plan-footnote{font-size:12px;color:var(--text-tertiary);margin-top:2px;}
+   338→
+   339→  .agent-stats{
+   340→    display:grid;
+   341→    grid-template-columns:1fr 1fr;
+   342→    gap:8px 12px;
+   343→    font-size:13px;
+   344→    padding-top:6px;
+   345→    border-top:1px solid var(--card-border);
+   346→  }
+   347→  .agent-stats .stat-label{color:var(--text-secondary);}
+   348→  .agent-stats .stat-value{font-weight:700;text-align:right;}
+   349→  .agent-overage{
+   350→    font-size:12px;
+   351→    color:var(--text-secondary);
+   352→    border-top:1px solid var(--card-border);
+   353→    padding-top:8px;
+   354→    margin-top:2px;
+   355→  }
+   356→
+   357→  /* ---------- Hint ---------- */
+   358→  .hint{
+   359→    display:flex;
+   360→    align-items:center;
+   361→    gap:10px;
+   362→    font-size:13.5px;
+   363→    color:var(--text-secondary);
+   364→    padding:2px 4px;
+   365→  }
+   366→  .hint svg{flex:0 0 auto;}
+   367→
+   368→  /* ---------- Checkboxes ---------- */
+   369→  .agreements{
+   370→    display:flex;
+   371→    flex-direction:column;
+   372→    gap:12px;
+   373→  }
+   374→  .agreement{
+   375→    display:flex;
+   376→    align-items:flex-start;
+   377→    gap:12px;
+   378→    cursor:pointer;
+   379→    font-size:13.5px;
+   380→    line-height:1.5;
+   381→    color:var(--text-primary);
+   382→  }
+   383→  .agreement input{
+   384→    margin-top:2px;
+   385→    width:18px;height:18px;
+   386→    accent-color:var(--text-primary);
+   387→    flex:0 0 auto;
+   388→    cursor:pointer;
+   389→  }
+   390→
+   391→  /* ---------- Screen 2 summary ---------- */
+   392→  .summary-card{
+   393→    background:var(--card-bg);
+   394→    border-radius:var(--radius-lg);
+   395→    padding:16px 20px;
+   396→    display:flex;
+   397→    align-items:center;
+   398→    justify-content:space-between;
+   399→    gap:12px;
+   400→    flex-wrap:wrap;
+   401→  }
+   402→  .summary-label{font-size:12.5px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+   403→  .summary-value{font-size:15px;font-weight:700;margin-top:2px;}
+   404→  .summary-price{font-size:18px;font-weight:800;}
+   405→
+   406→  .bundle-card{
+   407→    position:relative;
+   408→    text-align:left;
+   409→    background:var(--card-bg);
+   410→    border:2px solid transparent;
+   411→    border-radius:var(--radius-lg);
+   412→    padding:18px 20px;
+   413→    cursor:pointer;
+   414→    display:flex;
+   415→    flex-direction:column;
+   416→    gap:8px;
+   417→    width:100%;
+   418→    transition:border-color .15s ease, background .15s ease;
+   419→  }
+   420→  .bundle-card:hover{background:var(--card-bg-hover);}
+   421→  .bundle-card.selected{
+   422→    background:var(--card-selected-tint);
+   423→    border-color:var(--card-selected-border);
+   424→  }
+   425→  .bundle-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+   426→  .bundle-name-row{display:flex;align-items:center;gap:10px;}
+   427→  .bundle-comp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;}
+   428→  .bundle-comp-list li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+   429→  .bundle-comp-list li::before{content:"•";color:var(--text-tertiary);flex:0 0 auto;}
+   430→  .bundle-package{font-size:13px;color:var(--text-secondary);}
+   431→  .bundle-overage{
+   432→    font-size:12px;
+   433→    color:var(--text-secondary);
+   434→    border-top:1px solid var(--card-border);
+   435→    padding-top:8px;
+   436→    margin-top:2px;
+   437→  }
+   438→  .bundle-diff{
+   439→    display:inline-flex;
+   440→    align-self:flex-start;
+   441→    font-size:12.5px;
+   442→    font-weight:700;
+   443→    padding:4px 10px;
+   444→    border-radius:var(--radius-pill);
+   445→    background:#FFF3CC;
+   446→    color:#7A5B00;
+   447→  }
+   448→  .bundle-diff.zero{background:#EAF7EE;color:#1E7A3B;}
+   449→  .bundle-diff.negative{background:#EAF7EE;color:#1E7A3B;}
+   450→
+   451→  /* ---------- Screen 3 (stub) ---------- */
+   452→  .stub-wrap{
+   453→    display:flex;
+   454→    flex-direction:column;
+   455→    align-items:center;
+   456→    justify-content:center;
+   457→    text-align:center;
+   458→    gap:16px;
+   459→    padding:24px 8px;
+   460→  }
+   461→  .stub-check{
+   462→    width:64px;height:64px;
+   463→    border-radius:50%;
+   464→    background:#EAF7EE;
+   465→    color:#1E9E4A;
+   466→    display:flex;align-items:center;justify-content:center;
+   467→  }
+   468→  .stub-summary{
+   469→    margin-top:8px;
+   470→    background:var(--card-bg);
+   471→    border-radius:var(--radius-lg);
+   472→    padding:18px 22px;
+   473→    text-align:left;
+   474→    max-width:420px;
+   475→    width:100%;
+   476→  }
+   477→  .stub-summary div{font-size:14px;line-height:1.7;}
+   478→  .stub-summary .label{color:var(--text-secondary);}
+   479→
+   480→  /* ---------- Fixed bottom action bar ---------- */
+   481→  .action-bar{
+   482→    position:fixed;
+   483→    left:0;right:0;bottom:0;
+   484→    z-index:70;
+   485→    background:#fff;
+   486→    border-top:1px solid var(--divider);
+   487→  }
+   488→  .action-bar[hidden]{display:none;}
+   489→  .action-bar-inner{
+   490→    max-width:840px;
+   491→    margin:0 auto;
+   492→    display:flex;
+   493→    justify-content:flex-end;
+   494→    gap:12px;
+   495→    padding:16px 24px;
+   496→  }
+   497→  .action-bar-inner.split{justify-content:space-between;}
+   498→
+   499→  /* ---------- Mobile ---------- */
+   500→  @media (max-width:720px){
+   501→    .page{padding:56px 16px calc(var(--bar-h) + 20px);}
+   502→    .progress{flex-wrap:wrap;row-gap:8px;}
+   503→    .progress-step{font-size:12px;}
+   504→    .panel{padding:20px;border-radius:18px;gap:20px;}
+   505→    h1.screen-title{font-size:22px;}
+   506→    .section-title{font-size:16px;}
+   507→    .subtitle{font-size:14px;}
+   508→    .plans-grid,.plans-grid.cols-3{grid-template-columns:1fr;}
+   509→    .desc-block{padding:16px 18px;}
+   510→    .info-block{padding:14px 16px;}
+   511→    .proto-nav{top:8px;right:8px;font-size:11px;padding:5px 8px;gap:6px;}
+   512→    .action-bar-inner{padding:12px 16px;gap:8px;}
+   513→    .btn{padding:12px 18px;font-size:14px;}
+   514→    .summary-card{padding:14px 16px;}
+   515→    .agent-stats{font-size:12px;}
+   516→  }
+   517→</style>
+   518→</head>
+   519→<body>
+   520→
+   521→<nav class="proto-nav" aria-label="Навигация по прототипу">
+   522→  <button type="button" class="proto-link" id="protoBack">← Назад</button>
+   523→  <span class="proto-sep" id="protoSep">·</span>
+   524→  <button type="button" class="proto-link" id="protoRestart">Начать заново</button>
+   525→</nav>
+   526→
+   527→<div class="page">
+   528→
+   529→  <!-- SCREEN 1 -->
+   530→  <section class="screen" id="screen1">
+   531→    <div class="progress" id="progressBar1"></div>
+   532→
+   533→    <div class="panel">
+   534→      <div>
+   535→        <h1 class="screen-title">Подключение Contact AI</h1>
+   536→      </div>
+   537→
+   538→      <div class="info-block">
+   539→        <div class="info-icon" aria-hidden="true">
+   540→          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg>
+   541→        </div>
+   542→        <div class="info-text">Подключение бесплатно. Тарификация начинается после выбора тарифа.</div>
+   543→      </div>
+   544→
+   545→      <div class="segmented" id="serviceSwitch"></div>
+   546→
+   547→      <div class="desc-block" id="descBlock"></div>
+   548→
+   549→      <div>
+   550→        <div class="section-title" style="margin-bottom:14px;">Выберите тариф</div>
+   551→        <div class="plans-grid" id="plansGrid"></div>
+   552→      </div>
+   553→
+   554→      <div class="hint">
+   555→        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+   556→        <span>Нужны и агенты, и операторы? На следующем шаге — тарифы бандла.</span>
+   557→      </div>
+   558→
+   559→      <div class="agreements">
+   560→        <label class="agreement">
+   561→          <input type="checkbox" id="agree1">
+   562→          <span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span>
+   563→        </label>
+   564→        <label class="agreement">
+   565→          <input type="checkbox" id="agree2">
+   566→          <span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных с правообладателем ПО</a></span>
+   567→        </label>
+   568→      </div>
+   569→    </div>
+   570→  </section>
+   571→
+   572→  <!-- SCREEN 2 -->
+   573→  <section class="screen" id="screen2" hidden>
+   574→    <div class="progress" id="progressBar2"></div>
+   575→
+   576→    <div class="panel">
+   577→      <div class="summary-card">
+   578→        <div>
+   579→          <div class="summary-label">Вы выбрали</div>
+   580→          <div class="summary-value" id="summaryLine"></div>
+   581→        </div>
+   582→        <div class="summary-price num" id="summaryPrice"></div>
+   583→      </div>
+   584→
+   585→      <div>
+   586→        <h1 class="screen-title">Вместе дешевле</h1>
+   587→        <div class="subtitle" id="upsellLine"></div>
+   588→      </div>
+   589→
+   590→      <div style="display:flex;flex-direction:column;gap:14px;" id="bundlesGrid"></div>
+   591→
+   592→      <div class="fine">Подключение бандла: 0 ₽</div>
+   593→    </div>
+   594→  </section>
+   595→
+   596→  <!-- SCREEN 3 (stub) -->
+   597→  <section class="screen" id="screen3" hidden>
+   598→    <div class="panel">
+   599→      <div class="stub-wrap">
+   600→        <div class="stub-check" aria-hidden="true">
+   601→          <svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+   602→        </div>
+   603→        <h1 class="screen-title">Услуга подключена</h1>
+   604→        <div class="subtitle">Итоговый состав подключения:</div>
+   605→        <div class="stub-summary" id="finalSummary"></div>
+   606→      </div>
+   607→    </div>
+   608→  </section>
+   609→
+   610→</div>
+   611→
+   612→<!-- FOOTER 1 -->
+   613→<div class="action-bar" id="footer1">
+   614→  <div class="action-bar-inner">
+   615→    <button class="btn btn-secondary" id="closeBtn2">Закрыть</button>
+   616→    <button class="btn btn-primary" id="connectBtn" disabled>Подключить</button>
+   617→  </div>
+   618→</div>
+   619→
+   620→<!-- FOOTER 2 -->
+   621→<div class="action-bar" id="footer2" hidden>
+   622→  <div class="action-bar-inner split">
+   623→    <button class="btn btn-secondary btn-wide" id="skipBundleBtn">Продолжить без бандла</button>
+   624→    <button class="btn btn-primary btn-wide" id="connectBundleBtn" disabled>Подключить бандл</button>
+   625→  </div>
+   626→</div>
+   627→
+   628→<script>
+   629→  // ---------------------------------------------------------------
+   630→  // Единый источник данных: тарифы, составы, описания.
+   631→  // Всё, чего нет в брифе, оставлено плейсхолдером {{...}}.
+   632→  // ---------------------------------------------------------------
+   633→  var TARIFFS = {
+   634→    services: {
+   635→      omnirm: {
+   636→        id: 'omnirm',
+   637→        label: 'ОмниРМ',
+   638→        description: {
+   639→          title: 'ОмниРМ — рабочее место оператора',
+   640→          lead: 'Одно окно для звонков и переписки. Оператор принимает обращения из текстовых каналов и работает со звонками Облачной АТС.',
+   641→          bullets: [
+   642→            'Звонки ОАТС и текстовые каналы в одном интерфейсе',
+   643→            'Каналы: виджет на сайте, Telegram, MAX',
+   644→            'История диалогов и карточка клиента со всей перепиской',
+   645→            'Распределение обращений: общая очередь, логики ОАТС или локальные очереди',
+   646→            'Подключение из личного кабинета без повторной регистрации'
+   647→          ]
+   648→        },
+   649→        plans: [
+   650→          {
+   651→            id: 'solo',
+   652→            name: 'Соло',
+   653→            price: 0,
+   654→            priceLabel: '0 ₽',
+   655→            note: 'в тарифе ОАТС',
+   656→            features: ['1 оператор', '1 канал (виджет или MAX)', '100 диалогов/мес', 'история 30 дней'],
+   657→            cons: 'без очередей, супервизора, аналитики и рассылок'
+   658→          },
+   659→          {
+   660→            id: 'team5',
+   661→            name: 'Команда 5',
+   662→            price: 3990,
+   663→            priceLabel: '3 990 ₽/мес',
+   664→            features: ['до 5 операторов', 'полный функционал'],
+   665→            footnote: '+990 ₽ за оператора с 6-го'
+   666→          }
+   667→        ]
+   668→      },
+   669→      agents: {
+   670→        id: 'agents',
+   671→        label: 'ОмниАгенты',
+   672→        description: {
+   673→          title: 'ОмниАгенты — ИИ-агенты',
+   674→          lead: 'Агент принимает звонки и обращения без оператора: отвечает на типовые вопросы и передаёт диалог сотруднику, когда нужно.',
+   675→          bullets: [
+   676→            'Голос и текст в едином пакете минут и обращений',
+   677→            'Все каналы на любом тарифе',
+   678→            'Обзвон-кампании — минуты из пакета',
+   679→            'Передача диалога на оператора ОмниРМ',
+   680→            'Оплата сверх пакета по факту, без блокировки'
+   681→          ]
+   682→        },
+   683→        plans: [
+   684→          { id: 'start',    name: 'Старт',   price: 2700,  priceLabel: '2 700 ₽/мес',  minutes: 300,  requests: 300,  overMinute: 10, overRequest: 5 },
+   685→          { id: 'business', name: 'Бизнес',  price: 6500,  priceLabel: '6 500 ₽/мес',  minutes: 800,  requests: 1000, overMinute: 9,  overRequest: 4 },
+   686→          { id: 'pro',      name: 'Про',     price: 18700, priceLabel: '18 700 ₽/мес', minutes: 2000, requests: 3000, overMinute: 8,  overRequest: 3 }
+   687→        ]
+   688→      }
+   689→    },
+   690→    bundles: [
+   691→      {
+   692→        id: 'start-plus', name: 'Старт+', price: 3990, priceLabel: '3 990 ₽/мес',
+   693→        operators: '2 оператора ОмниРМ',
+   694→        agents: 'ИИ-агенты, тариф Старт',
+   695→        package: '300 минут голоса · 300 текстовых обращений',
+   696→        overage: 'Сверх пакета: 10 ₽/мин · 5 ₽/обр'
+   697→      },
+   698→      {
+   699→        id: 'business-plus', name: 'Бизнес+', price: 8990, priceLabel: '8 990 ₽/мес',
+   700→        operators: 'Команда 5: до 5 операторов ОмниРМ, полный функционал',
+   701→        agents: 'ИИ-агенты, тариф Бизнес',
+   702→        package: '800 минут голоса · 1 000 текстовых обращений',
+   703→        overage: 'Сверх пакета: 9 ₽/мин · 4 ₽/обр'
+   704→      },
+   705→      {
+   706→        id: 'pro-plus', name: 'Про+', price: 23900, priceLabel: '23 900 ₽/мес',
+   707→        operators: '{{ОПЕРАТОРЫ_ПРО}}',
+   708→        agents: 'ИИ-агенты, тариф Про',
+   709→        package: '2 000 минут голоса · 3 000 текстовых обращений',
+   710→        overage: 'Сверх пакета: 8 ₽/мин · 3 ₽/обр'
+   711→      }
+   712→    ],
+   713→    setupFee: 0
+   714→  };
+   715→
+   716→  // ---------------------------------------------------------------
+   717→  // Состояние (только переменные, без localStorage)
+   718→  // ---------------------------------------------------------------
+   719→  var state = {
+   720→    service: 'omnirm',
+   721→    planId: null,
+   722→    agree1: false,
+   723→    agree2: false,
+   724→    bundleId: null,
+   725→    step1Selection: null, // {serviceLabel, planName, price, priceLabel}
+   726→    currentScreen: 1
+   727→  };
+   728→
+   729→  function el(id){ return document.getElementById(id); }
+   730→
+   731→  function fmtPrice(n){
+   732→    return n.toLocaleString('ru-RU') + ' ₽';
+   733→  }
+   734→
+   735→  // ---------------------------------------------------------------
+   736→  // ШАГ 1
+   737→  // ---------------------------------------------------------------
+   738→  function progressHtml(activeStep){
+   739→    var steps = [
+   740→      { n: 1, label: 'Выбор услуги' },
+   741→      { n: 2, label: 'Вместе дешевле' }
+   742→    ];
+   743→    return steps.map(function(s, i){
+   744→      var cls = s.n === activeStep ? 'active' : (s.n < activeStep ? 'done' : '');
+   745→      var line = i < steps.length - 1 ? '<div class="progress-line"></div>' : '';
+   746→      return '<div class="progress-step ' + cls + '"><span class="dot">' + (s.n < activeStep ? '✓' : s.n) + '</span>' + s.label + '</div>' + line;
+   747→    }).join('');
+   748→  }
+   749→
+   750→  function renderProgress(activeStep){
+   751→    el('progressBar1').innerHTML = progressHtml(activeStep);
+   752→    el('progressBar2').innerHTML = progressHtml(activeStep);
+   753→  }
+   754→
+   755→  function renderServiceSwitch(){
+   756→    var wrap = el('serviceSwitch');
+   757→    wrap.innerHTML = Object.keys(TARIFFS.services).map(function(key){
+   758→      var s = TARIFFS.services[key];
+   759→      return '<button data-id="' + s.id + '" class="' + (s.id === state.service ? 'active' : '') + '">' + s.label + '</button>';
+   760→    }).join('');
+   761→    var btns = wrap.querySelectorAll('button');
+   762→    for (var i = 0; i < btns.length; i++) {
+   763→      btns[i].addEventListener('click', function(e){
+   764→        state.service = e.currentTarget.dataset.id;
+   765→        state.planId = null;
+   766→        renderServiceSwitch();
+   767→        renderDescription();
+   768→        renderPlans();
+   769→        updateConnectBtn();
+   770→      });
+   771→    }
+   772→  }
+   773→
+   774→  function renderDescription(){
+   775→    var svc = TARIFFS.services[state.service];
+   776→    el('descBlock').innerHTML =
+   777→      '<h3>' + svc.description.title + '</h3>' +
+   778→      '<div class="desc-lead">' + svc.description.lead + '</div>' +
+   779→      '<ul class="desc-list">' + svc.description.bullets.map(function(b){ return '<li>' + b + '</li>'; }).join('') + '</ul>';
+   780→  }
+   781→
+   782→  function renderPlans(){
+   783→    var svc = TARIFFS.services[state.service];
+   784→    var grid = el('plansGrid');
+   785→    grid.className = 'plans-grid' + (svc.plans.length > 2 ? ' cols-3' : '');
+   786→
+   787→    if (svc.id === 'omnirm') {
+   788→      grid.innerHTML = svc.plans.map(function(p){
+   789→        return '' +
+   790→        '<div class="plan-card ' + (state.planId === p.id ? 'selected' : '') + '" data-id="' + p.id + '">' +
+   791→          '<div class="plan-card-top">' +
+   792→            '<div class="plan-name">' + p.name + '</div>' +
+   793→            '<div class="radio-dot"></div>' +
+   794→          '</div>' +
+   795→          '<div class="plan-price num">' + p.priceLabel + (p.note ? '<span class="note">' + p.note + '</span>' : '') + '</div>' +
+   796→          '<ul class="plan-features">' + p.features.map(function(f){ return '<li>' + f + '</li>'; }).join('') + '</ul>' +
+   797→          (p.cons ? '<div class="plan-cons">' + p.cons + '</div>' : '') +
+   798→          (p.footnote ? '<div class="plan-footnote">' + p.footnote + '</div>' : '') +
+   799→        '</div>';
+   800→      }).join('');
+   801→    } else {
+   802→      grid.innerHTML = svc.plans.map(function(p){
+   803→        return '' +
+   804→        '<div class="plan-card ' + (state.planId === p.id ? 'selected' : '') + '" data-id="' + p.id + '">' +
+   805→          '<div class="plan-card-top">' +
+   806→            '<div class="plan-name">' + p.name + '</div>' +
+   807→            '<div class="radio-dot"></div>' +
+   808→          '</div>' +
+   809→          '<div class="plan-price num">' + p.priceLabel + '</div>' +
+   810→          '<div class="agent-stats">' +
+   811→            '<div class="stat-label">Минуты (вход + исход)</div><div class="stat-value num">' + p.minutes.toLocaleString('ru-RU') + '</div>' +
+   812→            '<div class="stat-label">Текстовые обращения</div><div class="stat-value num">' + p.requests.toLocaleString('ru-RU') + '</div>' +
+   813→            '<div class="stat-label">Каналы</div><div class="stat-value">все</div>' +
+   814→            '<div class="stat-label">Обзвон-кампании</div><div class="stat-value">✓ (из пакета)</div>' +
+   815→          '</div>' +
+   816→          '<div class="agent-overage">Сверх пакета: <span class="num">' + p.overMinute + ' ₽/мин · ' + p.overRequest + ' ₽/обр</span></div>' +
+   817→        '</div>';
+   818→      }).join('');
+   819→    }
+   820→
+   821→    var cards = grid.querySelectorAll('.plan-card');
+   822→    for (var i = 0; i < cards.length; i++) {
+   823→      cards[i].addEventListener('click', function(e){
+   824→        state.planId = e.currentTarget.dataset.id;
+   825→        renderPlans();
+   826→        updateConnectBtn();
+   827→      });
+   828→    }
+   829→  }
+   830→
+   831→  function updateConnectBtn(){
+   832→    var ready = !!state.planId && state.agree1 && state.agree2;
+   833→    el('connectBtn').disabled = !ready;
+   834→  }
+   835→
+   836→  el('agree1').addEventListener('change', function(e){ state.agree1 = e.target.checked; updateConnectBtn(); });
+   837→  el('agree2').addEventListener('change', function(e){ state.agree2 = e.target.checked; updateConnectBtn(); });
+   838→
+   839→  function resetAll(){
+   840→    state.service = 'omnirm';
+   841→    state.planId = null;
+   842→    state.agree1 = false;
+   843→    state.agree2 = false;
+   844→    state.bundleId = null;
+   845→    state.step1Selection = null;
+   846→    el('agree1').checked = false;
+   847→    el('agree2').checked = false;
+   848→    renderServiceSwitch();
+   849→    renderDescription();
+   850→    renderPlans();
+   851→    updateConnectBtn();
+   852→    showScreen(1);
+   853→  }
+   854→
+   855→  el('closeBtn2').addEventListener('click', resetAll);
+   856→
+   857→  // ---------------------------------------------------------------
+   858→  // Переход на ШАГ 2
+   859→  // ---------------------------------------------------------------
+   860→  el('connectBtn').addEventListener('click', function(){
+   861→    var svc = TARIFFS.services[state.service];
+   862→    var plan = null;
+   863→    for (var i = 0; i < svc.plans.length; i++) { if (svc.plans[i].id === state.planId) { plan = svc.plans[i]; break; } }
+   864→    state.step1Selection = {
+   865→      serviceId: svc.id,
+   866→      serviceLabel: svc.label,
+   867→      planName: plan.name,
+   868→      price: plan.price,
+   869→      priceLabel: plan.priceLabel
+   870→    };
+   871→    state.bundleId = null;
+   872→    renderScreen2();
+   873→    showScreen(2);
+   874→  });
+   875→
+   876→  function renderScreen2(){
+   877→    var sel = state.step1Selection;
+   878→    el('summaryLine').textContent = sel.serviceLabel + ', тариф «' + sel.planName + '»';
+   879→    el('summaryPrice').textContent = sel.priceLabel;
+   880→
+   881→    el('upsellLine').textContent = sel.serviceId === 'omnirm'
+   882→      ? 'Добавьте ИИ-агентов — обрабатывайте больше обращений без найма новых операторов.'
+   883→      : 'Добавьте рабочее место оператора — подключайте сложные диалоги к живому человеку.';
+   884→
+   885→    var grid = el('bundlesGrid');
+   886→    grid.innerHTML = TARIFFS.bundles.map(function(b){
+   887→      var diff = b.price - sel.price;
+   888→      var diffLabel, diffClass;
+   889→      if (diff > 0) { diffLabel = '+' + fmtPrice(diff) + ' к вашему выбору'; diffClass = ''; }
+   890→      else if (diff === 0) { diffLabel = 'столько же'; diffClass = 'zero'; }
+   891→      else { diffLabel = 'дешевле на ' + fmtPrice(Math.abs(diff)); diffClass = 'negative'; }
+   892→
+   893→      return '' +
+   894→        '<div class="bundle-card ' + (state.bundleId === b.id ? 'selected' : '') + '" data-id="' + b.id + '">' +
+   895→          '<div class="bundle-top">' +
+   896→            '<div class="bundle-name-row">' +
+   897→              '<div class="radio-dot"></div>' +
+   898→              '<div class="plan-name">' + b.name + '</div>' +
+   899→            '</div>' +
+   900→            '<div class="plan-price num">' + b.priceLabel + '</div>' +
+   901→          '</div>' +
+   902→          '<ul class="bundle-comp-list">' +
+   903→            '<li>' + b.operators + '</li>' +
+   904→            '<li>' + b.agents + '</li>' +
+   905→          '</ul>' +
+   906→          '<div class="bundle-package num">' + b.package + '</div>' +
+   907→          '<div class="bundle-overage num">' + b.overage + '</div>' +
+   908→          '<div class="bundle-diff ' + diffClass + '">' + diffLabel + '</div>' +
+   909→        '</div>';
+   910→    }).join('');
+   911→
+   912→    var cards = grid.querySelectorAll('.bundle-card');
+   913→    for (var i = 0; i < cards.length; i++) {
+   914→      cards[i].addEventListener('click', function(e){
+   915→        state.bundleId = e.currentTarget.dataset.id;
+   916→        renderScreen2();
+   917→        updateBundleBtn();
+   918→      });
+   919→    }
+   920→
+   921→    updateBundleBtn();
+   922→  }
+   923→
+   924→  function updateBundleBtn(){
+   925→    el('connectBundleBtn').disabled = !state.bundleId;
+   926→  }
+   927→
+   928→  el('connectBundleBtn').addEventListener('click', function(){
+   929→    var bundle = null;
+   930→    for (var i = 0; i < TARIFFS.bundles.length; i++) { if (TARIFFS.bundles[i].id === state.bundleId) { bundle = TARIFFS.bundles[i]; break; } }
+   931→    el('finalSummary').innerHTML =
+   932→      '<div><span class="label">Бандл:</span> ' + bundle.name + ' — <span class="num">' + bundle.priceLabel + '</span></div>' +
+   933→      '<div><span class="label">Состав:</span> ' + bundle.composition + '</div>' +
+   934→      '<div><span class="label">Подключение:</span> <span class="num">0 ₽</span></div>';
+   935→    showScreen(3);
+   936→  });
+   937→
+   938→  el('skipBundleBtn').addEventListener('click', function(){
+   939→    var sel = state.step1Selection;
+   940→    el('finalSummary').innerHTML =
+   941→      '<div><span class="label">Услуга:</span> ' + sel.serviceLabel + ' — тариф «' + sel.planName + '»</div>' +
+   942→      '<div><span class="label">Стоимость:</span> <span class="num">' + sel.priceLabel + '</span></div>';
+   943→    showScreen(3);
+   944→  });
+   945→
+   946→  // ---------------------------------------------------------------
+   947→  // Навигация между экранами
+   948→  // ---------------------------------------------------------------
+   949→  function showScreen(n){
+   950→    state.currentScreen = n;
+   951→    el('screen1').hidden = n !== 1;
+   952→    el('screen2').hidden = n !== 2;
+   953→    el('screen3').hidden = n !== 3;
+   954→    el('footer1').hidden = n !== 1;
+   955→    el('footer2').hidden = n !== 2;
+   956→    if (n <= 2) renderProgress(n);
+   957→
+   958→    var back = el('protoBack');
+   959→    var sep = el('protoSep');
+   960→    var showBack = n !== 1;
+   961→    back.style.display = showBack ? 'inline' : 'none';
+   962→    sep.style.display = showBack ? 'inline' : 'none';
+   963→
+   964→    window.scrollTo(0, 0);
+   965→  }
+   966→
+   967→  function goBack(){
+   968→    if (state.currentScreen === 3) {
+   969→      renderScreen2();
+   970→      showScreen(2);
+   971→    } else if (state.currentScreen === 2) {
+   972→      showScreen(1);
+   973→    }
+   974→  }
+   975→
+   976→  el('protoBack').addEventListener('click', goBack);
+   977→  el('protoRestart').addEventListener('click', resetAll);
+   978→
+   979→  // ---------------------------------------------------------------
+   980→  // Инициализация
+   981→  // ---------------------------------------------------------------
+   982→  renderServiceSwitch();
+   983→  renderDescription();
+   984→  renderPlans();
+   985→  renderProgress(1);
+   986→  updateConnectBtn();
+   987→  showScreen(1);
+   988→</script>
+   989→</body>
+   990→</html>
+   991→
