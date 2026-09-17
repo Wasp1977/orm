@@ -597,8 +597,8 @@ function progressHtml(activeStep){var steps=[{n:1,label:'Комплекты'},{n
 function renderProgress(activeStep){el('progressBar1').innerHTML=progressHtml(activeStep);el('progressBar2').innerHTML=progressHtml(activeStep);}
 
 /* ---- SCREEN 0: Dashboard ---- */
-el('sbOmniRM').addEventListener('click',function(){renderScreen1();showScreen(1);});
-el('omnirmBanner').addEventListener('click',function(){renderScreen1();showScreen(1);});
+el('sbOmniRM').addEventListener('click',function(){window.open('омнирм_лендинг.html','_blank');});
+el('omnirmBanner').addEventListener('click',function(){window.open('омнирм_лендинг.html','_blank');});
 
 /* ---- SCREEN 1: Landing ---- */
 el('heroCta').addEventListener('click',function(){renderScreen2();showScreen(2);});
@@ -785,7 +785,14 @@ function goBack(){if(state.currentScreen===5){showScreen(4);}else if(state.curre
 function resetAll(){state.omnirmPlanId=null;state.agentsPlanId=null;state.kitId=null;state.agree1=false;state.agree2=false;state.agree3=false;state.agree4=false;state.connectedOmniRM=null;state.connectedAgents=null;state.managedOmniRM=undefined;state.managedAgents=undefined;el('agree1').checked=false;el('agree2').checked=false;el('agree3').checked=false;el('agree4').checked=false;el('alert1').classList.remove('show');el('alert3').classList.remove('show');var existingResult=document.querySelector('.manage-result');if(existingResult)existingResult.remove();showScreen(0);}
 el('protoBack').addEventListener('click',goBack);
 el('protoRestart').addEventListener('click',resetAll);
-showScreen(0);
+/* Check URL params for direct navigation */
+(function(){
+  var params=new URLSearchParams(window.location.search);
+  var startScreen=params.get('start');
+  if(startScreen==='kits'){renderScreen2();showScreen(2);}
+  else if(startScreen==='constructor'){renderScreen3();showScreen(3);}
+  else{showScreen(0);}
+})();
 </script>
 </body>
 </html>
