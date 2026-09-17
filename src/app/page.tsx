@@ -286,7 +286,7 @@ function VatsScreen() {
                 Все каналы — в одном окне оператора. Звонки, чаты, Telegram и&nbsp;др.
               </p>
               <YellowBtn onClick={() => navigate("landing")} className="mt-4 w-full">
-                Подключить
+                Подробнее
               </YellowBtn>
             </div>
           )}
