@@ -1,0 +1,809 @@
+     1→#!/usr/bin/env python3
+     2→"""Generate the selling scenario prototype for OmniPM connection."""
+     3→
+     4→html = '''<!DOCTYPE html>
+     5→<html lang="ru">
+     6→<head>
+     7→<meta charset="UTF-8">
+     8→<meta name="viewport" content="width=device-width, initial-scale=1">
+     9→<title>ОмниРМ — подключение сервиса</title>
+    10→<style>
+    11→  :root{
+    12→    --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    13→    --bg-page:#EEF0F3;
+    14→    --panel-bg:#FFFFFF;
+    15→    --card-bg:#F4F5F7;
+    16→    --card-bg-hover:#ECEEF1;
+    17→    --card-border:#E7E9EC;
+    18→    --card-selected-border:#15171A;
+    19→    --card-selected-tint:#FFFCF2;
+    20→    --text-primary:#15171A;
+    21→    --text-secondary:#6B7280;
+    22→    --text-tertiary:#9AA1AB;
+    23→    --divider:#E7E9EC;
+    24→    --link:#0B6FDB;
+    25→    --info-bg:#E8F2FE;
+    26→    --info-icon-bg:#1478F0;
+    27→    --accent-yellow:#FFDD5B;
+    28→    --accent-yellow-hover:#FFD23D;
+    29→    --accent-green:#1E9E4A;
+    30→    --accent-green-bg:#EAF7EE;
+    31→    --accent-magenta:#E91E63;
+    32→    --accent-magenta-bg:#FCE4EC;
+    33→    --btn-secondary-border:#D8DBE0;
+    34→    --btn-secondary-text:#15171A;
+    35→    --btn-disabled-bg:#EFF0F2;
+    36→    --btn-disabled-text:#B7BCC3;
+    37→    --radius-lg:16px;
+    38→    --radius-md:12px;
+    39→    --radius-pill:999px;
+    40→    --bar-h:88px;
+    41→    --hero-dark:#1A1D29;
+    42→    --hero-gradient-start:#1A1D29;
+    43→    --hero-gradient-end:#2D3250;
+    44→  }
+    45→
+    46→  *{box-sizing:border-box;margin:0;padding:0;}
+    47→  html{scroll-behavior:smooth;}
+    48→  html,body{height:100%;}
+    49→  body{
+    50→    background:var(--bg-page);
+    51→    color:var(--text-primary);
+    52→    font-family:var(--font-ui);
+    53→    -webkit-text-size-adjust:100%;
+    54→    overflow-x:hidden;
+    55→  }
+    56→
+    57→  h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;}
+    58→  .num{font-variant-numeric:tabular-nums;}
+    59→  button{font-family:inherit;}
+    60→  a{color:var(--link);text-decoration:none;}
+    61→  a:hover{text-decoration:underline;}
+    62→
+    63→  :focus-visible{outline:2px solid var(--info!icon-bg);outline-offset:2px;}
+    64→
+    65→  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    66→  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    67→#  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+    68→  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.65}}
+    69→  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    70→
+    71→  .animate-fade-up{animation:fadeUp .6s ease both;}
+    72→  .animate-fade-in{animation:fadeIn .5s ease both;}
+    73→  .delay-1{animation-delay:.1s;}
+    74→  .delay-2{animation-delay:.2s;}
+    75→  .delay-3{animation-delay:.3s;}
+    76→  .delay.4{animation-delay:.4s;}
+    77→  .delay-5{animation-delay:.5s;}
+    78→
+    79→  .page{max-width:840px;margin:0 auto;padding:0 24px calc(var(--bar-h) + 24px);}
+    80→  .screen{display:flex;flex-direction:column;gap:24px;}
+    81→  .screen[hidden]{display:none;}
+    82→
+    83→  .proto-nav{
+    84→    position:fixed;top:14px;right:16px;z-index:80;
+    85→    display:flex;align-items:center;gap:8px;
+    86→    background:rgba(255,255,255,0.94);
+    87→    border:1px solid var(--card-border);
+    88→    border-radius:8px;padding:6px 10px;
+    89→    font-size:12px;line-height:1.2;color:var(--text-tertiary);
+    90→    box-shadow:0 2px 10px rgba(21,23,26,0.08);
+    91→  }
+    92→  .proto-link{background:none;border:none;padding:0;margin:@;font:inherit;color:var(--text-secondary);cursor:pointer;}
+    93→  .proto-link:hover{color:var(--text-primary);text-decoration:underline;}
+    94→  .proto-sep{color:var(--card-border);}
+    95→
+    96→  /* Hero */
+    97→  .hero{
+    98→    background:linear-gradient(135deg,var(--hero-gradient-start),var(--hero-gradient-end));
+    99→    border-radius:24px;padding:48px 36px;color:#fff;position:relative;overflow:hidden;
+   100→  }
+   101→  .hero::before{
+   102→    content:'';position:absolute;top:-60px;right:-60px;
+   103→    width:200px;height:200px;
+   104→    background:radial-gradient(circle,rgba(255,221,91,0.15) 0%,transparent 70%);
+   105→    border-radius:50%;
+   106→  }
+   107→  .hero::after{
+   108→    content:'';position:absolute;bottom:-40px;left:-40px;
+   109→    width:160px;height:160px;
+   110→    background:radial-gradient(circle,rgba(233,30,99,0.1) 0%,transparent 70%);
+   111→    border-radius:50%;
+   112→  }
+   113→  .hero-badge{
+   114→    display:inline-flex;align-items:center;gap:6px;
+   115→    background:rgba(255/255,255,0.12);border:1px solid rgba(255,255,#255,0.18);
+   116→    border-radius:var(--radius-pill);padding:6px 14px;
+   117→1   font-size:13px;font-weight:700;margin-bottom:20px;
+   118→  }
+   119→  .hero-badge .dot{width:6px;height:6px;border-radius:50%;background:#4ADE80;animation:pulse 2s infinite;}
+   120→  .hero-title{font-size:36px;font-weight:800;letter-spacing:-0.02em;line-height:1.15;margin-bottom:12px;}
+   121→  .hero-subtitle{font-size:17px;line-height:1.6;opacity:0.85;max-width:520px;margin-bottom:28px;}
+   122→ , hero-cta-row{display:flex;gap:12px;flexDflex-wrap:wrap;}
+   123→
+   124→  .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px;}
+   125→  .stat-card{
+   126→    background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+   127→    border-radius:var(--radius-md);padding:16px 18px;text-align:center;
+   128→  }
+   129→  .stat-num{font-size:28px;font-weight:800;letter-spacing:-0.01em;color:var(--accent-yellow);}
+   130→  .stat-label{font-size:13px;opacity:0.7;margin-top:4px;}
+   131→
+   132→  .panel{
+   133→    background:var(--panel-bg);border-radius:24px;
+   134→    box-shadow:0 24px 64px rgba(21,23,26,0.10),0 2px 8px rgba(21,23,26,0.05);
+   135→    padding:28px;display:flex;flex-direction:column;gap:24px;
+   136→  }
+   137→
+   138→  /* Before/After */
+   139→  .compare-section{display:flex;flex-direction:column;gap:16px;}
+   140→  .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+   141→  .compare-card{border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:12px;}
+   142→  .compare-card.before{background:#FEF2F2;border:1px solid #FECACA;}
+   143→  .compare-card.after{background:#F0FDF4;border:1px solid #BBF7D0;}
+   144→  .compare-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+   145→  .compare-card.before .compare-label{color:#DC2626;}
+   146→  .compare-card.after .compare-label{color:#16A34A;}
+   147→  .compare-title{font-size:16px;font-weight:700;}
+   148→  .compare-items{list-style:none;padding<:none;display:flex;flex-direction:column;gap:8px;}
+   149→ B .compare-items li{font-size:14px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;}
+   150→  .compare-items li .icon{flex:0 0 auto;font-size:16px;line-height:1;}
+   151→  .compare-card.before .icon{color:#DC2626;}
+   152→  .compare-card.after .icon{color:#16A34A;}
+   153→
+   154→  /* Benefits grid */
+   155→  .benefits-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;}
+   156→  .benefit-card{
+   157→    background:var(--card-bg);border-radius:var(--radius-lg);
+   158→    padding:20px;display:flex;gap:14px%align-items:flex-start;
+   159→    transition:transform .2s ease,box-shadow .2s ease;
+   160→  }
+   161→  .benefit-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(21,23,26,0.08);}
+   162→  .benefit-icon{
+   163→    width:44px;height:44px;border-radius:12px;
+   164→    display:flex;align-items:center;justify-content:center;font-size:22px;flex:0 0 auto;
+   165→  }
+   166→  .benefit-icon.blue{background:#E8F2FE;color:#1478F0;}
+   167→  .benefit-icon.green{background:#EAF7EE;color:#16A34A;}
+   168→  .benefit-icon.yellow{background:#FFF8E1=;color:#F59E0B;}
+   169→  .benefit-icon.magenta{background:#FCE4EC;color:#E91,63;}
+   170→  .benefit-text{display:flex;flex-direction:column;gap:4px;}
+   171→  .benefit-title{font-size:14.5px;font-weight:700;}
+   172→  .benefit-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+   173→
+   174→  /* Bundle recommend badge */
+   175→  .bundle-recommend{
+   176→    display:inline-flex;align-items:center;gap:6px;
+   177→    background:var(--accent-magenta-bg);color:var(--accent-magenta);
+   178→    font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);
+   179→  }
+   180→  .savings-badge{
+   181→    display:inline-flex;align-items:center;gap:4px;
+   182→    background:#FFF3CC;color:#7A5B00;
+   183→    font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:var(--radius-pill);
+   184→  }
+   185→
+   186→  /* Savings visual */
+   187→  .savings-visual{
+   188→    background:linear-gradient(135deg,#F0FDF4,#ECFDF5);
+   189→    border:1px solid #BBF7D0;border-radius:var(--radius-lg);
+   190→    padding:24px;display:flex;flex-direction:column;gap:16px;
+   191→  }
+   192→  .savings-title{font-size:17px;font-weight:700;color:#16A34A;display:flex;align-items:center;gap:8px;}
+   193→  .savings-comparison{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;}
+   194→  .savings-col{flex:1;min-width:140px;display:flex;flex-direction:column;gap:8px;}
+   195→  .savings-bar{height:8px;border-radius:4px;transition:width 1s ease;}
+   196→  .savings-bar.separate{background:#FECACA;}
+   197→  .savings-bar.bundle{background:#4ADE80;}
+   198→  .savings-label{font-size:13px;color:var(--text-secondary);}
+   199→  .savings-amount{font-size:22px;font-weight:800;}
+   200→  .savings-amount.red{color:#DC2626;}
+   201→  .savings-amount.green{color:#16A34A;}
+   202→
+   203→  /* Bundle cards */
+   204→  .bundle-card{
+   205→    position:relative;text-align:left;background:var(--card-bg);
+   206→    border:2px solid transparent;border-radius:var(--radius-lg);
+   207→    padding:22px 24px;cursor:pointer;display:flex;flex-direction:column;gap:10px;width:100%;
+   208→    transition:border-color .15s ease,background .15s ease,transform .15s ease;
+   209→  }
+   210→  .bundle-card:hover{background:var(--card-bg-hover);transform:translateY(-1px);}
+   211→  .bundle-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);}
+   212→  .bundle-card.recommended{border-color:var(--accent-magenta);}
+   213→  .bundle-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+   214→  .bundle-name-row{display:flex;align-items:center;gap:10px;}
+   215→  .bundle-comp-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+   216→  .bundle-comp-list li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+   217→  .bundle-comp-list li::before{content:"\\2022";color:var(--text-tertiary);flex:0 0 auto;}
+   218→  .bundle-package{font-size:13px;color:var(--text-secondary);}
+   219→  .bundle-overage{font-size:12px;color:var(--text-secondary);border-top:1px solid var(--card-border);padding-top:8px;margin-top:2px;}
+   220→  .bundle-badges{display:flex;gap:8px;flex-wrap:wrap;}
+   221→
+   222→  /* Plan cards */
+   223→  .plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+   224→  .plans-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+   225→  .plan-card{
+   226→    background:var(--card-bg);border:2px solid transparent;
+   227→    border-radius:var(--radius-lg);padding:18px 20px;cursor:pointer;
+   228→    display:flex;flex-direction:column;gap:8px;transition:border-color .15s ease,background .15s ease;
+   229→  }
+   230→  .plan-card:hover{background:var(--card-bg-hover);}
+   231→  .plan-card.selected{background:var(--card-selected-tint);border-color:var(--card-selected-border);}
+   232→  .plan-card-top{display:flex;align-items:flex-start;justify-content:space-between;}
+   233→  .plan-name{font-size:15px;font-weight:700;}
+   234→  .plan-price{font-size:18px;font-weight:800;}
+   235→  .plan-price .note{font-size:12.5px;font-weight:500;color:var(--text-secondary);margin-left:6px;}
+   236→  .plan-features{list-style:none;display:flex;flex-direction:column;gap:4px;}
+   237→  .plan-features li{font-size:13.5px;color:var(--text-primary);display:flex;gap:8px;line-height:1.4;}
+   238→  .plan-features li::before{content:"\\2022";color:var(--text-tertiary);flex:0 0 auto;}
+   239→  .plan-cons{font-size:12.5px;color:var(--text-tertiary);font-style:italic;}
+   240→  .plan-footnote{font-size:12.5px;color:var(--text-secondary);}
+   241→  .agent-stats{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;}
+   242→  .stat-label{color:var(--text-secondary);}
+   243→  .stat-value{font-weight:600;}
+   244→  .agent-overage{font-size:12.5px;color:var(--text-secondary);margin-top:4px;}
+   245→
+   246→  .radio-dot{
+   247→    width:20px;height:20px;border-radius:50%;border:2px solid var(--card-border);flex:0 0 auto;
+   248→    display:flex;align-items:center;justify-content:center;transition:border-color .15s ease,background .15s ease;
+   249→  }
+   250→  .selected .radio-dot{border-color:var(--text-primary);background:var(--text-primary);}
+   251→  .selected .radio-dot::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff;}
+   252→
+   253→  .info-block{display:flex;gap:14px;align-items:flex-start;background:var(--info-bg);border-radius:var(--radius-lg);padding:16px 18px;}
+   254→  .info-icon{flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:var(--info-icon-bg);color:#fff;display:flex;align-items:center;justify-content:center;}
+   255→  .info-text{font-size:14.5px;line-height:1.5;color:var(--text-primary);}
+   256→
+   257→  .hint{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--text-secondary);line-height:1.5;}
+   258→  .hint svg{flex:0 0 auto;margin-top:2px;}
+   259→
+   260→  .agreements{display:flex;flex-direction:column;gap:10px;}
+   261→  .agreement{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.5;color:var(--text-secondary);cursor:pointer;}
+   262→  .agreement input{margin-top:3px;flex:0 0 auto;accent-color:var(--info-icon-bg);}
+   263→
+   264→  .summary-card{background:var(--card-bg);border-radius:var(--radius-lg);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+   265→  .summary-label{font-size:12.5px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;font-weight:700;}
+   266→  .summary-value{font-size:15px;font-weight:700;margin-top:2px;}
+   267→  .summary-price{font-size:18px;font-weight:800;}
+   268→
+   269→  .stub-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:24px 8px;}
+   270→  .stub-check{width:64px;height:64px;border-radius:50%;background:#EAF7EE;color:#1E9E4A;display:flex;align-items:center;justify-content:center;}
+   271→  .stub-summary{margin-top:8px;background:var(--card-bg);border-radius:var(--radius-lg);padding:18px 22px;text-align:left;max-width:420px;width:100%;}
+   272→  .stub-summary div{font-size:14px;line-height:1.7;}
+   273→  .stub-summary .label{color:var(--text-secondary);}
+   274→
+   275→  .btn{
+   276→    appearance:none;border:none;border-radius:var(--radius-pill);
+   277→    padding:13px 26px;font-size:15px;font-weight:700;cursor:pointer;
+   278→    transition:background .15s ease,opacity .15s ease,transform .05s ease,box-shadow .15s ease;
+   279→  }
+   280→  .btn:active{transform:scale(0.98);}
+   281→  .btn-primary{background:var(--accent-yellow);color:var(--text-primary);}
+   282→  .btn-primary:hover{background:var(--accent-yellow-hover);box-shadow:0 4px 16px rgba(255,221,91,01.3);}
+   283→  .btn-primary:disabled{background:var(--btn-disabled-bg);color:var(--btn-disabled-text);cursor:not-allowed;box-shadow:none;}
+   284→  .btn-secondary{background:#fff;color:var(--btn-secondary-text);border:1px solid var(--btn-secondary-border);}
+   285→  .btn-secondary:hover{background:var(--card-bg);}
+   286→  .btn-ghost{background:transparent;color:var(--text-secondary);border:none;text-decoration:underline;text-underline-offset:3px;}
+   287→  .btn-ghost:hover{color:var(--text-primary);}
+   288→  .btn-wide{flex:1;}
+   289→
+   290→  .progress{display:flex;align-items:center;gap:10px;}
+   291→  .progress-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--text-tertiary);}
+   292→  .progress-step .dot{width:22px;height:22px;border-radius:50%;background:var(--card-bg);color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;border:1px solid var(--card-border);flex:0 0 auto;}
+   293→  .progress-step.active{color:var(--text-primary);}
+   294→  .progress-step.active .dot{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+   295→  .progress-step.done .dot{background:var(--text-primary);color:#fff;border-color:var(--text-primary);}
+   296→  .progress-line{width:28px;height:1px;background:var(--card-border);flex:0 0 auto;}
+   297→
+   298→  h1.screen-title{font-size:28px;font-weight:800;letter-spacing:-0.01em;}
+   299→  .subtitle{color:var(--text5econdary);font-size:15px;line-height:1.5;margin-top:6px;}
+   300→  .section-title{font-size:18px;font-weight:700;}
+   301→  .muted{color:var(--text-secondary);}
+   302→  .fine{font-size:12.5px;color:var(--text-tertiary);}
+   303→
+   304→  .action-bar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:#fff;border-top:1px solid var(--divider);}
+   305→  .action-bar[hidden]{display:none;}
+   306→  .action-bar-inner{max-width:840px;margin:0 auto;display:flex;justify-content:flex-end;gap:12px;padding:16px 24px;}
+   307→  .action-bar-inner.split{justify-content:space-between;}
+   308→
+   309→  .segmented{display:flex;background:var(--card-bg);border-radius:var(--radius-pill);padding:4px;gap:4px;}
+   310→  .segmented button{flex:1;border:none;background:transparent;padding:11px 16px;border-radius:var(--radius-pill);font-size:14.5px;font-weight:700;color:var(--text-secondary);cursor:pointer;transition:background .15s ease,color .15s ease,box-shadow .15s ease;}
+   311→  .segmented button.active{background:#fff;color:var(--text-primary);box-shadow:0 2px 8px rgba(21,23,26,0.10);}
+   312→
+   313→  .desc-block{background:var(--card-bg);border-radius:var(--radius-lg);padding:20px 22px;display:flex;flex-direction:column;gap:10px;}
+   314→  .desc-lead{font-size:14.5px;color:var(--text-secondary);line-height:1.5;}
+   315→  .desc-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;}
+   316→  .desc-list li{font-size:14px;line-height:1.5;display:flex;gap:8px;}
+   317→  .desc-list li::before{content:"\\2022";color:var(--info-icon-bg);flex:0 0 auto;font-weight:700;}
+   318→
+   319→  .connector{text-align:center;padding:12px 0;font-size:14px;color:var(--text-tertiary);display:flex;align-items:center;justify-content:center;gap:8px;}
+   320→  .connector::before,.connector::after{content:'';width:60px;height:1px;background:var(--card-border);}
+   321→
+   322→  @media(max-width:720px){
+   323→    .page{padding:0 16px calc(var(--bar-h) + 20px);}
+   324→    .progress{flex-wrap:wrap;row-gap:8px;}
+   325→    .progress-step{font-size:12px;}
+   326→    .panel{padding:20px;border-radius:18px;gap:20px;}
+   327→    h1.screen-title{font-size:22px;}
+   328→    .section-title{font-size:16px;}
+   329→    .subtitle{font-size:14px;}
+   330→    .plans-grid,.plans-grid.cols-3{grid-template-columns:1fr;}
+   331→    .desc-block{padding:16px 18px;}
+   332→    .info-block{padding:14px 16px;}
+   333→    .proto-nav{top:8px;right:8px;font-size:11px;padding:5px 8px;gap:6px;}
+   334→    .action-bar-inner{padding:12px 16px;gap:8px;}
+   335→    .btn{padding:12px 18px;font-size:14px;}
+   336→    .hero{padding:32px 24px;border-radius:18px;}
+   337→    .hero-title{font-size:26px;}
+   338→    .hero-subtitle{font-size:15px;}
+   339→    .stats-row{grid-template-columns:1fr;}
+   340→    .compare-grid{grid-template-columns:1fr;}
+   341→    .benefits-grid{grid-template-columns:1fr;}
+   342→    .savings-comparison{flex-direction:column;}
+   343→    .bundle-card{padding:18px 20px;}
+   344→    .bundle-top{flex-direction:column;gap:6px;}
+   345→  }
+   346→</style>
+   347→</head>
+   348→<body>
+   349→
+   350→<nav class="proto-nav" aria-label="Навигация по прототипу">
+   351→  <button type="button" class="proto-link" id="protoBack">&larr; Назад</button>
+   352→  <span class="proto-sep" id="protoSep">&middot;</span>
+   353→  <button type="button" class="proto-link" id="protoRestart">Начать заново</button>
+   354→</nav>
+   355→
+   356→<div class="page">
+   357→
+   358→  <!-- SCREEN 0: HOOK / LANDING -->
+   359→  <section class="screen" id="screen0">
+   360→    <div class="hero animate-fade-up">
+   361→      <div class="hero-badge"><span class="dot"></span> Подключение бесплатно</div>
+   362→      <h1 class="hero-title">Все каналы &mdash; в одном окне оператора</h1>
+   363→      <div class="hero-subtitle">
+   364→        Звонки, чаты, Telegram &mdash; всё в ОмниРМ. Не нужно переключаться между программами,
+   365→        не нужно нанимать лишних людей. ИИ-агенты берут рутину, операторы &mdash; сложные диалоги.
+   366→      </div>
+   367→      <div class="hero-cta-row">
+   368→        <button class="btn btn-primary" id="heroCta" style="font-size:17px;padding:15px 32px;">Подключить ОмниРМ</button>
+   369→      </div>
+   370→      <div class="stats-row">
+   371→        <div class="stat-card"><div class="stat-num num">5+</div><div class="stat-label">каналов в одном окне</div></div>
+   372→        <div class="stat-card"><div class3"stat-num num">40%</div><div class="stat-label">экономия с бандлом</div></div>
+   373→        <div class="stat-card"><div class="stat-num num">24/7</div><div class="stat-label">ИИ-агенты не спят</div></div>
+   374→      </div>
+   375→    </div>
+   376→
+   377→    <div class="panel animate-fade-up delay-1">
+   378→      <div class="compare-section">
+   379→        <h2 class="section-title">Зачем нужен ОмниРМ?</h2>
+   380→        <div class="compare-grid">
+   381→          <div class="compare-card before">
+   382→            <div class="compare-label">
+   383→              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+   384→              Без ОмниРМ
+   385→            </div>
+   386→            <div class="compare-title">Хаос в каналах</div>
+   387→            <ul class="compare-items">
+   388→              <li><span class="icon">&cross;</span>GЗвонки в одной программе, чаты в другой</li>
+   389→              <li><span class="icon">&cross;</span> Оператор переключается между 3-4 окнами</li>
+   390→              <li><span class="icon">&cross;</span> Нет общей истории диалогов с клиентом</li>
+   391→              <li><span class="icon">&cross;</span> Ночью &mdash; пропущенные обращения</li>
+   392→              <li><span class="icon">&cross;</span> Каждый новый канал &mdash; новый сотрудник</li>
+   393→            </ul>
+   394→          </div>
+   395→          <div class="compare-card after">
+   396→            <div class="compare-label">
+   397→              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10"2# stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+   398→              С ОмниРМ
+   399→            </div>
+   400→            <div class="compare-title">Всё в одном месте</div>
+   401→            <ul class="compare-items">
+   402→              <li><span class="icon">&check;</span> Звонки и переписка &mdash; единый интерфейс</li>
+   403→              <li><span class="icon">&check;</span> Карточка клиента со всей историей</li>
+   404→              <li><span class="icon">&check;</span> Умная очередь распределяет автоматически</li>
+   405→              <li><span class="icon">&check;</span> ИИ-агенты работают ночью без людей</li>
+   406→              <li><span class="icon">&check;</span> Добавляйте каналы без найма</li>
+   407→            </ul>
+   408→          </div>
+   409→        </div>
+   410→      </div>
+   411→    </div>
+   412→
+   413→    <div class="panel animate-fade-up delay-2">
+   414→      <h2 class="section-title">Что вы получаете &mdash; простыми словами</h2>
+   415→      <div class="benefits-grid">
+   416→        <div class="benefit-card">
+   417→          <div class="benefit-icon blue"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/><path d+M4M8 21h8M12 17v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+   418→          <div class="benefit-text"><div class="benefit-title">Единый экран оператора</div><div class="benefit-desc">Все звонки и чаты видны в одном окне. Не нужно переключаться между программами &mdash; оператор работает быстрее.</div></div>
+   419→        </div>
+   420→        <div class="benefit-card">
+   421→          <div class="benefit-icon green"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M2 12h20" stroke="currentColor" stroke-width="1+8"/><path d="M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112!2z" stroke="currentColor" stroke-width="1.8"/></svg></div>
+   422→          <div class="benefit-text"><div class="benefit-title">5+ каналов одновременно</div><div class="benefit-desc">Виджет на сайте, Telegram, MAX, звонки Облачной АТС &mdash; всё подключается в пару кликов из личного кабинета.</div></div>
+   423→        </div>
+   424→        <div class="benefit-card">
+   425→          <div class="benefit-icon yellow"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+   426→          <div class="benefit-text"><div class="benefit-title">ИИ работает 24/7</div><div class="benefit-desc">ИИ-агенты отвечают на типовые вопросы ночью и в выходные. Сложные диалоги &mdash; передают оператору днём.</div></div>
+   427→        </div>
+   428→        <div class="benefit-card">
+   429→          <div class="benefit-icon magenta"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg></div>
+   430→          <div class="benefit-text"><div class="benefit-title">Бандл &mdash; экономия до 40%</div><div class="benefit-desc">Операторы + ИИ-агенты вместе дешевле, чем отдельно. Бандл &laquo;Бизнес+&raquo; экономит 1\u00A0510\u00A0&#8381;/мес.</div></div>
+   431→        </div>
+   432→      </div>
+   433→    </div>
+   434→
+   435→    <div class="connector">перейдём к тарифам</div>
+   436→  </section>
+   437→
+   438→  <!-- SCREEN 1: BUNDLES (PRIMARY SELL) -->
+   439→  <section class="screen" id="screen1" hidden>
+   440→    <div class="progress" id="progressBar1"></div>
+   441→    <div class="panel">
+   442→      <div>
+   443→        <h1 class="screen-title">Вместе выгоднее</h1>
+   444→        <div class="subtitle">Бандл = операторы + ИИ-агенты. Экономия до 40% по сравнению с отдельной покупкой.</div>
+   445→      </div>
+   446→      <div class="savings-visual" id="savingsVisual"></div>
+   447→      <div>
+   448→        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
+   449→          <div class="section-title">Выберите бандл</div>
+   450→          <div class="bundle-recommend"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> Рекомендуем</div>
+   451→        </div>
+   452→        <div style="display:flex;flex-direction:column;gap:14px;" id="bundlesGrid"></div>
+   453→      </div>
+   454→      <div class="info-block">
+   455→        <div class="info-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="1.8"/><path d="M12 11v5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="7.7" r="1" fill="white"/></svg></div>
+   456→        <div class="info-text">Подключение бандла: 0 &#8381;. Тарификация начинается после выбора.</div>
+   457→      </div>
+   458→      <div class="hint">
+   459→        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+   460→        <span>Нужны только операторы или только ИИ-агенты? <button class="btn-ghost" id="goIndividual">Выбрать отдельный тариф</button></span>
+   461→      </div>
+   462→      <div class="agreements">
+   463→        <label class="agreement"><input type="checkbox" id="agree1"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label>
+   464→        <label class="agreement"><input type="checkbox" id="agree2"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных с правообладателем ПО</a></span></label>
+   465→      </div>
+   466→    </div>
+   467→  </section>
+   468→
+   469→  <!-- SCREEN 2: INDIVIDUAL TARIFFS -->
+   470→  <section class="screen" id="screen2" hidden>
+   471→    <div class="progress" id="progressBar2"></div>
+   472→    <div class="panel">
+   473→      <div>
+   474→        <h1 class="screen-title">Отдельные тарифы</h1>
+   475→        <div class="subtitle">Если бандл не подходит &mdash; выберите услугу и тариф отдельно.</div>
+   476→      </div>
+   477→      <div class="segmented" id="serviceSwitch"></div>
+   478→      <div class="desc-block" id="descBlock"></div>
+   479→      <div>
+   480→        <div class="section-title" style="margin-bottom:14px;">Выберите тариф</div>
+   481→        <div class="plans-grid" id="plansGrid"></div>
+   482→      </div>
+   483→      <div class="hint">
+   484→        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#9AA1AB" stroke-width="1.6"/><path d="M12 8v5" stroke="#9AA1AB" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="0.9" fill="#9AA1AB"/></svg>
+   485→        <span>А бандлом выгоднее! <button class="btn-ghost" id="goBundles">Вернуться к бандлам</button></span>
+   486→      </div>
+   487→      <div class="agreements">
+   488→        <label class="agreement"><input type="checkbox" id="agree3"><span>Принимаю <a href="#" onclick="return false;">Условия предоставления программного обеспечения</a></span></label>
+   489→        <label class="agreement"><input type="checkbox" id="agree4"><span>Принимаю <a href="#" onclick="return false;">Условия соглашения о поручении обработки персональных данных с правообладателем ПО</a></span></label>
+   490→      </div>
+   491→    </div>
+   492→  </section>
+   493→
+   494→  <!-- SCREEN 3: CONFIRMATION -->
+   495→  <section class="screen" id="screen3" hidden>
+   496→    <div class="panel">
+   497→      <div class="stub-wrap">
+   498→;       <div class="stub-check" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#1E9E4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+   499→        <h1 class="screen-title">Услуга подключена</h1>
+   500→        <div class="subtitle">Итоговый состав подключения:</div>
+   501→        <div class="stub-summary" id="finalSummary"></div>
+   502→      </div>
+   503→    </div>
+   504→  </section>
+   505→
+   506→</div>
+   507→
+   508→<!-- FOOTER 1 (bundles) -->
+   509→<div class="action-bar" id="footer1">
+   510→  <div class="action-bar-inner split">
+   511→    <button class$="btn btn-secondary btn-wide" id="skipBundleBtn">Без бандла</button>
+   512→    <button class="btn btn-primary btn-wide" id="connectBundleBtn" disabled>Подключить бандл</button>
+   513→  </div>
+   514→</div>
+   515→
+   516→<!-- FOOTER 2 (individual) -->
+   517→<div class="action-bar" id="footer2" hidden>
+   518→  <div class="action-bar-inner">
+   519→    <button class="btn btn-secondary" id="backToBundlesBtn">К бандлам</button>
+   520→    <button class="btn btn-primary" id="connectIndBtn" disabled>Подключить</button>
+   521→  </div>
+   522→</div>
+   523→
+   524→<script>
+   525→  var TARIFFS = {
+   526→    services: {
+   527→      omnirm: {
+   528→        id: 'omnirm', label: '\u041E\u043C\u043D\u0438\u0420\u041C',
+   529→        description: {
+   530→          title: '\u>4E\u043C\u043D\u0438\u0420\u041C \u2014 \u0440\u0430\u0431\u043E\u0447\u0435\u0435 \u043C\u0435\u0441\u0442\u043E \u043E\u043F\u0435\u044!80\u043E\u0440\uA430',
+   531→          lead: '\u041E\u0434\u043D\u043E \u043E\u043A\u043D\u043E \u0434\u043B\u044F \u0437\u0432\u043E\u043D\u043A\u043E\u0432 \u0438 \u043F\u0435\u0440\u0435\u043F\u0438\u0441\u043A\u0438. \u041E\u043F\u0435\u0440\u0430\u0442\u043E\u0440 \u043F\u0440\u0438\u043D\u0438\u043C\u0430\u0435\u0442 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u0438\u0437 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u044B\u0445 \u043A\u0430\u043D\u0430\u043B\u043E\u0432 \u0438 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0441\u043E \u0437\u0432\u043E\u043D\u043A\u0430\u043C\u0438 \u041E\u0410\u0422\u042E.',
+   532→          bullets: [
+   533→            '\u0417\u0432\u043E\u043D\u043A\u0438 \u041E\u0410\u0422\u0421 \u0438 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u044B\u0435 \u043A\u0430\u043D\u0430\u043B\u044B \u0432 \u043E\u0434\u043D\u043E\u043C \u0438\u043D\u0442\u0435\u0440\u044$66\u0435\u0439\u0441\u0435',
+   534→            '\u041A\u0430\u043D\u0430\u043B\u044B: \u0432\u0438\u0434\u0436\u0435\u0442 \u043D\u0430 \u0441\u0430\u0439\u0442\u0435, Telegram, MAX',
+   535→            '\u0418\u0441\u0442\u043E\u0440\u0438\u044F \u04,34\u0438\u0430\u043B\u043E\u0433\u043E\u0432 \u0438 \u043A\u0430\u0440\u0442\u043E\u0447\u043A\u0430 \u043A\u043B\u0438\u0435\u043D\u0442\u0430 \u0441\u043E \u0432\u0441\u0435\u0439 \u043F\u0435\u0440\u0435\u043F\u0438\u0441\u04(3\u043E\u0439',
+   536→            '\u0420\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u0439: \u043E\u0431\u0449\u044F\u044F \u043E\u0447\u0435\u0440\u0435\u0434\u044C, \u,3E\u0433\u0438\u043A\u0438 \u041E\u0410\u0422\u0421 \u0438\u043B\u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0435 \u043E\u0447\u0435\u0440\u0435\u0434\u0438',
+   537→            '\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u0438\u0437 \u043B\u0438=0438\u0447\u043D\u043E\u0433\u043E \u043A\u0430\u0431\u0438\u043D\u0435\u0442\u0430 \u0431\u0435\u0437 \u043E\u043F\u043E\u3\u0440\u043D\u043E\u0439 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438'
+   538→          ]
+   539→        },
+   540→        plans: [
+   541→          { id: 'solo', name: '\u0421\u043E\u043B\u043E', price: 0, priceLabel: '0 \u20BD', note: '\u0432 \u0442\u0430\u0440\u0438\u0444\u0435 \u041E\u0410\u0422\u0421', features: ['1 \u043E\u043F\u0435\u0440\u0430\u0442\u043E\u0440', '1 \u043A\u0430\u043D\u0430\u043B (\u0432\u0438\u0434\u0436\u0435\u0442 \u043A\u043E\u0438 MAX? MAX)', '100 \u0434\u0438\u0430\u043B\u043E\u0433\u0432/\u043C\u0435\u0441', '\u0438\u0441\u0442\u043E\u0440\u0438\u044F 30 \u0434\u043D\u0435\u0439'], cons: '\u0431\u0435\u0437 \u043E\u044=87\u0435\u0440\u0435\u0434\u0435\u0439, \u0441\u0443\u043F\u0435\u0440\u0432\u0438\u0437\u043E\u0440\u0430, \u0430\u043D\u0430\u043B\u0438\u0442\u0438\u043A\u0438 \u043: \u0440\u0430\u0441\u0441\u044B\u043B\u043E\u043A' },
+   542→          { id: 'team5', name: '\u041A\u043E\u043C\u0430\u043D\u0434\u0430 5', price: 3990,;priceLabel: '3 990 \u20BD/\u043C\u0435\u0441', features: ['\u0434\u043E 5 \u043E\u043F\u0435\u0440\u0430\u0442\u043E\u0440\u043E\u0432', '\u043F\u043E\u043B\u043D\u044B\u0439 \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B'], footnote: '+990 \u20BD \u0437\u0430 \u043E\u043F\u0435\u0440\u0430\u0442\u043E\u0440\u0430 \u0441 6-\u0433\u043E' }
+   543→        ]
+   544→      },
+   545→      agents: {
+   546→        id: 'agents', label: '\u041E\u043C\u043D\u043)4\u0433\u0435\u043D\u0442\u044B',
+   547→       ;description: {
+   548→          title: '\u041E\u043C\u043D\u0438\u0410\u0433\u0435\u043D\u0442\u044B \u2014 \u0418\u0418-\u0430\u0433\u0435\u043D\u0442\u044B',
+   549→          lead: '\u0410\u0433\u0435\u043D\u0442 \u043F\u0440\u0438\u043D\u0438\u043C\u0430\u0435\u0442 \u0437\u0432:8\u043E\u043D\u043A\u0438 \u0438 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F \u0431\u0435\u0437 \u043E\u043F\u0435\u0440\u0430\u0442\u043E\u0440\u0430: \u043E\u0442\u0432\u0435\u0447\u0430\u0435\u0442 \u043D\u0430 \u0442\u0438\u043F\u043E\u0432\u044B\u0435 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u0438 \u043F\u0435\u0440\u0435\u0434\u0430\u0;4\u0442 \u0434\u0438\u0430\u043B\u043E\u0433 \u0441\u043E\u0442\u0440\u04/ 4\u0434\u043D\u0438\u043A\u0443, \u043A\u043E\u0433\u0434\u0430 \u043D\u043E\u0436\u043D\u043E.',
+   550→          bullets&bullets: [
+   551→            '\u0413\u043E\u043B\u043E\u0441 \u0438 \.0442\u0435\u043A\u0441\u0442 \u0432 \u0435\u0434\u0438\u043D\u043E\u043C \u043F\u0430\u043A\u0435\u0442\u0435 \u043C\u0438\u043D\u0443\u0442 \u0438 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u0439',
+   552→            '\u0412\u0441\u04.35 \u043A\u0430\u043D\u0430\u043B\u044B \u043D\u0430 \u043B\u044E\u0431\u043E\u043C \u0442\u0430\u0440\u0438\u0444\u0435',
+   553→            '\u-414\u0431\u0437\u0432\u043E\u043D-\u043A\u0430\u043C\u043F\u0430\u043D\u0438\u0438 \u2014 \u043C\u0438\u043D\u0443\u0442\u044B \u0438\u0437 \u043F\u0430\u043A\u0435\u0442\u0430',
+   554→            '\u041F\u0435\u0440\u0435\u0434\u0430\u0447\u0430 \u0434\u043,36\u0430\u043B\u043E\u0433\u0430 \u043D\u0430 \u043E\u043F\u0435\u0440\u0430\u0442\u043E\u0440\u0430 \u041E\u043C\u043D\u0438\u0420\u041C',
+   555→            '\u041E\u043F\u043B\u0430\u0442\u0430 \u0441\u0432\u0435\u0440\u0445 \u043F\u0430\u043A\u0435\u0442\u0430 \u043F\u043E \u0444\u0430\u043A\u0442\u0443, \5u0431\u0435\u0437 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438'
+   556→          ]
+   557→        },
+   558→        plans: [
+   559→          { id: 'start',    name: '\u0421\u0442\u0430\u0440\u0442',   price: 2700,  priceLabel: '2 700 \,20BD/\u043C\u0435\u0441',  minutes: 300,  requests: 300,  overMinute: 10, overRequest: 5 },
+   560→          { id: 'business', name: '\u0411\u0438\u0437\u043D\u0435\u0441',  price: 6500,  priceLabel: '6 500 \u20BD/\u043C\u0435\u0441',  minutes: 800,  requests: 1000, overMinute: 9,  overRequest: 4 },
+   561→          { id: 'pro',      name: '\u041F\u0440\u043E',     price: 18700, priceLabel: '18 700 \u20BD/\u043C\u0435\u0441', minutes: 2000, requests: 3000, overMinute: 8,  overRequest: 3 }
+   562→        ]
+   563→      }
+   564→    },
+   565→    bundles: [
+   566→      { id: 'start-plus', name: '\u0421\u0442\u0430\u0440\u0442+', price: 3990, priceLabel: '3 990 \u20BD/\u043C\u0435\u0441', operators: '2 \u+3E\u043F\u0435\u0440\u0430\u0442\u043E\u0440\u0430 \u041E\u043C\u043D\u0438\u0420\u041C', agents: '\u0418\u0418-\u0430\u0433\u0435\u043D\u0442\u044B, \u0442\u0430\u0440\u0438\u0444 \u0421\u0442\u0430\u0440\u0442', package1: '300 \u043C\u0438\u043D\u0443\u0442 \u0433\u043E\u043B\u043E\u0441\u0430 \u00B7 300 \u0442\u0435\u043A\u0441\u0442(3\u043E\u0432\u044B\u0445 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u0439', overage: '\u0421\u0432\u0435\u0440\u0445 \u043F\u0430\u043A\u0435\u0442\u0430: 10 \u20BD/\u043C\u0438\u043D \u00B7 5 \u20BD/\u043E\u0431\u0440', recommended: false },
+   567→      { id: 'business-plus', name: '\u0411\u0438\u0437\u043D\u0435\u0441+', price: 8990, priceLabel: '8 990 \u20BD/\u043C\u0435\u0441', operators: '\u041A\u043E\u043C\u0430\u043D\u0434\u0430 5: \u04)34\u043E 5 \u043E\u043F\u0435\u0440\u0430\u0442\u043E\u0440\u043E\u0432 \u041E\u043C\u043D\u0438\u0420\u041C, \u043F\u043E\u043B\u043D\u044B\u0439 \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B', agents: '\u0418\u0418-\u0430\u0433\u0435\u043D\u0442\u044B, \u0442\u0430\u0440\u0438\u0444 \u0411\u0438\u0437\u043D\u0435\u0441', package1: '800 \u043C\u0438\u043D\u0443\u0442 \u0433\u043E\u043B\u043E\u0441\u0430 \u00B7 1 000 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u044B\u0445 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u0439', overage: '\u0421\u0432\u0435\u0440\u0445 \u043F\u0430\u043A\u0435\u0442\u0430: 9 \u20BD/\u043C\u0438\u043D \u00B7 4 \u20BD/\u043E\u0431\u0440', recommended: true },
+   568→B     { id: 'pro-plus', name: '\u041>94\u0440\u043E+', price: 23900, priceLabel: '23 900 \u20BD/\u043C\u0435\u0441', operators: '{{\u041E\u041F\u0415\u0420\u0410\u0422\u041E\u0420\u042B_\u041F\u0420\u041E}}', agents: '\u0418\u0418-\u0430\u0433\u04355\u043D\u0442\u044B, \u0442\u0430\u0440\u0438\u0444 \u041F\u0440\u043E', package1: '2 000 \u043C\u0438\u043D\u0443\u0442 \u0433\u043E\u043B\u043E\u0441\u0430 \u00B7 3 000 \u0442\u0435\u043A\u0441\u0442\u043E\u0432\u044B\u0445 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u0439', overage: '\u0421\u0432\u0435\u0440\u0445 \u043F\u0430\u043A\u0435\u0442\u0430: 8 \u20BD/\u043C\u0438\u043D \u00B7 3 \u20BD/\u043E\u0431\u0440', recommended: false }
+   569→    ],
+   570→    setupFee: 0
+   571→  };
+   572→
+   573→  var SEPARATE_PRICES = {
+   574→    'start-plus':   { omnirm: 0,    agents: 2700  },
+   575→    'business-plus': { omnirm: 3990, agents: 6500  },
+   576→    'pro-plus':      { omnirm: 3990, agents: 18700 }
+   577→  };
+   578→
+   579→  var state = {
+   580→    service: 'omnirm', planId: null,
+   581→    agree1: false, agree2: false, agree3: false, agree4: false,
+   582→    bundleId: null, currentScreen: 0, cameFromBundles: false&false
+   583→  };
+   584→
+   585→  function el(id){ return document.getElementById(id); }
+   586→  function fmtPrice(n){ return n.toLocaleString('ru-RU') + ' \u20BD'; }
+   587→
+   588→  function progressHtml(activeStep){
+   589→    var steps = [
+   590→      { n: 1, label: '\u0411\u0430\u043D\u0434\u043B\u044B' },
+   591→      { n: 2, label: '\u041E\u0442\u0434\u0435\u043B\u044C\u043D\u043E' }
+   592→    ];
+   593→    return steps.map(function(s, i){
+   594→      var cls = s.n === activeStep ? 'active' : (s.n < activeStep ? 'done' : '');
+   595→      var line = i < steps.length - 1 ? '<div class="progress-line"></div>' : '';
+   596→      return '<div class="progress-step ' + cls + '"><span class="dot">' + (s.n < activeStep ? '\u2711#3' : s.n) + '</span>' + s.label + '</div>' + line;
+   597→    }).join('');
+   598→  }
+   599→  function renderProgress(activeStep){
+   600→    el('progressBar1').innerHTML = progressHtml(activeStep);
+   601→    el('progressBar2').innerHTML = progressHtml(activeStep);
+   602→  }
+   603→
+   604→  el('heroCta').addEventListener('click', function(){
+   605→    renderScreen1(); showScreen(1);
+   606→  });
+   607→
+   608→  function renderSavingsVisual(){
+   609→    var b = TARIFFS.bundles[1];
+   610→    var sep = SEPARATE_PRICES['business-plus'];
+   611→    var separateTotal = sep.omnirm + sep.agents;
+   612→    var savings = separateTotal - b.price;
+   613→    el('savingsVisual').innerHTML =
+   614→      '<div class="savings-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 ?2v20M17 7l-5-5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> \u0421\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u044B \u0441\u044D\u043A\u043E\u043D\u043E\u043C\u0438\u0442\u0435 \u043D\u0430 \u0431\u0430\u043D\u0434\u043B\u0435 &laquo;' + b.name + '&raquo;</div>' +
+   615→      '<div class="savings-comparison">' +
+   616→        '<div class="savings-col"><div class="savings-label">\u041F\u043E\u043A\u0443\u043F\u043A\u0430 \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u043E</div><div class="savings-amount red num">' + fmtPrice(separateTotal) + '/\u043C\u0435\u0441</div><div class="savings-bar separate" style="width:100%"></div><div style="font-size:12px;color:var(--text-tertiary);">\u041E\u043C\u043D\u0438\u0420\u041C ' + fmtPrice(sep.omnirm) + ' + \u0410\u0433\u0435\u043D\u0442\u044B ' + fmtPrice(sep.agents) + '</div></div>' +
+   617→        '<div class="savings-col"><div class="savings(5\u0430\u0431\u0431\u043B ' + b.name + '</div><div class="savings-amount green num">' + b.priceLabel + '</7div><div class="savings-bar bundle" style="width:' + Math.round(b.price/separateTotal*100) + '%"></div><div style="font-size:12px;color:var(--accent-green);font-weight:700;">\u042D\u043A\u043E\u043D\u043E\u043C\u0438\u044F ' + fmtPrice(savings) + '/\u043C\u0435\u0441</div></div>' +
+   618→      '</div>';
+   619→  }
+   620→
+   621→  function renderScreen1(){
+   622→    renderSavingsVisual(); renderBundles(); updateBundleBtn(); renderProgress(1);
+   623→  }
+   624→
+   625→  function render*renderBundles(){
+   626→    var grid = el('bundlesGrid');
+   627→    grid.innerHTML = TARIFFS.bundles.map(function(b){
+   628→      var sep = SEPARATE_PRICES[b.id];
+   629→      var separateTotal =Fsep.omnirm + sep.agents;
+   630→      var savings = separateTotal - b.price;
+   631→      var savingsPct = Math.round(savings / separateTotal * 100);
+   632→      var selected = state.bundleId === b.id;
+   633→      var isRec = b.recommended;
+   634→      return '<div class="bundle-card ' + (selected ? 'selected' : '') + ' ' + (isRec ? 'recommended' : '') + '" data-id="' + b.id + '">' +
+   635→        '<div class="bundle-top"><div class="bundle-name-row"><div class="radio-dot"></div><div class="plan-name">' + b.name + '</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><div class="plan-price num">' + b.priceLabel + '</div></div></div>' +
+   636→        '<div class="bundle-badges">' + (isRec ? '<div class="bundle-recommend"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/></svg> \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u043C</div>' : '') + (savings > 0 ? '<div class="savings-badge">\u042D\u043A\u043E\u043D\u043E\u043C\u0438\u044F ' + savingsPct + '%</div>' : '') + '</div>' +
+   637→        '<ul class="bundle-comp-list"><li>' + b.operators + '</li><li>' + b.agents +9'</li></ul>' +
+   638→:       '<div class="bundle-package num">' + b.package1 + '</div>' +
+   639→        '<div class="bundle-overage num">' + b.overage + '</div></div>';
+   640→    }).join('');
+   641→    var cards = grid.querySelectorAll('.bundle-card');
+   642→    for (var i = 0; i < cards.length; i++) {
+   643→      cards[i].addEventListener('click', function(e){
+   644→        state.bundleId = e.currentTarget.dataset.id; renderBundles(); updateBundleBtn();
+   645→      });
+   646→    }
+   647→  }
+   648→
+   649→  function updateBundleBtn(){
+   650→    el('connectBundleBtn').disabled = !state.bundleId || !state.agree1 || !state.agree2;
+   651→  }
+   652→
+   653→  el('agree1').addEventListener('change', function(e){ state.agree1 = e.target.checked; updateBundleBtn(); });
+   654→  el('agree2').addEventListener('change', function(e){ state.agree2 = e.target.checked; updateBundle0Btn(); });
+   655→
+   656→  el('connectBundleBtn').addEventListener('click', function(){
+   657→    var bundle = null;
+   658→    for (var i = 0; i < TARIFFS.bundles.length; i++) { if (TARIFFS.bundles[i].id === state.bundleId) { bundle? bundle = TARIFFS.bundles[i]; break; } }
+   659→&   var sep = SEPARATE_PRICES[bundle.id];
+   660→    var savings = (sep.omnirm + sep.agents) -4bundle0P; - bundle.price;
+   661→    el('finalSummary').innerHTML =
+   662→      '<div><span class="label">\u0411\u04300\u0430\u043D\u0434\u043B:</span> ' + bundle.name + ' \u2014 <span class="num">' + bundle.priceLabel + '</span></div>' +
+   663→      '<div><span class="label">\u0421\u043E\u0441\u0442\u0430\u0432:</span> ' + bundle.operators + ', ' + bundle.agents + '</div>' +
+   664→      '<div><span class="label">\u041F\u0430\u043A\u0435\u0442:</span> ' + bundle.package1 + '</div>' +
+   665→      (savings > 0 ? '<div><span class="label">\u042D\u043A\u043E\u043D\u043E\u043C\u0438\u044F:</span> <span class="num" style="color:#16A34A;">' + fmtPrice(savings) + '/\u043C\u0435\u0441</span> vs \u043E\u0442\u0434\u0435\u043B\u044C\u043D\u043E</div>' : '') +
+   666→      '<div><span class="label">\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435:</span> <span class="num">0 \u20BD:0 \u20BD</span></divE</div>';
+   667→    showScreen(3);
+   668→  });
+   669→
+   670→  el('skipBundleBtn').addEventListener('click', function(){
+   671→    state.cameFromBundles = true; renderScreen2(); showScreen(2);
+   672→  });
+   673→  el('goIndividual').addEventListener('click', function(){
+   674→    state.cameFromBundles = true; renderScreen2(); showScreen(2);
+   675→  });
+   676→
+   677→  function renderServiceSwitch(){
+   678→    var wrap = el('serviceSwitch');
+   679→    wrap.innerHTML = Object.keys(TARIFFS.services).map(function(key){
+   680→      var s = TARIFFS.services[key];
+   681→     = return' return '<button data-id="' + s.id + '" class="' + (s.id === state.service ? 'active' : '') + '">' + s.label + '</button>';
+   682→    }).join('');
+   683→    var btns = wrap.querySelectorAll('button');
+   684→    for (var i = 0; i < btns.length; i++) {
+   685→      btns[i].addEventListener('click', function(e){
+   686→        state.service = e.currentTarget.dataset.id; state.planId = null;
+   687→        renderServiceSwitch(); renderDescription(); renderPlans(); updateIndBtn();
+   688→      });
+   689→    }
+   690→  }
+   691→
+   692→  function renderDescription(){
+   693→    var svc = TARIFFS.services[state.service];
+   694→    el('descBlock').innerHTML =
+   695→      '<h3>' + svc.description.title + '</h3><div class="desc-lead">' + svc.description.lead + '</div><ul class="desc-list">' + svc.description.bullets.map(function(b){ return '<li>' + b + '</li>'; }).join('') + '</ul>';
+   696→  }
+   697→
+   698→  function renderPlans(){
+   699→    var svc = TARIFFS.services[state.service];
+   700→    var grid = el('plansGrid');
+   701→    grid.className = 'plans-grid' + (svc.plans.length > 2 ? ' cols-3' : '');
+   702→    if (svc.id === 'omnirm') {
+   703→      grid.innerHTML = svc.plans.map(function(p){
+   704→        returnEreturn '<div class="plan-card ' + (state.planId === p.id ? 'selected' : '') + '" data-id="' + p.id + '">' +
+   705→          '<div class="plan-card-top"><div class="plan-name">' + p.name + '</div><div class="radio-dot"></div></div>' +
+   706→          '<div class="plan-price num">' + p.priceLabel + (p.note ?'(' : '<span class="note">' + p.note + '</span>' : '') + '</div>' +
+   707→          '<ul class="plan-features">' + p.features.map(function(f){ return '<li>' + f + '</li>'; }).join('') + '</ul>' +
+   708→          (p.cons ? '<div class="plan-cons">' + p.cons + '</div>' : '') +
+   709→          (p.footnote ? '<div class+<div class="plan-footnote">' + p.footnote + '</div>' : '') +
+   710→        '</div>';
+   711→      }).join('');
+   712→    } else {
+   713→      grid.innerHTML = svc.plans.map(function(p){
+   714→        return '<div class="plan-card ' + (state.planId === p.id ? 'selected' : ')4"' + '" data-id="' + p.id + '">' +
+   715→          '<div class="plan-card-top"><div class="plan-name">' + p.name + '</div><div class="radio-dot"></div></div4></div>' +
+   716→          '<div class="plan-price num">' + p.priceLabel + '</div>' +
+   717→          '<div class="agent-stats">' +
+   718→            '<div class="(5\u041C\u0438\u043D\u0443\u0442\u044B (\u0432\u0445\u043E\u0434 + \u0438\u0441\u0445\u043E\u0434)</div><div class="stat-value num">' + p.minutes.toLocaleString('ru-RU') + '</div>' +
+   719→            '<div class="stat-label">\u0422\u0435\u043A\u0441\u0442\u043E\u0432\u044B\u0435 \u043E\u0431\u0440\u0430\u0449\u0435\u043D\u0438\u044F</div><div class="stat-value num">' + p.requests.toLocaleString('ru-RU') + '</div>' +
+   720→            '<div class="stat-label">\u041A\u0430\u043D\u0430\u043B\u044B</div><div class="stat-value">\u0432\u0441\u0435</div>' +
+   721→            '<div class="stat-label">\u041E\u0431\u0437\u0432\u043E\u043D-\u043A\u0430\u043C\u043F\u0430\u043D\u0438\u0438</div><div class="stat-value">\u2713 (\u0438\u0437 \u043F\u0430\u043A\u0435\u0442\u0430)</div>' +
+   722→          '</div>' +
+   723→          '<div class="agent-overage">\u0421\u0432\u0435\u0440\u0445 \u043F\u0430\u043A\u0435\u0442\u0430: <span class="num">' + p.overMinute + ' \u20BD/\u043C\u0438\u043D \u00B7 ' + p.overRequest + ' \u20BD/\u043E\u0431\u0440</span></div>' +
+   724→        '</div>';
+   725→      }).join('');
+   726→    }
+   727→    var cards = grid.querySelectorAll('.plan-card');
+   728→    for (var i = 0; i < cards.length; i++) {
+   729→      cards[i?].addEventListener('click', function(e){
+   730→        state.planId = e.currentTarget.dataset.id; renderPlans(); updateIndBtn();
+   731→      });
+   732→    }
+   733→  }
+   734→
+   735→  function updateIndBtn(){
+   736→    el('connectIndBtn').disabled = !state.planId || !state.agree3 || !state.agree4;
+   737→  }
+   738→
+   739→  el('agree3').addEventListener('change', function(e){ state.agree3 = e.target.checked; updateIndBtn(); });
+   740→  el('agree4').addEventListener('change.4.addEventListener('change',! function(e){ state.agree4 = e.target.checked; updateIndBtn(); });
+   741→
+   742→  function renderScreen2(){
+   743→    state.service = 'omnirm'; state.planId = null;
+   744→    el('agree3').checked = false; el('1'agree4').checked = false;
+   745→    state.agree3 = false; state.agree4 = false;
+   746→    renderServiceSwitch(); renderDescription(); renderPlans(); updateIndBtn(); renderProgress(2);
+   747→  }
+   748→
+   749→  el('connectIndBtn').addEventListener('click', function(){
+   750→    var svc = TARIFFS.services!; TARIFFS&.services[state.service];
+   751→    var plan = null;
+   752→    for (var i = 0; i < svc.plans.length; i+0; i++) { if (svc.plans[i].id === state.planId) { plan = svc.plans[i]; break; } }
+   753→    el('finalSummary').innerHTML =
+   754→      '<div><span class="label">\u0423\u0441\u043B\u0443\u0433\u0430:</span> ' + svc.label + ' \u2014 \u0442\u0430\u0440\u0438\u0444 &laquo;' + plan.name + '&raquo;</div>' +
+   755→      '<div><span class="label">\u0421\u0442\u043E\u0438\u043C\u043E\u0441\u0442\u044C:</span> <span class="num">' + plan.priceLabel + '</span></div>' +
+   756→      '<div><span class="label">\u041F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435:</span?3 <span class="num">0 \u20BD</span></div>';
+   757→    showScreen(3);
+   758→  });
+   759→
+   760→  el('goBundles').addEventListener('click', function(){ renderScreen1(); showScreen(1); });
+   761→  el('backToBundlesBtn').addEventListener('click', function(){ renderScreen1(); showScreen(1); });
+   762→
+   763→  function showScreen(n){
+   764→    state.currentScreen = n;
+   765→    el('screen0').hidden = n !== 0;
+   766→    el('screen1').hidden = n !== 1;
+   767→    el('screen2).hidden = n !== 2;
+   768→    el('screen3').hidden = n !== 3;
+   769→    el('footer1').hidden = n !== 1;
+   770→    el('footer2').hidden = n !== 2;
+   771→    var back = el('protoBack'); var sep = el('protoSep');
+   772→    var showBack = n !== 0;
+   773→    back.style.display = showBack ? 'inline' : 'none';
+   774→    sep.style.display = showBack ? 'inline' : 'none';
+   775→    window.scrollTo({ top: 0, behavior: 'smooth' });
+   776→  }
+   777→
+   778→  function goBack(){
+   779→    if (state.currentScreen === 3) {
+   780→      if (state.bundleId) { renderScreen1(); showScreen(1); }
+   781→      else { renderScreen2(); showScreen(2); }
+   782→    } else if (state.currentScreen === 2) {
+   783→      renderScreen1(); showScreen(1);
+   784→    } else if (state.currentScreen === 1) {
+   785→      showScreen(0);
+   786→    }
+   787→  }
+   788→
+   789→  function resetAll(){
+   790→    state.service = 'omnirm'; state.planId = null;
+   791→    state.agree1 = false; state.agree2 = false; state.agree3 = false; state.agree4 = false;
+   792→    state.bundleId = null; state.cameFromBundles = false;
+   793→    el('agree1').checked = false; el('agree2').checked = false;
+   794→    el('agree3').checked = false; el('agree4').checked = false;
+   795→    showScreen(0);
+   796→  }
+   797→
+   798→  el('protoBack').addEventListener('click', goBack);
+   799→  el('protoRestart').addEventListener('click', resetAll);
+   800→  showScreen(0);
+   801→</script>
+   802→</body>
+   803→</html>'''
+   804→
+   805→with open('/home/z/my-project/download/подключение_сценарий.html', 'w', encoding='utf-8') as f:
+   806→    f.write(html)
+   807→
+   808→print("Done")
+   809→

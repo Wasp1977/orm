@@ -1,0 +1,1287 @@
+     1→"use client";
+     2→
+     3→import { useEffect, useState } from "react";
+     4→import {
+     5→  Menu,
+     6→  Users,
+     7→  Store,
+     8→  BarChart3,
+     9→  FileIcon,
+    10→  Monitor,
+    11→  Settings,
+    12→  Clock,
+    13→  HelpCircle,
+    14→  Phone,
+    15→  ChevronRight,
+    16→  Check,
+    17→  X,
+    18→  ArrowLeft,
+    19→  Zap,
+    20→  MessageSquare,
+    21→  Bot,
+    22→  TrendingUp,
+    23→  Shield,
+    24→  Headphones,
+    25→  RefreshCw,
+    26→  Radio,
+    27→  LayoutGrid,
+    28→  Sparkles,
+    29→  AlertCircle,
+    30→  Loader2,
+    31→  CircleCheckBig,
+    32→  Pencil,
+    33→  ChevronDown,
+    34→  UsersRound,
+    35→  DollarSign,
+    36→  UserCog,
+    37→} from "lucide-react";
+    38→import { Button } from "@/components/ui/button";
+    39→import { Checkbox } from "@/components/ui/checkbox";
+    40→import { Badge } from "@/components/ui/badge";
+    41→import { Progress } from "@/components/ui/progress";
+    42→import {
+    43→  useAppStore,
+    44→  KITS,
+    45→  OMNIRM_PLANS,
+    46→  AGENTS_PLANS,
+    47→  SEPARATE_PRICES,
+    48→  fmtPrice,
+    49→  getOperatorCount,
+    50→  findPlan,
+    51→  type Screen,
+    52→  type Kit,
+    53→  type TariffPlan,
+    54→} from "@/lib/store";
+    55→
+    56→/* ─── tiny helpers ─── */
+    57→
+    58→function YellowBtn({
+    59→  children,
+    60→  onClick,
+    61→  disabled,
+    62→  className = "",
+    63→}: {
+    64→  children: React.ReactNode;
+    65→  onClick?: () => void;
+    66→  disabled?: boolean;
+    67→  className?: string;
+    68→}) {
+    69→  return (
+    70→    <button
+    71→      onClick={onClick}
+    72→      disabled={disabled}
+    73→      className={`inline-flex items-center justify-center gap-2 rounded-xl bg-[#FFDD5B] px-6 py-3 text-sm font-semibold text-[#1A1D29] hover:bg-[#FFD23D] transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+    74→    >
+    75→      {children}
+    76→    </button>
+    77→  );
+    78→}
+    79→
+    80→function OutlineBtn({
+    81→  children,
+    82→  onClick,
+    83→  className = "",
+    84→}: {
+    85→  children: React.ReactNode;
+    86→  onClick?: () => void;
+    87→  className?: string;
+    88→}) {
+    89→  return (
+    90→    <button
+    91→      onClick={onClick}
+    92→      className={`inline-flex items-center justify-center gap-2 rounded-xl border border-[#2D3250] px-6 py-3 text-sm font-medium text-[#1A1D29] hover:bg-[#F5F5F7] transition-colors ${className}`}
+    93→    >
+    94→      {children}
+    95→    </button>
+    96→  );
+    97→}
+    98→
+    99→function ProtoNav({ onBack, onReset }: { onBack?: () => void; onReset?: () => void }) {
+   100→  const { navigate, reset } = useAppStore();
+   101→  return (
+   102→    <div className="flex items-center gap-4">
+   103→      {onBack && (
+   104→        <button
+   105→          onClick={onBack}
+   106→          className="flex items-center gap-1 text-sm text-[#6B7280] hover:text-[#1A1D29] transition-colors"
+   107→        >
+   108→          <ArrowLeft className="h-4 w-4" /> Назад
+   109→        </button>
+   110→      )}
+   111→      {onReset && (
+   112→        <button
+   113→          onClick={() => {
+   114→            reset();
+   115→          }}
+   116→          className="text-sm text-[#6B7280] hover:text-[#1A1D29] transition-colors"
+   117→        >
+   118→          Начать заново
+   119→        </button>
+   120→      )}
+   121→    </div>
+   122→  );
+   123→}
+   124→
+   125→/* ═══════════════════════════════════════════
+   126→   1. VATS DASHBOARD
+   127→   ═══════════════════════════════════════════ */
+   128→
+   129→function VatsScreen() {
+   130→  const { navigate, connectedOmniPlan, connectedAgentsPlan } = useAppStore();
+   131→  const isConnected = connectedOmniPlan !== null;
+   132→  const omnirmPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
+   133→  const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
+   134→  const ops = getOperatorCount(connectedOmniPlan);
+   135→
+   136→  const sidebarItems = [
+   137→    { icon: Menu, label: "Меню", active: false },
+   138→    { icon: Users, label: "Сотрудники", active: true },
+   139→    { icon: Store, label: "Маркетплейс", active: false },
+   140→    { icon: BarChart3, label: "Статистика", active: false },
+   141→    { icon: FileIcon, label: "Файлы", active: false },
+   142→  ];
+   143→
+   144→  const bottomItems = [
+   145→    { icon: Settings, label: "Настройки", active: false },
+   146→    { icon: Clock, label: "История", active: false },
+   147→    { icon: HelpCircle, label: "Справка", active: false },
+   148→  ];
+   149→
+   150→  return (
+   151→    <div className="flex min-h-screen bg-[#F7F7FA]">
+   152→      {/* Sidebar */}
+   153→      <aside className="fixed left-0 top-0 z-10 flex h-full w-16 flex-col items-center border-r border-[#E5E7EB] bg-white py-4">
+   154→        <div className="flex flex-1 flex-col items-center gap-2">
+   155→          {sidebarItems.map((item) => (
+   156→            <button
+   157→              key={item.label}
+   158→              title={item.label}
+   159→              className={`flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+   160→                item.active
+   161→                  ? "bg-[#EEF2FF] text-[#4F46E5]"
+   162→                  : "text-[#6B7280] hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+   163→              }`}
+   164→            >
+   165→              <item.icon className="h-5 w-5" />
+   166→            </button>
+   167→          ))}
+   168→
+   169→          {/* ОмниРМ button */}
+   170→          <button
+   171→            title="ОмниРМ"
+   172→            onClick={() => navigate("landing")}
+   173→            className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#1A1D29] to-[#2D3250] text-white hover:from-[#2D3250] hover:to-[#3D4260] transition-all"
+   174→          >
+   175→            <Monitor className="h-5 w-5" />
+   176→          </button>
+   177→
+   178→          {/* Spacer */}
+   179→          <div className="flex-1" />
+   180→        </div>
+   181→
+   182→        <div className="flex flex-col items-center gap-2">
+   183→          {bottomItems.map((item) => (
+   184→            <button
+   185→              key={item.label}
+   186→              title={item.label}
+   187→              className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+   188→            >
+   189→              <item.icon className="h-5 w-5" />
+   190→            </button>
+   191→          ))}
+   192→        </div>
+   193→      </aside>
+   194→
+   195→      {/* Main content */}
+   196→      <main className="ml-16 flex-1 p-6 md:p-8">
+   197→        <h1 className="text-2xl font-bold text-[#1A1D29]">Ваша АТС</h1>
+   198→
+   199→        {/* Progress card */}
+   200→        <div className="mt-4 rounded-2xl bg-white p-6 shadow-sm">
+   201→          <div className="flex items-center justify-between">
+   202→            <span className="text-sm font-medium text-[#6B7280]">Настройка АТС</span>
+   203→            <span className="text-sm font-semibold text-[#1A1D29]">25%</span>
+   204→          </div>
+   205→          <Progress value={25} className="mt-2" />
+   206→        </div>
+   207→
+   208→        {/* 3-column widgets */}
+   209→        <div className="mt-6 grid gap-4 md:grid-cols-3">
+   210→          {/* Tariff */}
+   211→          <div className="rounded-2xl bg-white p-6 shadow-sm">
+   212→            <div className="flex items-center gap-2 text-[#6B7280]">
+   213→              <Zap className="h-4 w-4" />
+   214→              <span className="text-sm font-medium">Тариф</span>
+   215→            </div>
+   216→            <p className="mt-2 text-lg font-semibold text-[#1A1D29]">Бизнес</p>
+   217→            <p className="text-sm text-[#6B7280]">5 990 ₽/мес</p>
+   218→          </div>
+   219→
+   220→          {/* Numbers */}
+   221→          <div className="rounded-2xl bg-white p-6 shadow-sm">
+   222→            <div className="flex items-center gap-2 text-[#6B7280]">
+   223→              <Phone className="h-4 w-4" />
+   224→              <span className="text-sm font-medium">Номера</span>
+   225→            </div>
+   226→            <p className="mt-2 text-lg font-semibold text-[#1A1D29]">3 номера</p>
+   227→            <p className="text-sm text-[#6B7280]">+7 (495) 123-45-67</p>
+   228→          </div>
+   229→
+   230→          {/* ОмниРМ promo / connected */}
+   231→          {isConnected ? (
+   232→            <div className="rounded-2xl bg-white p-6 shadow-sm">
+   233→              <div className="flex items-center gap-2">
+   234→                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#1E9E4A]" />
+   235→                <span className="text-sm font-medium text-[#1E9E4A]">ОмниРМ подключен</span>
+   236→              </div>
+   237→              <p className="mt-2 text-lg font-semibold text-[#1A1D29]">
+   238→                {omnirmPlan?.name ?? "—"}
+   239→              </p>
+   240→              <p className="text-sm text-[#6B7280]">
+   241→                {omnirmPlan?.priceLabel}
+   242→                {agentsPlan ? ` + ${agentsPlan.priceLabel}` : ""}
+   243→              </p>
+   244→              <p className="text-sm text-[#6B7280]">{ops} оператор(ов)</p>
+   245→              <Button
+   246→                size="sm"
+   247→                className="mt-3 bg-[#1A1D29] text-white hover:bg-[#2D3250]"
+   248→                onClick={() => navigate("cabinet")}
+   249→              >
+   250→                Перейти в кабинет ОмниРМ
+   251→              </Button>
+   252→            </div>
+   253→          ) : (
+   254→            <div
+   255→              onClick={() => navigate("landing")}
+   256→              className="cursor-pointer rounded-2xl bg-gradient-to-br from-[#1A1D29] to-[#2D3250] p-6 text-white shadow-sm hover:from-[#2D3250] hover:to-[#3D4260] transition-all"
+   257→            >
+   258→              <div className="flex items-center gap-2">
+   259→                <Monitor className="h-5 w-5" />
+   260→                <span className="text-sm font-semibold">ОмниРМ</span>
+   261→              </div>
+   262→              <p className="mt-2 text-sm opacity-80">
+   263→                Все каналы — в одном окне оператора. Звонки, чаты, Telegram и&nbsp;др.
+   264→              </p>
+   265→              <span className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-[#FFDD5B]">
+   266→                Подробнее <ChevronRight className="h-4 w-4" />
+   267→              </span>
+   268→            </div>
+   269→          )}
+   270→        </div>
+   271→
+   272→        {/* Table stub */}
+   273→        <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm">
+   274→          <h3 className="text-sm font-semibold text-[#1A1D29]">Телефонные номера</h3>
+   275→          <div className="mt-3 space-y-2">
+   276→            {[
+   277→              "+7 (495) 123-45-67 — Основной",
+   278→              "+7 (495) 765-43-21 — Отдел продаж",
+   279→              "+7 (495) 987-65-43 — Поддержка",
+   280→            ].map((row) => (
+   281→              <div key={row} className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] px-4 py-2.5 text-sm text-[#1A1D29]">
+   282→                <Phone className="h-4 w-4 text-[#6B7280]" />
+   283→                {row}
+   284→              </div>
+   285→            ))}
+   286→          </div>
+   287→        </div>
+   288→      </main>
+   289→    </div>
+   290→  );
+   291→}
+   292→
+   293→/* ═══════════════════════════════════════════
+   294→   2. LANDING — NOT CONNECTED
+   295→   ═══════════════════════════════════════════ */
+   296→
+   297→function LandingScreen() {
+   298→  const { navigate } = useAppStore();
+   299→
+   300→  const painCards = [
+   301→    {
+   302→      icon: <Phone className="h-6 w-6" />,
+   303→      title: "Пропущенные звонки",
+   304→      text: "Клиенты уходят к конкурентам, пока линия занята",
+   305→    },
+   306→    {
+   307→      icon: <MessageSquare className="h-6 w-6" />,
+   308→      title: "Разрозненные чаты",
+   309→      text: "WhatsApp, Telegram, сайт — всё в разных окнах",
+   310→    },
+   311→    {
+   312→      icon: <Clock className="h-6 w-6" />,
+   313→      title: "Медленный ответ",
+   314→      text: "Оператор переключается между вкладками и теряет время",
+   315→    },
+   316→    {
+   317→      icon: <BarChart3 className="h-6 w-6" />,
+   318→      title: "Нет аналитики",
+   319→      text: "Неизвестно, сколько обращений теряется и почему",
+   320→    },
+   321→  ];
+   322→
+   323→  const steps = [
+   324→    { num: 1, title: "Выберите комплект", text: "Готовые наборы под любой масштаб" },
+   325→    { num: 2, title: "Настройте каналы", text: "Подключите телефон, чат, мессенджеры" },
+   326→    { num: 3, title: "Добавьте операторов", text: "Пригласите команду и назначьте роли" },
+   327→    { num: 4, title: "Начните работу", text: "Все обращения — в едином интерфейсе" },
+   328→  ];
+   329→
+   330→  const benefitCards = [
+   331→    {
+   332→      icon: <Radio className="h-6 w-6" />,
+   333→      title: "5+ каналов",
+   334→      text: "Телефония, виджет, Telegram, WhatsApp, ВКонтакте и другие",
+   335→    },
+   336→    {
+   337→      icon: <Bot className="h-6 w-6" />,
+   338→      title: "ИИ-агенты",
+   339→      text: "Автоматически обрабатывают рутину 24/7 без участия оператора",
+   340→    },
+   341→    {
+   342→      icon: <TrendingUp className="h-6 w-6" />,
+   343→      title: "до 14% экономия",
+   344→      text: "Снижение нагрузки на операторов и сокращение времени ответа",
+   345→    },
+   346→    {
+   347→      icon: <Shield className="h-6 w-6" />,
+   348→      title: "Безопасность",
+   349→      text: "Шифрование данных, соответствие 152-ФЗ, резервирование",
+   350→    },
+   351→  ];
+   352→
+   353→  return (
+   354→    <div className="min-h-screen bg-white">
+   355→      {/* Nav */}
+   356→      <div className="flex items-center justify-end px-6 pt-4 md:px-10">
+   357→        <ProtoNav onBack={() => navigate("vats")} onReset />
+   358→      </div>
+   359→
+   360→      {/* Hero */}
+   361→      <section className="mx-auto max-w-5xl px-6 pt-16 text-center md:px-10">
+   362→        <Badge className="mb-4 bg-[#FFDD5B]/20 text-[#B89B0D] border-[#FFDD5B]/30">
+   363→          Подключение бесплатно
+   364→        </Badge>
+   365→        <h1 className="text-3xl font-bold text-[#1A1D29] md:text-5xl">
+   366→          Все каналы — в одном окне оператора
+   367→        </h1>
+   368→        <p className="mx-auto mt-4 max-w-2xl text-base text-[#6B7280] md:text-lg">
+   369→          Звонки, чаты с сайта, Telegram, WhatsApp — всё поступает в&nbsp;единую
+   370→          консоль. ИИ-агенты берут рутину на&nbsp;себя.
+   371→        </p>
+   372→        <YellowBtn onClick={() => navigate("kits")} className="mt-8">
+   373→          Подключить ОмниРМ
+   374→        </YellowBtn>
+   375→      </section>
+   376→
+   377→      {/* Stats row */}
+   378→      <section className="mx-auto mt-14 flex max-w-3xl flex-wrap items-center justify-center gap-8 px-6 md:gap-16">
+   379→        {[
+   380→          { val: "5+", label: "каналов" },
+   381→          { val: "до 14%", label: "экономия" },
+   382→          { val: "24/7", label: "ИИ-агенты" },
+   383→        ].map((s) => (
+   384→          <div key={s.label} className="text-center">
+   385→            <p className="text-2xl font-bold text-[#1A1D29] md:text-3xl">{s.val}</p>
+   386→            <p className="text-sm text-[#6B7280]">{s.label}</p>
+   387→          </div>
+   388→        ))}
+   389→      </section>
+   390→
+   391→      {/* Pain cards */}
+   392→      <section className="mx-auto mt-20 max-w-5xl px-6 md:px-10">
+   393→        <h2 className="text-center text-2xl font-bold text-[#1A1D29]">Знакомо?</h2>
+   394→        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+   395→          {painCards.map((c) => (
+   396→            <div key={c.title} className="rounded-2xl border border-[#E5E7EB] bg-white p-6">
+   397→              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FEF3C7] text-[#92400E]">
+   398→                {c.icon}
+   399→              </div>
+   400→              <h3 className="mt-3 text-base font-semibold text-[#1A1D29]">{c.title}</h3>
+   401→              <p className="mt-1 text-sm text-[#6B7280]">{c.text}</p>
+   402→            </div>
+   403→          ))}
+   404→        </div>
+   405→      </section>
+   406→
+   407→      {/* Steps */}
+   408→      <section className="mx-auto mt-20 max-w-5xl px-6 md:px-10">
+   409→        <h2 className="text-center text-2xl font-bold text-[#1A1D29]">Как это работает</h2>
+   410→        <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+   411→          {steps.map((s) => (
+   412→            <div key={s.num} className="flex flex-col items-center text-center">
+   413→              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1A1D29] text-sm font-bold text-white">
+   414→                {s.num}
+   415→              </div>
+   416→              <h3 className="mt-3 text-sm font-semibold text-[#1A1D29]">{s.title}</h3>
+   417→              <p className="mt-1 text-xs text-[#6B7280]">{s.text}</p>
+   418→            </div>
+   419→          ))}
+   420→        </div>
+   421→      </section>
+   422→
+   423→      {/* Benefits */}
+   424→      <section className="mx-auto mt-20 max-w-5xl px-6 pb-20 md:px-10">
+   425→        <h2 className="text-center text-2xl font-bold text-[#1A1D29]">Что вы получаете</h2>
+   426→        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+   427→          {benefitCards.map((c) => (
+   428→            <div key={c.title} className="rounded-2xl border border-[#E5E7EB] bg-white p-6">
+   429→              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#4F46E5]">
+   430→                {c.icon}
+   431→              </div>
+   432→              <h3 className="mt-3 text-base font-semibold text-[#1A1D29]">{c.title}</h3>
+   433→              <p className="mt-1 text-sm text-[#6B7280]">{c.text}</p>
+   434→            </div>
+   435→          ))}
+   436→        </div>
+   437→      </section>
+   438→    </div>
+   439→  );
+   440→}
+   441→
+   442→/* ═══════════════════════════════════════════
+   443→   3. LANDING — CONNECTED
+   444→   ═══════════════════════════════════════════ */
+   445→
+   446→function LandingConnectedScreen() {
+   447→  const { navigate, connectedOmniPlan, connectedAgentsPlan } = useAppStore();
+   448→  const omnirmPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
+   449→  const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
+   450→  const ops = getOperatorCount(connectedOmniPlan);
+   451→  const totalCost = (omnirmPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+   452→
+   453→  const benefitCards = [
+   454→    {
+   455→      icon: <Radio className="h-6 w-6" />,
+   456→      title: "5+ каналов",
+   457→      text: "Телефония, виджет, Telegram, WhatsApp, ВКонтакте и другие",
+   458→    },
+   459→    {
+   460→      icon: <Bot className="h-6 w-6" />,
+   461→      title: "ИИ-агенты",
+   462→      text: "Автоматически обрабатывают рутину 24/7 без участия оператора",
+   463→    },
+   464→    {
+   465→      icon: <TrendingUp className="h-6 w-6" />,
+   466→      title: "до 14% экономия",
+   467→      text: "Снижение нагрузки на операторов и сокращение времени ответа",
+   468→    },
+   469→    {
+   470→      icon: <Shield className="h-6 w-6" />,
+   471→      title: "Безопасность",
+   472→      text: "Шифрование данных, соответствие 152-ФЗ, резервирование",
+   473→    },
+   474→  ];
+   475→
+   476→  return (
+   477→    <div className="min-h-screen bg-white">
+   478→      {/* Nav */}
+   479→      <div className="flex items-center justify-end px-6 pt-4 md:px-10">
+   480→        <ProtoNav onBack={() => navigate("cabinet")} onReset />
+   481→      </div>
+   482→
+   483→      {/* Hero */}
+   484→      <section className="mx-auto max-w-5xl px-6 pt-16 text-center md:px-10">
+   485→        <Badge className="mb-4 bg-[#EAF7EE] text-[#1E9E4A] border-[#1E9E4A]/20">
+   486→          ОмниРМ подключен
+   487→        </Badge>
+   488→        <h1 className="text-3xl font-bold text-[#1A1D29] md:text-5xl">
+   489→          Все каналы — в одном окне оператора
+   490→        </h1>
+   491→        <div className="mx-auto mt-6 max-w-md rounded-2xl border border-[#E5E7EB] bg-[#F7F7FA] p-4 text-left">
+   492→          <div className="flex items-center gap-2">
+   493→            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#1E9E4A]" />
+   494→            <span className="text-sm font-medium text-[#1E9E4A]">Подключено</span>
+   495→          </div>
+   496→          <div className="mt-2 space-y-1 text-sm text-[#1A1D29]">
+   497→            <p>Тариф ОмниРМ: <span className="font-semibold">{omnirmPlan?.name ?? "—"}</span></p>
+   498→            {agentsPlan && <p>ИИ-агенты: <span className="font-semibold">{agentsPlan.name}</span></p>}
+   499→            <p>Стоимость: <span className="font-semibold">{fmtPrice(totalCost)}/мес</span></p>
+   500→            <p>Операторов: <span className="font-semibold">{ops}</span></p>
+   501→          </div>
+   502→        </div>
+   503→        <YellowBtn onClick={() => navigate("cabinet")} className="mt-8">
+   504→          Перейти в кабинет ОмниРМ
+   505→        </YellowBtn>
+   506→      </section>
+   507→
+   508→      {/* Benefits */}
+   509→      <section className="mx-auto mt-20 max-w-5xl px-6 pb-20 md:px-10">
+   510→        <h2 className="text-center text-2xl font-bold text-[#1A1D29]">Что вы получаете</h2>
+   511→        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+   512→          {benefitCards.map((c) => (
+   513→            <div key={c.title} className="rounded-2xl border border-[#E5E7EB] bg-white p-6">
+   514→              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#4F46E5]">
+   515→                {c.icon}
+   516→              </div>
+   517→              <h3 className="mt-3 text-base font-semibold text-[#1A1D29]">{c.title}</h3>
+   518→              <p className="mt-1 text-sm text-[#6B7280]">{c.text}</p>
+   519→            </div>
+   520→          ))}
+   521→        </div>
+   522→      </section>
+   523→    </div>
+   524→  );
+   525→}
+   526→
+   527→/* ═══════════════════════════════════════════
+   528→   4. KITS SELECTION
+   529→   ═══════════════════════════════════════════ */
+   530→
+   531→function KitCard({
+   532→  kit,
+   533→  selected,
+   534→  onSelect,
+   535→}: {
+   536→  kit: Kit;
+   537→  selected: boolean;
+   538→  onSelect: () => void;
+   539→}) {
+   540→  const separate = SEPARATE_PRICES[kit.id];
+   541→  const savings = separate ? separate.omnirm + separate.agents - kit.price : 0;
+   542→
+   543→  return (
+   544→    <div
+   545→      onClick={onSelect}
+   546→      className={`cursor-pointer rounded-2xl border p-5 transition-all ${
+   547→        selected
+   548→          ? "border-[#FFDD5B] bg-[#FFFEF5] shadow-md"
+   549→          : kit.recommended
+   550→            ? "border-[#C026D3] bg-white hover:border-[#E879A8] hover:shadow-sm"
+   551→            : "border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:shadow-sm"
+   552→      }`}
+   553→    >
+   554→      <div className="flex items-start justify-between">
+   555→        <h3 className="text-lg font-bold text-[#1A1D29]">{kit.name}</h3>
+   556→        {kit.recommended && (
+   557→          <Badge className="bg-[#C026D3] text-white border-[#C026D3] text-[10px]">
+   558→            Рекомендуем
+   559→          </Badge>
+   560→        )}
+   561→      </div>
+   562→      <p className="mt-1 text-xl font-bold text-[#1A1D29]">{kit.priceLabel}</p>
+   563→      <div className="mt-3 space-y-1 text-sm text-[#6B7280]">
+   564→        <p>{kit.operators}</p>
+   565→        <p>{kit.agents}</p>
+   566→        <p className="font-medium text-[#1A1D29]">{kit.pkg}</p>
+   567→        <p>{kit.overage}</p>
+   568→      </div>
+   569→      {savings > 0 && (
+   570→        <div className="mt-3 inline-flex items-center gap-1 rounded-lg bg-[#EAF7EE] px-2.5 py-1 text-xs font-medium text-[#1E9E4A]">
+   571→          <TrendingUp className="h-3 w-3" /> Экономия {fmtPrice(savings)}/мес
+   572→        </div>
+   573→      )}
+   574→    </div>
+   575→  );
+   576→}
+   577→
+   578→function KitsScreen() {
+   579→  const {
+   580→    navigate,
+   581→    selectedKitId,
+   582→    selectKit,
+   583→    agree1,
+   584→    agree2,
+   585→    setAgree,
+   586→    connect,
+   587→  } = useAppStore();
+   588→  const [alertShown, setAlertShown] = useState(false);
+   589→
+   590→  const selectedKit = KITS.find((k) => k.id === selectedKitId) ?? null;
+   591→  const separate = selectedKit ? SEPARATE_PRICES[selectedKit.id] : null;
+   592→  const savings = separate ? separate.omnirm + separate.agents - selectedKit.price : 0;
+   593→
+   594→  const handleConnect = () => {
+   595→    if (!agree1 || !agree2) {
+   596→      setAlertShown(true);
+   597→      return;
+   598→    }
+   599→    setAlertShown(false);
+   600→    if (selectedKit) {
+   601→      connect(selectedKit.omnirmPlan, selectedKit.agentsPlan);
+   602→      navigate("confirm");
+   603→    }
+   604→  };
+   605→
+   606→  return (
+   607→    <div className="min-h-screen bg-[#F7F7FA]">
+   608→      {/* Nav */}
+   609→      <div className="flex items-center justify-between px-6 pt-4 md:px-10">
+   610→        <ProtoNav onBack={() => navigate("landing")} onReset />
+   611→      </div>
+   612→
+   613→      {/* Progress bar */}
+   614→      <div className="mx-auto max-w-4xl px-6 pt-6 md:px-10">
+   615→        <div className="flex items-center gap-3">
+   616→          {["Комплекты", "Конструктор", "Подтверждение"].map((step, i) => (
+   617→            <div key={step} className="flex items-center gap-2">
+   618→              <div
+   619→                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+   620→                  i === 0
+   621→                    ? "bg-[#1A1D29] text-white"
+   622→                    : "bg-[#E5E7EB] text-[#6B7280]"
+   623→                }`}
+   624→              >
+   625→                {i + 1}
+   626→              </div>
+   627→              <span
+   628→                className={`text-sm ${
+   629→                  i === 0
+   630→                    ? "font-semibold text-[#1A1D29]"
+   631→                    : "text-[#6B7280]"
+   632→                }`}
+   633→              >
+   634→                {step}
+   635→              </span>
+   636→            </div>
+   637→          ))}
+   638→        </div>
+   639→      </div>
+   640→
+   641→      {/* Title */}
+   642→      <div className="mx-auto max-w-4xl px-6 pt-8 md:px-10">
+   643→        <h1 className="text-2xl font-bold text-[#1A1D29]">Вместе выгоднее</h1>
+   644→      </div>
+   645→
+   646→      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 pt-6 md:flex-row md:px-10">
+   647→        {/* Kit cards */}
+   648→        <div className="flex-1 space-y-4">
+   649→          {KITS.map((kit) => (
+   650→            <KitCard
+   651→              key={kit.id}
+   652→              kit={kit}
+   653→              selected={selectedKitId === kit.id}
+   654→              onSelect={() => selectKit(kit.id)}
+   655→            />
+   656→          ))}
+   657→
+   658→          <button
+   659→            onClick={() => navigate("constructor")}
+   660→            className="mt-2 text-sm font-medium text-[#4F46E5] hover:underline"
+   661→          >
+   662→            Хочу собрать свой тариф — конструктор тарифа →
+   663→          </button>
+   664→        </div>
+   665→
+   666→        {/* Checkout sidebar */}
+   667→        <div className="w-full md:w-72 shrink-0">
+   668→          <div className="rounded-2xl bg-white p-5 shadow-sm">
+   669→            <h3 className="text-sm font-semibold text-[#1A1D29]">Ваш выбор</h3>
+   670→            {selectedKit ? (
+   671→              <div className="mt-3 space-y-2 text-sm text-[#6B7280]">
+   672→                <p className="font-medium text-[#1A1D29]">{selectedKit.name}</p>
+   673→                <p>{selectedKit.operators}</p>
+   674→                <p>{selectedKit.agents}</p>
+   675→                <p className="font-medium text-[#1A1D29]">{selectedKit.pkg}</p>
+   676→                {savings > 0 && (
+   677→                  <p className="text-[#1E9E4A] font-medium">
+   678→                    Экономия {fmtPrice(savings)}/мес
+   679→                  </p>
+   680→                )}
+   681→                <div className="border-t border-[#E5E7EB] pt-2">
+   682→                  <p className="text-base font-bold text-[#1A1D29]">{selectedKit.priceLabel}</p>
+   683→                </div>
+   684→              </div>
+   685→            ) : (
+   686→              <p className="mt-2 text-sm text-[#6B7280]">Выберите комплект</p>
+   687→            )}
+   688→          </div>
+   689→
+   690→          {/* Agreements */}
+   691→          <div className="mt-4 space-y-3">
+   692→            <label className="flex items-start gap-2 text-xs text-[#6B7280] cursor-pointer">
+   693→              <Checkbox
+   694→                checked={agree1}
+   695→                onCheckedChange={(v) => setAgree(1, !!v)}
+   696→                className="mt-0.5"
+   697→              />
+   698→              <span>
+   699→                Я ознакомлен и принимаю условия{" "}
+   700→                <span className="underline">договора-оферты</span>
+   701→              </span>
+   702→            </label>
+   703→            <label className="flex items-start gap-2 text-xs text-[#6B7280] cursor-pointer">
+   704→              <Checkbox
+   705→                checked={agree2}
+   706→                onCheckedChange={(v) => setAgree(2, !!v)}
+   707→                className="mt-0.5"
+   708→              />
+   709→              <span>
+   710→                Я принимаю{" "}
+   711→                <span className="underline">политику конфиденциальности</span>
+   712→              </span>
+   713→            </label>
+   714→          </div>
+   715→
+   716→          {alertShown && (!agree1 || !agree2) && (
+   717→            <div className="mt-3 flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+   718→              <AlertCircle className="h-4 w-4 shrink-0" />
+   719→              Примите условия для продолжения
+   720→            </div>
+   721→          )}
+   722→        </div>
+   723→      </div>
+   724→
+   725→      {/* Footer action bar */}
+   726→      <div className="sticky bottom-0 mt-8 border-t border-[#E5E7EB] bg-white px-6 py-4 md:px-10">
+   727→        <div className="mx-auto flex max-w-5xl items-center justify-between">
+   728→          <OutlineBtn onClick={() => navigate("constructor")}>Собрать самому</OutlineBtn>
+   729→          <YellowBtn onClick={handleConnect} disabled={!selectedKitId}>
+   730→            Подключить комплект
+   731→          </YellowBtn>
+   732→        </div>
+   733→      </div>
+   734→    </div>
+   735→  );
+   736→}
+   737→
+   738→/* ═══════════════════════════════════════════
+   739→   5. CONSTRUCTOR
+   740→   ═══════════════════════════════════════════ */
+   741→
+   742→function PlanCard({
+   743→  plan,
+   744→  selected,
+   745→  onSelect,
+   746→}: {
+   747→  plan: TariffPlan;
+   748→  selected: boolean;
+   749→  onSelect: () => void;
+   750→}) {
+   751→  return (
+   752→    <div
+   753→      onClick={onSelect}
+   754→      className={`cursor-pointer rounded-2xl border p-4 transition-all ${
+   755→        selected
+   756→          ? "border-[#FFDD5B] bg-[#FFFEF5] shadow-md"
+   757→          : "border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:shadow-sm"
+   758→      }`}
+   759→    >
+   760→      <div className="flex items-center justify-between">
+   761→        <h3 className="text-base font-bold text-[#1A1D29]">{plan.name}</h3>
+   762→        {selected && <Check className="h-5 w-5 text-[#1E9E4A]" />}
+   763→      </div>
+   764→      <p className="mt-1 text-lg font-bold text-[#1A1D29]">{plan.priceLabel}</p>
+   765→      {plan.note && <p className="text-xs text-[#6B7280]">{plan.note}</p>}
+   766→      <ul className="mt-2 space-y-0.5">
+   767→        {plan.features.map((f) => (
+   768→          <li key={f} className="flex items-center gap-1.5 text-xs text-[#6B7280]">
+   769→            <Check className="h-3 w-3 text-[#1E9E4A] shrink-0" /> {f}
+   770→          </li>
+   771→        ))}
+   772→      </ul>
+   773→      {plan.cons && (
+   774→        <p className="mt-2 text-xs text-[#92400E]">⚠ {plan.cons}</p>
+   775→      )}
+   776→      {plan.footnote && (
+   777→        <p className="mt-1 text-xs text-[#6B7280]">{plan.footnote}</p>
+   778→      )}
+   779→      {plan.overMinute != null && plan.overRequest != null && (
+   780→        <p className="mt-1 text-xs text-[#6B7280]">
+   781→          Сверх: {plan.overMinute} ₽/мин · {plan.overRequest} ₽/обр
+   782→        </p>
+   783→      )}
+   784→    </div>
+   785→  );
+   786→}
+   787→
+   788→function NoneCard({
+   789→  label,
+   790→  selected,
+   791→  onSelect,
+   792→}: {
+   793→  label: string;
+   794→  selected: boolean;
+   795→  onSelect: () => void;
+   796→}) {
+   797→  return (
+   798→    <div
+   799→      onClick={onSelect}
+   800→      className={`cursor-pointer rounded-2xl border p-4 text-center transition-all ${
+   801→        selected
+   802→          ? "border-[#FFDD5B] bg-[#FFFEF5] shadow-md"
+   803→          : "border-[#E5E7EB] bg-white hover:border-[#D1D5DB] hover:shadow-sm"
+   804→      }`}
+   805→    >
+   806→      <X className="mx-auto h-5 w-5 text-[#6B7280]" />
+   807→      <p className="mt-1 text-sm font-medium text-[#6B7280]">{label}</p>
+   808→    </div>
+   809→  );
+   810→}
+   811→
+   812→function ConstructorScreen() {
+   813→  const {
+   814→    navigate,
+   815→    selectedOmniPlanId,
+   816→    selectedAgentsPlanId,
+   817→    selectOmniPlan,
+   818→    selectAgentsPlan,
+   819→    agree3,
+   820→    agree4,
+   821→    setAgree,
+   822→    connect,
+   823→  } = useAppStore();
+   824→  const [alertShown, setAlertShown] = useState(false);
+   825→
+   826→  const omniPlan = findPlan(OMNIRM_PLANS, selectedOmniPlanId);
+   827→  const agentsPlan = findPlan(AGENTS_PLANS, selectedAgentsPlanId);
+   828→  const total = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+   829→
+   830→  /* find matching kit */
+   831→  const matchingKit = KITS.find(
+   832→    (k) =>
+   833→      k.omnirmPlan === selectedOmniPlanId &&
+   834→      k.agentsPlan === selectedAgentsPlanId
+   835→  );
+   836→
+   837→  const handleConnect = () => {
+   838→    if (!agree3 || !agree4) {
+   839→      setAlertShown(true);
+   840→      return;
+   841→    }
+   842→    setAlertShown(false);
+   843→    if (selectedOmniPlanId && selectedAgentsPlanId) {
+   844→      connect(selectedOmniPlanId, selectedAgentsPlanId);
+   845→      navigate("confirm");
+   846→    }
+   847→  };
+   848→
+   849→  return (
+   850→    <div className="min-h-screen bg-[#F7F7FA]">
+   851→      {/* Nav */}
+   852→      <div className="flex items-center justify-end px-6 pt-4 md:px-10">
+   853→        <ProtoNav onBack={() => navigate("kits")} onReset />
+   854→      </div>
+   855→
+   856→      {/* Progress bar */}
+   857→      <div className="mx-auto max-w-4xl px-6 pt-6 md:px-10">
+   858→        <div className="flex items-center gap-3">
+   859→          {["Комплекты", "Конструктор", "Подтверждение"].map((step, i) => (
+   860→            <div key={step} className="flex items-center gap-2">
+   861→              <div
+   862→                className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+   863→                  i === 1
+   864→                    ? "bg-[#1A1D29] text-white"
+   865→                    : "bg-[#E5E7EB] text-[#6B7280]"
+   866→                }`}
+   867→              >
+   868→                {i + 1}
+   869→              </div>
+   870→              <span
+   871→                className={`text-sm ${
+   872→                  i === 1
+   873→                    ? "font-semibold text-[#1A1D29]"
+   874→                    : "text-[#6B7280]"
+   875→                }`}
+   876→              >
+   877→                {step}
+   878→              </span>
+   879→            </div>
+   880→          ))}
+   881→        </div>
+   882→      </div>
+   883→
+   884→      {/* Title */}
+   885→      <div className="mx-auto max-w-4xl px-6 pt-8 md:px-10">
+   886→        <h1 className="text-2xl font-bold text-[#1A1D29]">Соберите свой тариф</h1>
+   887→      </div>
+   888→
+   889→      <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 pt-6 md:flex-row md:px-10">
+   890→        {/* Plans */}
+   891→        <div className="flex-1 space-y-8">
+   892→          {/* ОмниРМ plans */}
+   893→          <div>
+   894→            <h2 className="text-base font-semibold text-[#1A1D29]">ОмниРМ</h2>
+   895→            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+   896→              {OMNIRM_PLANS.map((p) => (
+   897→                <PlanCard
+   898→                  key={p.id}
+   899→                  plan={p}
+   900→                  selected={selectedOmniPlanId === p.id}
+   901→                  onSelect={() => selectOmniPlan(p.id)}
+   902→                />
+   903→              ))}
+   904→              <NoneCard
+   905→                label="Не нужна"
+   906→                selected={selectedOmniPlanId === null}
+   907→                onSelect={() => selectOmniPlan(null)}
+   908→              />
+   909→            </div>
+   910→          </div>
+   911→
+   912→          {/* Agents plans */}
+   913→          <div>
+   914→            <h2 className="text-base font-semibold text-[#1A1D29]">ИИ-агенты</h2>
+   915→            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+   916→              {AGENTS_PLANS.map((p) => (
+   917→                <PlanCard
+   918→                  key={p.id}
+   919→                  plan={p}
+   920→                  selected={selectedAgentsPlanId === p.id}
+   921→                  onSelect={() => selectAgentsPlan(p.id)}
+   922→                />
+   923→              ))}
+   924→              <NoneCard
+   925→                label="Не нужны"
+   926→                selected={selectedAgentsPlanId === null}
+   927→                onSelect={() => selectAgentsPlan(null)}
+   928→              />
+   929→            </div>
+   930→          </div>
+   931→        </div>
+   932→
+   933→        {/* Checkout sidebar */}
+   934→        <div className="w-full md:w-72 shrink-0">
+   935→          <div className="rounded-2xl bg-white p-5 shadow-sm">
+   936→            <h3 className="text-sm font-semibold text-[#1A1D29]">Ваш выбор</h3>
+   937→            <div className="mt-3 space-y-2 text-sm text-[#6B7280]">
+   938→              {omniPlan ? (
+   939→                <p>ОмниРМ: <span className="font-medium text-[#1A1D29]">{omniPlan.name} — {omniPlan.priceLabel}</span></p>
+   940→              ) : (
+   941→                <p>ОмниРМ: <span className="text-[#9CA3AF]">не выбран</span></p>
+   942→              )}
+   943→              {agentsPlan ? (
+   944→                <p>ИИ-агенты: <span className="font-medium text-[#1A1D29]">{agentsPlan.name} — {agentsPlan.priceLabel}</span></p>
+   945→              ) : (
+   946→                <p>ИИ-агенты: <span className="text-[#9CA3AF]">не выбраны</span></p>
+   947→              )}
+   948→              <div className="border-t border-[#E5E7EB] pt-2">
+   949→                <p className="text-base font-bold text-[#1A1D29]">{fmtPrice(total)}/мес</p>
+   950→              </div>
+   951→            </div>
+   952→            {matchingKit && (
+   953→              <div className="mt-3 rounded-lg bg-[#EEF2FF] p-3 text-xs text-[#4F46E5]">
+   954→                Комплект «{matchingKit.name}» выгоднее — экономия {fmtPrice(
+   955→                  SEPARATE_PRICES[matchingKit.id]
+   956→                    ? SEPARATE_PRICES[matchingKit.id].omnirm +
+   957→                        SEPARATE_PRICES[matchingKit.id].agents -
+   958→                        matchingKit.price
+   959→                    : 0
+   960→                )}/мес
+   961→              </div>
+   962→            )}
+   963→          </div>
+   964→
+   965→          {/* Agreements */}
+   966→          <div className="mt-4 space-y-3">
+   967→            <label className="flex items-start gap-2 text-xs text-[#6B7280] cursor-pointer">
+   968→              <Checkbox
+   969→                checked={agree3}
+   970→                onCheckedChange={(v) => setAgree(3, !!v)}
+   971→                className="mt-0.5"
+   972→              />
+   973→              <span>
+   974→                Я ознакомлен и принимаю условия{" "}
+   975→                <span className="underline">договора-оферты</span>
+   976→              </span>
+   977→            </label>
+   978→            <label className="flex items-start gap-2 text-xs text-[#6B7280] cursor-pointer">
+   979→              <Checkbox
+   980→                checked={agree4}
+   981→                onCheckedChange={(v) => setAgree(4, !!v)}
+   982→                className="mt-0.5"
+   983→              />
+   984→              <span>
+   985→                Я принимаю{" "}
+   986→                <span className="underline">политику конфиденциальности</span>
+   987→              </span>
+   988→            </label>
+   989→          </div>
+   990→
+   991→          {alertShown && (!agree3 || !agree4) && (
+   992→            <div className="mt-3 flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+   993→              <AlertCircle className="h-4 w-4 shrink-0" />
+   994→              Примите условия для продолжения
+   995→            </div>
+   996→          )}
+   997→        </div>
+   998→      </div>
+   999→
+  1000→      {/* Footer */}
+  1001→      <div className="sticky bottom-0 mt-8 border-t border-[#E5E7EB] bg-white px-6 py-4 md:px-10">
+  1002→        <div className="mx-auto flex max-w-5xl items-center justify-between">
+  1003→          <OutlineBtn onClick={() => navigate("kits")}>Готовые комплекты</OutlineBtn>
+  1004→          <YellowBtn
+  1005→            onClick={handleConnect}
+  1006→            disabled={!selectedOmniPlanId && !selectedAgentsPlanId}
+  1007→          >
+  1008→            Подключить
+  1009→          </YellowBtn>
+  1010→        </div>
+  1011→      </div>
+  1012→    </div>
+  1013→  );
+  1014→}
+  1015→
+  1016→/* ═══════════════════════════════════════════
+  1017→   6. CONFIRMATION
+  1018→   ═══════════════════════════════════════════ */
+  1019→
+  1020→function ConfirmScreen() {
+  1021→  const {
+  1022→    navigate,
+  1023→    connectedOmniPlan,
+  1024→    connectedAgentsPlan,
+  1025→    selectedKitId,
+  1026→  } = useAppStore();
+  1027→
+  1028→  const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
+  1029→  const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
+  1030→  const kit = KITS.find((k) => k.id === selectedKitId) ?? null;
+  1031→  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  1032→
+  1033→  const goToCabinet = () => {
+  1034→    navigate("transition");
+  1035→  };
+  1036→
+  1037→  return (
+  1038→    <div className="flex min-h-screen items-center justify-center bg-[#F7F7FA] px-6">
+  1039→      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm text-center">
+  1040→        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#EAF7EE]">
+  1041→          <CircleCheckBig className="h-8 w-8 text-[#1E9E4A]" />
+  1042→        </div>
+  1043→        <h1 className="mt-4 text-2xl font-bold text-[#1A1D29]">Услуга подключена</h1>
+  1044→
+  1045→        <div className="mt-6 space-y-2 text-left text-sm text-[#6B7280]">
+  1046→          {kit ? (
+  1047→            <>
+  1048→              <p>Комплект: <span className="font-semibold text-[#1A1D29]">{kit.name}</span></p>
+  1049→              <p>{kit.operators}</p>
+  1050→              <p>{kit.agents}</p>
+  1051→            </>
+  1052→          ) : (
+  1053→            <>
+  1054→              {omniPlan && (
+  1055→                <p>ОмниРМ: <span className="font-semibold text-[#1A1D29]">{omniPlan.name}</span></p>
+  1056→              )}
+  1057→              {agentsPlan && (
+  1058→                <p>ИИ-агенты: <span className="font-semibold text-[#1A1D29]">{agentsPlan.name}</span></p>
+  1059→              )}
+  1060→            </>
+  1061→          )}
+  1062→          <div className="border-t border-[#E5E7EB] pt-2">
+  1063→            <p className="text-base font-bold text-[#1A1D29]">{fmtPrice(totalCost)}/мес</p>
+  1064→          </div>
+  1065→        </div>
+  1066→
+  1067→        <div className="mt-6 flex flex-col gap-3">
+  1068→          <YellowBtn onClick={goToCabinet} className="w-full">
+  1069→            Перейти в кабинет ОмниРМ
+  1070→          </YellowBtn>
+  1071→          <OutlineBtn onClick={() => navigate("manage")} className="w-full">
+  1072→            Изменить тариф
+  1073→          </OutlineBtn>
+  1074→        </div>
+  1075→      </div>
+  1076→    </div>
+  1077→  );
+  1078→}
+  1079→
+  1080→/* ═══════════════════════════════════════════
+  1081→   7. MANAGE SUBSCRIPTION
+  1082→   ═══════════════════════════════════════════ */
+  1083→
+  1084→function ManageScreen() {
+  1085→  const {
+  1086→    navigate,
+  1087→    connectedOmniPlan,
+  1088→    connectedAgentsPlan,
+  1089→  } = useAppStore();
+  1090→
+  1091→  const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
+  1092→  const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
+  1093→
+  1094→  return (
+  1095→    <div className="min-h-screen bg-[#F7F7FA] px-6 pt-10 md:px-10">
+  1096→      <div className="mx-auto max-w-2xl">
+  1097→        <h1 className="text-2xl font-bold text-[#1A1D29]">Управление подпиской</h1>
+  1098→
+  1099→        <div className="mt-6 space-y-4">
+  1100→          {/* ОмниРМ row */}
+  1101→          <div className="rounded-2xl bg-white p-5 shadow-sm">
+  1102→            <div className="flex items-center justify-between">
+  1103→              <div>
+  1104→                <p className="text-sm font-medium text-[#6B7280]">ОмниРМ</p>
+  1105→                <p className="text-base font-semibold text-[#1A1D29]">
+  1106→                  {omniPlan?.name ?? "—"} · {omniPlan?.priceLabel ?? ""}
+  1107→                </p>
+  1108→              </div>
+  1109→              <div className="flex gap-2">
+  1110→                <Button
+  1111→                  size="sm"
+  1112→                  variant="outline"
+  1113→                  onClick={() => navigate("constructor")}
+  1114→                >
+  1115→                  <Pencil className="h-3.5 w-3.5" /> Изменить
+  1116→                </Button>
+  1117→                <Button size="sm" variant="outline" className="text-red-500 hover:text-red-700">
+  1118→                  Отключить
+  1119→                </Button>
+  1120→              </div>
+  1121→            </div>
+  1122→          </div>
+  1123→
+  1124→          {/* Agents row */}
+  1125→          <div className="rounded-2xl bg-white p-5 shadow-sm">
+  1126→            <div className="flex items-center justify-between">
+  1127→              <div>
+  1128→                <p className="text-sm font-medium text-[#6B7280]">ИИ-агенты</p>
+  1129→                <p className="text-base font-semibold text-[#1A1D29]">
+  1130→                  {agentsPlan?.name ?? "—"} · {agentsPlan?.priceLabel ?? ""}
+  1131→                </p>
+  1132→              </div>
+  1133→              <div className="flex gap-2">
+  1134→                <Button
+  1135→                  size="sm"
+  1136→                  variant="outline"
+  1137→                  onClick={() => navigate("constructor")}
+  1138→                >
+  1139→                  <Pencil className="h-3.5 w-3.5" /> Изменить
+  1140→                </Button>
+  1141→                <Button size="sm" variant="outline" className="text-red-500 hover:text-red-700">
+  1142→                  Отключить
+  1143→                </Button>
+  1144→              </div>
+  1145→            </div>
+  1146→          </div>
+  1147→        </div>
+  1148→
+  1149→        <div className="mt-8 flex gap-3">
+  1150→          <YellowBtn onClick={() => navigate("cabinet")}>
+  1151→            Сохранить изменения
+  1152→          </YellowBtn>
+  1153→          <OutlineBtn onClick={() => navigate("landing-connected")}>
+  1154→            Отмена
+  1155→          </OutlineBtn>
+  1156→        </div>
+  1157→      </div>
+  1158→    </div>
+  1159→  );
+  1160→}
+  1161→
+  1162→/* ═══════════════════════════════════════════
+  1163→   8. CABINET
+  1164→   ═══════════════════════════════════════════ */
+  1165→
+  1166→function CabinetScreen() {
+  1167→  const {
+  1168→    navigate,
+  1169→    connectedOmniPlan,
+  1170→    connectedAgentsPlan,
+  1171→  } = useAppStore();
+  1172→
+  1173→  const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
+  1174→  const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
+  1175→  const ops = getOperatorCount(connectedOmniPlan);
+  1176→  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  1177→
+  1178→  return (
+  1179→    <div className="min-h-screen bg-gradient-to-b from-[#0F1117] to-[#1A1D29] text-white">
+  1180→      {/* Header */}
+  1181→      <header className="flex items-center justify-between px-6 py-4 md:px-10">
+  1182→        <div className="flex items-center gap-2">
+  1183→          <Monitor className="h-6 w-6 text-[#FFDD5B]" />
+  1184→          <span className="text-lg font-bold">ОмниРМ</span>
+  1185→        </div>
+  1186→        <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+  1187→          <UsersRound className="h-4 w-4" />
+  1188→          Администратор
+  1189→        </div>
+  1190→      </header>
+  1191→
+  1192→      <main className="mx-auto max-w-3xl px-6 pt-8 md:px-10">
+  1193→        <h1 className="text-3xl font-bold">Кабинет ОмниРМ</h1>
+  1194→        <p className="mt-2 text-[#9CA3AF]">Управление подключенными сервисами</p>
+  1195→
+  1196→        {/* 2x2 grid */}
+  1197→        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+  1198→          <div className="rounded-2xl bg-white/5 p-5">
+  1199→            <div className="flex items-center gap-2 text-[#9CA3AF]">
+  1200→              <Monitor className="h-4 w-4" />
+  1201→              <span className="text-xs font-medium">ОмниРМ тариф</span>
+  1202→            </div>
+  1203→            <p className="mt-2 text-xl font-bold">{omniPlan?.name ?? "—"}</p>
+  1204→            <p className="text-sm text-[#9CA3AF]">{omniPlan?.priceLabel ?? ""}</p>
+  1205→          </div>
+  1206→
+  1207→          <div className="rounded-2xl bg-white/5 p-5">
+  1208→            <div className="flex items-center gap-2 text-[#9CA3AF]">
+  1209→              <Bot className="h-4 w-4" />
+  1210→              <span className="text-xs font-medium">ИИ-агенты тариф</span>
+  1211→            </div>
+  1212→            <p className="mt-2 text-xl font-bold">{agentsPlan?.name ?? "—"}</p>
+  1213→            <p className="text-sm text-[#9CA3AF]">{agentsPlan?.priceLabel ?? ""}</p>
+  1214→          </div>
+  1215→
+  1216→          <div className="rounded-2xl bg-white/5 p-5">
+  1217→            <div className="flex items-center gap-2 text-[#9CA3AF]">
+  1218→              <DollarSign className="h-4 w-4" />
+  1219→              <span className="text-xs font-medium">Стоимость</span>
+  1220→            </div>
+  1221→            <p className="mt-2 text-xl font-bold">{fmtPrice(totalCost)}/мес</p>
+  1222→          </div>
+  1223→
+  1224→          <div className="rounded-2xl bg-white/5 p-5">
+  1225→            <div className="flex items-center gap-2 text-[#9CA3AF]">
+  1226→              <UserCog className="h-4 w-4" />
+  1227→              <span className="text-xs font-medium">Операторов в системе</span>
+  1228→            </div>
+  1229→            <p className="mt-2 text-xl font-bold">{ops}</p>
+  1230→          </div>
+  1231→        </div>
+  1232→
+  1233→        <button
+  1234→          onClick={() => navigate("landing-connected")}
+  1235→          className="mt-10 text-sm font-medium text-[#FFDD5B] hover:underline"
+  1236→        >
+  1237→          Посмотреть подключенное состояние в ОАТС →
+  1238→        </button>
+  1239→      </main>
+  1240→    </div>
+  1241→  );
+  1242→}
+  1243→
+  1244→/* ═══════════════════════════════════════════
+  1245→   9. TRANSITION OVERLAY
+  1246→   ═══════════════════════════════════════════ */
+  1247→
+  1248→function TransitionScreen() {
+  1249→  const { navigate } = useAppStore();
+  1250→
+  1251→  useEffect(() => {
+  1252→    const timer = setTimeout(() => navigate("cabinet"), 1800);
+  1253→    return () => clearTimeout(timer);
+  1254→  }, [navigate]);
+  1255→
+  1256→  return (
+  1257→    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0F1117]">
+  1258→      <Loader2 className="h-10 w-10 animate-spin text-[#FFDD5B]" />
+  1259→      <p className="mt-4 text-base font-medium text-white">
+  1260→        Переход в кабинет ОмниРМ…
+  1261→      </p>
+  1262→    </div>
+  1263→  );
+  1264→}
+  1265→
+  1266→/* ═══════════════════════════════════════════
+  1267→   MAIN PAGE — Screen Router
+  1268→   ═══════════════════════════════════════════ */
+  1269→
+  1270→const SCREEN_MAP: Record<Screen, () => React.ReactNode> = {
+  1271→  vats: () => <VatsScreen />,
+  1272→  landing: () => <LandingScreen />,
+  1273→  "landing-connected": () => <LandingConnectedScreen />,
+  1274→  kits: () => <KitsScreen />,
+  1275→  constructor: () => <ConstructorScreen />,
+  1276→  confirm: () => <ConfirmScreen />,
+  1277→  manage: () => <ManageScreen />,
+  1278→  cabinet: () => <CabinetScreen />,
+  1279→  transition: () => <TransitionScreen />,
+  1280→};
+  1281→
+  1282→export default function HomePage() {
+  1283→  const { screen } = useAppStore();
+  1284→  const renderer = SCREEN_MAP[screen];
+  1285→  return <>{renderer()}</>;
+  1286→}
+  1287→
