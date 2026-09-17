@@ -880,6 +880,7 @@ function ConstructorScreen() {
     selectedAgentsPlanId,
     selectOmniPlan,
     selectAgentsPlan,
+    selectKit,
     agree3,
     agree4,
     setAgree,
