@@ -37,6 +37,7 @@ import {
   EyeOff,
   ExternalLink,
   Search,
+  Unplug,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -252,16 +253,35 @@ function VatsScreen() {
                 <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#1E9E4A]" />
                 <span className="text-sm font-medium text-[#1E9E4A]">ОмниРМ подключен</span>
               </div>
-              <p className="mt-2 text-lg font-semibold text-[#1A1D29]">
-                {omnirmPlan?.name ?? "—"}
-              </p>
-              <p className="text-sm text-[#6B7280]">
-                {omnirmPlan?.priceLabel}
-                {agentsPlan ? ` + ${agentsPlan.priceLabel}` : ""}
-                {extraOpsCost > 0 ? ` + ${fmtPrice(extraOpsCost)} доп. операторы` : ""}
-              </p>
-              <p className="text-sm text-[#6B7280]">{ops} оператор(ов)</p>
+              <button
+                onClick={() => navigate("kits")}
+                className="mt-2 text-left hover:underline"
+              >
+                <p className="text-lg font-semibold text-[#1A1D29]">
+                  {omnirmPlan?.name ?? "—"}
+                </p>
+                <p className="text-sm text-[#6B7280]">
+                  {omnirmPlan?.priceLabel}
+                  {agentsPlan ? ` + ${agentsPlan.priceLabel}` : ""}
+                  {extraOpsCost > 0 ? ` + ${fmtPrice(extraOpsCost)} доп. операторы` : ""}
+                </p>
+              </button>
+              <button
+                onClick={() => navigate("constructor")}
+                className="mt-1 text-left hover:underline"
+              >
+                <p className="text-sm text-[#6B7280]">{ops} оператор(ов)</p>
+              </button>
               <div className="mt-3 flex gap-2">
+                <button
+                  onClick={() => {
+                    /* disconnect ОмниРМ */
+                  }}
+                  title="Отключить ОмниРМ"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E5E7EB] text-[#6B7280] hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition-colors"
+                >
+                  <Unplug className="h-4 w-4" />
+                </button>
                 <Button
                   size="sm"
                   className="bg-[#1A1D29] text-white hover:bg-[#2D3250]"
