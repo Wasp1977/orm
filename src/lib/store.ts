@@ -205,6 +205,8 @@ interface AppState {
   connectedAgentsPlan: string | null;
   /** Number of operators stored after connection */
   connectedOperatorCount: number;
+  /** Names of employees selected for ОмниРМ connection */
+  connectedEmployeeNames: string[];
   agree1: boolean;
   agree2: boolean;
   agree3: boolean;
@@ -215,7 +217,7 @@ interface AppState {
   selectOmniPlan: (id: string | null) => void;
   selectAgentsPlan: (id: string | null) => void;
   setOperatorCount: (n: number) => void;
-  connect: (omniPlan: string | null, agentsPlan: string | null, operatorCount: number) => void;
+  connect: (omniPlan: string | null, agentsPlan: string | null, operatorCount: number, employeeNames?: string[]) => void;
   setAgree: (n: 1 | 2 | 3 | 4, v: boolean) => void;
   reset: () => void;
 }
@@ -229,6 +231,7 @@ export const useAppStore = create<AppState>((set) => ({
   connectedOmniPlan: null,
   connectedAgentsPlan: null,
   connectedOperatorCount: 0,
+  connectedEmployeeNames: [],
   agree1: false,
   agree2: false,
   agree3: false,
@@ -239,11 +242,12 @@ export const useAppStore = create<AppState>((set) => ({
   selectOmniPlan: (id) => set({ selectedOmniPlanId: id }),
   selectAgentsPlan: (id) => set({ selectedAgentsPlanId: id }),
   setOperatorCount: (n) => set({ selectedOperatorCount: n }),
-  connect: (omniPlan, agentsPlan, operatorCount) =>
+  connect: (omniPlan, agentsPlan, operatorCount, employeeNames = []) =>
     set({
       connectedOmniPlan: omniPlan,
       connectedAgentsPlan: agentsPlan,
       connectedOperatorCount: operatorCount,
+      connectedEmployeeNames: employeeNames,
     }),
   setAgree: (n, v) => set({ [`agree${n}`]: v }),
   reset: () =>
@@ -256,6 +260,7 @@ export const useAppStore = create<AppState>((set) => ({
       connectedOmniPlan: null,
       connectedAgentsPlan: null,
       connectedOperatorCount: 0,
+      connectedEmployeeNames: [],
       agree1: false,
       agree2: false,
       agree3: false,

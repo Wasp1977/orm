@@ -895,6 +895,17 @@ function NoneCard({
   );
 }
 
+/* ── Mock employees list ── */
+const MOCK_EMPLOYEES = [
+  "Алексей Иванов", "Мария Петрова", "Дмитрий Сидоров", "Елена Козлова",
+  "Сергей Новиков", "Анна Морозова", "Игорь Волков", "Ольга Лебедева",
+  "Павел Соколов", "Наталья Зайцева", "Андрей Кузнецов", "Татьяна Попова",
+  "Максим Васильев", "Юлия Михайлова", "Виктор Фёдоров", "Екатерина Андреева",
+  "Артём Семёнов", "Валерия Николаева", "Роман Егоров", "Светлана Павлова",
+  "Кирилл Тарасов", "Людмила Белова", "Геннадий Комаров", "Ирина Орлова",
+  "Владимир Киселёв",
+];
+
 function ConstructorScreen() {
   const {
     navigate,
@@ -912,11 +923,16 @@ function ConstructorScreen() {
   } = useAppStore();
   const [alertShown, setAlertShown] = useState(false);
 
+  /* ── Employee popup state ── */
+  const [showEmpPopup, setShowEmpPopup] = useState(false);
+  const [checkedEmps, setCheckedEmps] = useState<Set<number>>(new Set());
+
   const omniPlan = findPlan(OMNIRM_PLANS, selectedOmniPlanId);
   const agentsPlan = findPlan(AGENTS_PLANS, selectedAgentsPlanId);
   const hasOmni = !!selectedOmniPlanId;
   const includedOps = getOperatorCount(selectedOmniPlanId);
-  const extraOps = hasOmni ? Math.max(0, selectedOperatorCount - includedOps) : 0;
+  const opCount = hasOmni ? (checkedEmps.size > 0 ? checkedEmps.size : selectedOperatorCount) : 0;
+  const extraOps = hasOmni ? Math.max(0, opCount - includedOps) : 0;
   const extraOpsCost = extraOps * ADDITIONAL_OPERATOR_PRICE;
   const baseTotal = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
   const total = baseTotal + extraOpsCost;
@@ -930,17 +946,43 @@ function ConstructorScreen() {
 
   const hasAnySelection = selectedOmniPlanId || selectedAgentsPlanId;
 
+  const toggleEmp = (idx: number) => {
+    setCheckedEmps((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  };
+
   const handleConnect = () => {
     if (!agree3 || !agree4) {
       setAlertShown(true);
       return;
     }
     setAlertShown(false);
-    if (hasAnySelection) {
-      connect(selectedOmniPlanId ?? null, selectedAgentsPlanId ?? null, hasOmni ? selectedOperatorCount : 0);
-      navigate("confirm");
+    if (!hasAnySelection) return;
+
+    /* If ОмниРМ selected and employees not yet chosen → open popup */
+    if (hasOmni && checkedEmps.size === 0) {
+      setShowEmpPopup(true);
+      return;
     }
+
+    /* Proceed to connection */
+    const empNames = Array.from(checkedEmps).map((i) => MOCK_EMPLOYEES[i]);
+    connect(
+      selectedOmniPlanId ?? null,
+      selectedAgentsPlanId ?? null,
+      hasOmni ? opCount : 0,
+      empNames
+    );
+    navigate("confirm");
   };
+
+  /* Popup: extra-ops info */
+  const popupExtra = Math.max(0, checkedEmps.size - includedOps);
+  const popupExtraCost = popupExtra * ADDITIONAL_OPERATOR_PRICE;
 
   return (
     <div className="min-h-screen bg-[#F7F7FA]">
@@ -1028,40 +1070,30 @@ function ConstructorScreen() {
             </div>
           </div>
 
-          {/* Employee selection step — only when ОмниРМ is selected */}
-          {hasOmni && (
+          {/* Show selected employees summary (after popup) */}
+          {hasOmni && checkedEmps.size > 0 && (
             <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
-              <h2 className="text-base font-semibold text-[#1A1D29]">Сотрудники для ОмниРМ</h2>
-              <p className="mt-1 text-sm text-[#6B7280]">
-                Выберите количество сотрудников, которым будет подключена ОмниРМ
-              </p>
-              <div className="mt-4 flex items-center gap-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-[#1A1D29]">
+                  Сотрудники для ОмниРМ ({checkedEmps.size})
+                </h2>
                 <button
-                  onClick={() => setOperatorCount(Math.max(1, selectedOperatorCount - 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors"
+                  onClick={() => setShowEmpPopup(true)}
+                  className="text-sm font-medium text-[#4F46E5] hover:underline"
                 >
-                  −
+                  Изменить
                 </button>
-                <span className="text-2xl font-bold text-[#1A1D29] min-w-[3ch] text-center">
-                  {selectedOperatorCount}
-                </span>
-                <button
-                  onClick={() => setOperatorCount(selectedOperatorCount + 1)}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors"
-                >
-                  +
-                </button>
-                <span className="text-sm text-[#6B7280]">
-                  {selectedOperatorCount === 1 ? "оператор" : selectedOperatorCount < 5 ? "оператора" : "операторов"}
-                </span>
               </div>
-
-              {/* Info about included operators */}
-              <div className="mt-3 flex items-center gap-2 text-sm text-[#6B7280]">
-                <span>В тарифе «{omniPlan?.name}» включено {includedOps} {includedOps === 1 ? "оператор" : "операторов"}</span>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {Array.from(checkedEmps).map((idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#EEF2FF] px-2.5 py-1 text-xs font-medium text-[#4F46E5]"
+                  >
+                    {MOCK_EMPLOYEES[idx]}
+                  </span>
+                ))}
               </div>
-
-              {/* Informer: additional operators cost */}
               {extraOps > 0 && (
                 <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FEF3C7] px-3 py-2.5 text-sm">
                   <AlertCircle className="h-4 w-4 shrink-0 text-[#92400E]" />
@@ -1083,8 +1115,8 @@ function ConstructorScreen() {
               {omniPlan ? (
                 <>
                   <p>ОмниРМ: <span className="font-medium text-[#1A1D29]">{omniPlan.name} — {omniPlan.priceLabel}</span></p>
-                  {hasOmni && (
-                    <p className="pl-2">Операторов: <span className="font-medium text-[#1A1D29]">{selectedOperatorCount}</span></p>
+                  {hasOmni && checkedEmps.size > 0 && (
+                    <p className="pl-2">Сотрудников: <span className="font-medium text-[#1A1D29]">{checkedEmps.size}</span></p>
                   )}
                   {extraOps > 0 && (
                     <p className="pl-2 text-[#92400E]">Доп. операторы: +{fmtPrice(extraOpsCost)}/мес</p>
@@ -1175,6 +1207,107 @@ function ConstructorScreen() {
           </YellowBtn>
         </div>
       </div>
+
+      {/* ═══ Employee selection popup ═══ */}
+      {showEmpPopup && hasOmni && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
+              <div>
+                <h2 className="text-lg font-bold text-[#1A1D29]">Сотрудники для ОмниРМ</h2>
+                <p className="mt-0.5 text-sm text-[#6B7280]">
+                  Выберите сотрудников, которым будет подключена ОмниРМ
+                </p>
+              </div>
+              <button
+                onClick={() => setShowEmpPopup(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1D29] transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Tariff info */}
+            <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg bg-[#F7F7FA] px-3 py-2 text-sm text-[#6B7280]">
+              <Monitor className="h-4 w-4 shrink-0 text-[#4F46E5]" />
+              <span>Тариф «{omniPlan?.name}» — включено {includedOps} {includedOps === 1 ? "оператор" : "операторов"}</span>
+            </div>
+
+            {/* Informer for extra cost */}
+            {popupExtra > 0 && (
+              <div className="mx-6 mt-2 flex items-center gap-2 rounded-lg bg-[#FEF3C7] px-3 py-2.5 text-sm">
+                <AlertCircle className="h-4 w-4 shrink-0 text-[#92400E]" />
+                <span className="text-[#92400E]">
+                  Каждый следующий оператор стоит {fmtPrice(ADDITIONAL_OPERATOR_PRICE)}/мес.
+                  {" "}(+{fmtPrice(popupExtraCost)} за {popupExtra} доп.)
+                </span>
+              </div>
+            )}
+
+            {/* Search / select all */}
+            <div className="mx-6 mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2 w-56">
+                <Search className="h-4 w-4 text-[#9CA3AF]" />
+                <span className="text-sm text-[#9CA3AF]">Поиск сотрудника</span>
+              </div>
+              <button
+                onClick={() => {
+                  if (checkedEmps.size === MOCK_EMPLOYEES.length) {
+                    setCheckedEmps(new Set());
+                  } else {
+                    setCheckedEmps(new Set(MOCK_EMPLOYEES.keys()));
+                  }
+                }}
+                className="text-sm font-medium text-[#4F46E5] hover:underline"
+              >
+                {checkedEmps.size === MOCK_EMPLOYEES.length ? "Снять все" : "Выбрать все"}
+              </button>
+            </div>
+
+            {/* Employee list */}
+            <div className="mx-6 mt-3 max-h-64 overflow-y-auto space-y-0.5">
+              {MOCK_EMPLOYEES.map((name, idx) => (
+                <label
+                  key={idx}
+                  className="flex items-center gap-3 rounded-lg px-2 py-2 cursor-pointer hover:bg-[#F7F7FA] transition-colors"
+                >
+                  <Checkbox
+                    checked={checkedEmps.has(idx)}
+                    onCheckedChange={() => toggleEmp(idx)}
+                  />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2FF] text-xs font-bold text-[#4F46E5]">
+                    {name.split(" ").map((w) => w[0]).join("")}
+                  </div>
+                  <span className="text-sm font-medium text-[#1A1D29]">{name}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Footer: count + confirm */}
+            <div className="border-t border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
+              <div className="text-sm text-[#6B7280]">
+                Выбрано: <span className="font-semibold text-[#1A1D29]">{checkedEmps.size}</span> из {MOCK_EMPLOYEES.length}
+              </div>
+              <div className="flex items-center gap-3">
+                <OutlineBtn onClick={() => setShowEmpPopup(false)}>
+                  Отмена
+                </OutlineBtn>
+                <YellowBtn
+                  onClick={() => {
+                    if (checkedEmps.size === 0) return;
+                    setOperatorCount(checkedEmps.size);
+                    setShowEmpPopup(false);
+                  }}
+                  disabled={checkedEmps.size === 0}
+                >
+                  Выбрать
+                </YellowBtn>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1190,6 +1323,7 @@ function ConfirmScreen() {
     connectedAgentsPlan,
     selectedKitId,
     connectedOperatorCount,
+    connectedEmployeeNames,
   } = useAppStore();
 
   const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
@@ -1203,14 +1337,14 @@ function ConfirmScreen() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F7F7FA] px-6">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm text-center">
+    <div className="flex min-h-screen items-center justify-center bg-[#F7F7FA] px-6 py-8">
+      <div className="w-full max-w-lg rounded-2xl bg-white p-8 shadow-sm text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#EAF7EE]">
           <CircleCheckBig className="h-8 w-8 text-[#1E9E4A]" />
         </div>
         <h1 className="mt-4 text-2xl font-bold text-[#1A1D29]">Услуга подключена</h1>
 
-        <div className="mt-6 space-y-2 text-left text-sm text-[#6B7280]">
+        <div className="mt-6 space-y-3 text-left text-sm text-[#6B7280]">
           {kit ? (
             <>
               <p>Комплект: <span className="font-semibold text-[#1A1D29]">{kit.name}</span></p>
@@ -1220,17 +1354,49 @@ function ConfirmScreen() {
           ) : (
             <>
               {omniPlan && (
-                <p>ОмниРМ: <span className="font-semibold text-[#1A1D29]">{omniPlan.name}</span></p>
+                <div className="rounded-lg bg-[#F7F7FA] p-3">
+                  <p className="font-semibold text-[#1A1D29]">ОмниРМ: {omniPlan.name}</p>
+                  <p className="text-xs text-[#6B7280]">{omniPlan.priceLabel}</p>
+                </div>
               )}
               {agentsPlan && (
-                <p>ИИ-агенты: <span className="font-semibold text-[#1A1D29]">{agentsPlan.name}</span></p>
+                <div className="rounded-lg bg-[#F7F7FA] p-3">
+                  <p className="font-semibold text-[#1A1D29]">ИИ-агенты: {agentsPlan.name}</p>
+                  <p className="text-xs text-[#6B7280]">{agentsPlan.priceLabel}</p>
+                  {agentsPlan.minutes && agentsPlan.requests && (
+                    <p className="text-xs text-[#6B7280]">{agentsPlan.minutes} мин · {agentsPlan.requests} обращений</p>
+                  )}
+                  {agentsPlan.overMinute != null && agentsPlan.overRequest != null && (
+                    <p className="text-xs text-[#6B7280]">Сверх: {agentsPlan.overMinute} ₽/мин · {agentsPlan.overRequest} ₽/обр</p>
+                  )}
+                </div>
               )}
             </>
           )}
-          <div className="border-t border-[#E5E7EB] pt-2">
+
+          {/* Selected employees */}
+          {connectedEmployeeNames.length > 0 && (
+            <div className="rounded-lg border border-[#E5E7EB] p-3">
+              <p className="font-semibold text-[#1A1D29]">
+                Сотрудники ({connectedEmployeeNames.length})
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {connectedEmployeeNames.map((name) => (
+                  <span
+                    key={name}
+                    className="inline-flex items-center gap-1 rounded-full bg-[#EEF2FF] px-2.5 py-1 text-xs font-medium text-[#4F46E5]"
+                  >
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="border-t border-[#E5E7EB] pt-3">
             <p className="text-base font-bold text-[#1A1D29]">{fmtPrice(totalCost)}/мес</p>
             {extraOpsCost > 0 && (
-              <p className="text-xs text-[#6B7280]">Включая доп. операторы: +{fmtPrice(extraOpsCost)} ₽/мес</p>
+              <p className="text-xs text-[#92400E]">Включая доп. операторы: +{fmtPrice(extraOpsCost)}/мес</p>
             )}
           </div>
         </div>
