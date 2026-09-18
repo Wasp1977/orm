@@ -533,6 +533,13 @@ function LandingConnectedScreen() {
         <YellowBtn onClick={() => navigate("cabinet")} className="mt-8">
           Перейти в кабинет ОмниРМ
         </YellowBtn>
+        <button
+          onClick={() => navigate("service-card")}
+          className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:underline"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Карточка услуги
+        </button>
       </section>
 
       {/* Benefits */}
@@ -1367,6 +1374,10 @@ function ServiceCardScreen() {
 
   const fmtNum = (n: number) => n.toLocaleString("ru-RU");
 
+  /* Role toggle: "admin" | "operator" */
+  const [role, setRole] = useState<"admin" | "operator">("admin");
+  const isAdmin = role === "admin";
+
   /* Tabs */
   const [activeTab, setActiveTab] = useState("Все");
   const tabs = [
@@ -1414,12 +1425,35 @@ function ServiceCardScreen() {
       <main className="ml-16 flex-1">
         {/* Header bar */}
         <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("vats")}
               className="flex items-center gap-1 text-sm text-[#6B7280] hover:text-[#1A1D29]"
             >
               <ArrowLeft className="h-4 w-4" /> Назад
+            </button>
+          </div>
+          {/* Role switcher */}
+          <div className="flex items-center gap-1 rounded-lg bg-[#F3F4F6] p-0.5">
+            <button
+              onClick={() => setRole("admin")}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                isAdmin
+                  ? "bg-white text-[#111827] shadow-sm"
+                  : "text-[#6B7280] hover:text-[#111827]"
+              }`}
+            >
+              Администратор
+            </button>
+            <button
+              onClick={() => setRole("operator")}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                !isAdmin
+                  ? "bg-white text-[#111827] shadow-sm"
+                  : "text-[#6B7280] hover:text-[#111827]"
+              }`}
+            >
+              Оператор
             </button>
           </div>
         </div>
@@ -1457,78 +1491,136 @@ function ServiceCardScreen() {
             ))}
           </div>
 
-          {/* Service Card — matching screenshot 1:1 */}
-          <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
-            {/* Badges row */}
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-3 py-1 text-xs font-medium text-white">
-                <Check className="h-3 w-3" /> Подключено
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-3 py-1 text-xs font-medium text-white">
-                <Zap className="h-3 w-3" /> Новый сервис
-              </span>
-            </div>
+          {/* ─── ADMIN card ─── */}
+          {isAdmin && (
+            <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+              {/* Badges row */}
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-3 py-1 text-xs font-medium text-white">
+                  <Check className="h-3 w-3" /> Подключено
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-3 py-1 text-xs font-medium text-white">
+                  <Zap className="h-3 w-3" /> Новый сервис
+                </span>
+              </div>
 
-            {/* Main info row */}
-            <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
-              {/* Logo + Name */}
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3B82F6]">
-                  <UsersRound className="h-5 w-5" />
+              {/* Main info row */}
+              <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
+                {/* Logo + Name */}
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3B82F6]">
+                    <UsersRound className="h-5 w-5" />
+                  </div>
+                  <span className="text-xl font-semibold text-[#111827]">ОмниРМ</span>
                 </div>
-                <span className="text-xl font-semibold text-[#111827]">ОмниРМ</span>
-              </div>
 
-              {/* Price block */}
-              <div className="flex items-baseline gap-2">
-                <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
-                <span className="text-xs text-[#6B7280]">в месяц</span>
-                <button className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                  <Pencil className="h-3.5 w-3.5" />
+                {/* Price block */}
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
+                  <span className="text-xs text-[#6B7280]">в месяц</span>
+                  <button className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Employees block */}
+                <div>
+                  <p className="font-semibold text-[#111827]">{ops} сотрудников</p>
+                  <p className="text-xs text-[#6B7280]">Доступно</p>
+                  <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Tariff block */}
+                <div>
+                  <p className="font-semibold text-[#111827]">{kit?.name ?? (omniPlan?.name ?? "—")}</p>
+                  <p className="text-xs text-[#6B7280]">тариф</p>
+                  <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                    <EyeOff className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* CTA button */}
+                <button
+                  onClick={() => navigate("cabinet")}
+                  className="ml-auto rounded-lg bg-[#000000] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#111827]"
+                >
+                  Перейти в кабинет ОмниРМ
                 </button>
               </div>
 
-              {/* Employees block */}
-              <div>
-                <p className="font-semibold text-[#111827]">{ops} сотрудников</p>
-                <p className="text-xs text-[#6B7280]">Доступно</p>
-                <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                  <Pencil className="h-3.5 w-3.5" />
+              {/* Description */}
+              <div className="mt-5 flex items-start justify-between">
+                <p className="max-w-xl text-sm leading-relaxed text-[#4B5563]">
+                  ОмниРМ — ваши сотрудники смогут общаться с клиентами в любых мессенджерах,
+                  по телефону или по видеосвязи. История заказов будет в одном пространстве.
+                </p>
+                <button
+                  onClick={() => navigate("landing-connected")}
+                  className="shrink-0 text-sm font-medium text-[#2563EB] hover:underline"
+                >
+                  На страницу ОмниРМ
                 </button>
               </div>
-
-              {/* Tariff block */}
-              <div>
-                <p className="font-semibold text-[#111827]">{kit?.name ?? (omniPlan?.name ?? "—")}</p>
-                <p className="text-xs text-[#6B7280]">тариф</p>
-                <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                  <EyeOff className="h-3.5 w-3.5" />
-                </button>
-              </div>
-
-              {/* CTA button */}
-              <button
-                onClick={() => navigate("cabinet")}
-                className="ml-auto rounded-lg bg-[#000000] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#111827]"
-              >
-                Перейти в ОмниРМ
-              </button>
             </div>
+          )}
 
-            {/* Description */}
-            <div className="mt-5 flex items-start justify-between">
-              <p className="max-w-xl text-sm leading-relaxed text-[#4B5563]">
-                ОмниРМ — ваши сотрудники смогут общаться с клиентами в любых мессенджерах,
-                по телефону или по видеосвязи. История заказов будет в одном пространстве.
-              </p>
-              <button
-                onClick={() => navigate("landing-connected")}
-                className="shrink-0 text-sm font-medium text-[#2563EB] hover:underline"
-              >
-                На страницу ОмниРМ
-              </button>
+          {/* ─── OPERATOR card ─── */}
+          {!isAdmin && (
+            <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+              {/* Badges row */}
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-3 py-1 text-xs font-medium text-white">
+                  <Check className="h-3 w-3" /> Подключено
+                </span>
+              </div>
+
+              {/* Main info row — no financial data */}
+              <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
+                {/* Logo + Name */}
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3B82F6]">
+                    <UsersRound className="h-5 w-5" />
+                  </div>
+                  <span className="text-xl font-semibold text-[#111827]">ОмниРМ</span>
+                </div>
+
+                {/* Employees block — read-only, no edit */}
+                <div>
+                  <p className="font-semibold text-[#111827]">{ops} сотрудников</p>
+                  <p className="text-xs text-[#6B7280]">Доступно</p>
+                </div>
+
+                {/* Tariff block — read-only, no edit */}
+                <div>
+                  <p className="font-semibold text-[#111827]">{kit?.name ?? (omniPlan?.name ?? "—")}</p>
+                  <p className="text-xs text-[#6B7280]">тариф</p>
+                </div>
+
+                {/* CTA button — Request access */}
+                <button
+                  className="ml-auto rounded-lg bg-[#4F46E5] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#4338CA]"
+                >
+                  Запросить доступ
+                </button>
+              </div>
+
+              {/* Description */}
+              <div className="mt-5 flex items-start justify-between">
+                <p className="max-w-xl text-sm leading-relaxed text-[#4B5563]">
+                  ОмниРМ — ваши сотрудники смогут общаться с клиентами в любых мессенджерах,
+                  по телефону или по видеосвязи. История заказов будет в одном пространстве.
+                </p>
+                <button
+                  onClick={() => navigate("landing-connected")}
+                  className="shrink-0 text-sm font-medium text-[#2563EB] hover:underline"
+                >
+                  На страницу ОмниРМ
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>
