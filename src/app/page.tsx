@@ -1388,104 +1388,140 @@ function ServiceCardScreen() {
     { label: "Новые тарифы", count: 2, icon: false },
   ];
 
+  const sidebarTop = [
+    { icon: Menu, label: "Меню", active: false },
+    { icon: Users, label: "Сотрудники", active: true },
+    { icon: Store, label: "Маркетплейс", active: false },
+    { icon: BarChart3, label: "Статистика", active: false },
+    { icon: FileIcon, label: "Файлы", active: false },
+  ];
+
+  const sidebarBottom = [
+    { icon: Settings, label: "Настройки", active: false },
+    { icon: Clock, label: "История", active: false },
+    { icon: HelpCircle, label: "Справка", active: false },
+  ];
+
   return (
     <div className="flex min-h-screen bg-white">
-      {/* Sidebar — same as VatsScreen */}
-      <aside className="fixed left-0 top-0 z-10 flex h-full w-16 flex-col items-center border-r border-[#E5E7EB] bg-white py-4">
+      {/* Sidebar — with yellow active indicator */}
+      <aside className="fixed left-0 top-0 z-10 flex h-full w-[72px] flex-col items-center border-r border-[#E5E7EB] bg-white py-4">
         <div className="flex flex-1 flex-col items-center gap-2">
-          {[Menu, Users, Store, BarChart3, FileIcon].map((Icon, i) => (
+          {sidebarTop.map((item) => (
             <button
-              key={i}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+              key={item.label}
+              title={item.label}
+              className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                item.active
+                  ? "text-[#111827]"
+                  : "text-[#6B7280] hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
+              }`}
             >
-              <Icon className="h-5 w-5" />
+              {/* Yellow left indicator for active item */}
+              {item.active && (
+                <span className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-[3px] h-5 w-1 rounded-r-full bg-[#FACC15]" />
+              )}
+              <item.icon className="h-5 w-5" />
             </button>
           ))}
+
           <button
             title="ОмниРМ"
             className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
           >
             <Monitor className="h-5 w-5" />
           </button>
+
           <div className="flex-1" />
         </div>
+
         <div className="flex flex-col items-center gap-2">
-          {[Settings, Clock, HelpCircle].map((Icon, i) => (
+          {sidebarBottom.map((item) => (
             <button
-              key={i}
+              key={item.label}
+              title={item.label}
               className="flex h-10 w-10 items-center justify-center rounded-lg text-[#6B7280] transition-colors hover:bg-[#F5F5F7] hover:text-[#1A1D29]"
             >
-              <Icon className="h-5 w-5" />
+              <item.icon className="h-5 w-5" />
             </button>
           ))}
         </div>
       </aside>
 
       {/* Main area */}
-      <main className="ml-16 flex-1">
-        {/* Header bar */}
+      <main className="ml-[72px] flex-1">
+        {/* Header bar — branding + role switcher */}
         <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-3">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("vats")}
-              className="flex items-center gap-1 text-sm text-[#6B7280] hover:text-[#1A1D29]"
-            >
-              <ArrowLeft className="h-4 w-4" /> Назад
-            </button>
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold text-[#111827]">Билайн</span>
+            <span className="text-lg font-bold text-[#F59E0B]">Бизнес</span>
           </div>
-          {/* Role switcher */}
-          <div className="flex items-center gap-1 rounded-lg bg-[#F3F4F6] p-0.5">
-            <button
-              onClick={() => setRole("admin")}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                isAdmin
-                  ? "bg-white text-[#111827] shadow-sm"
-                  : "text-[#6B7280] hover:text-[#111827]"
-              }`}
-            >
-              Администратор
-            </button>
-            <button
-              onClick={() => setRole("operator")}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-                !isAdmin
-                  ? "bg-white text-[#111827] shadow-sm"
-                  : "text-[#6B7280] hover:text-[#111827]"
-              }`}
-            >
-              Оператор
-            </button>
+          <div className="flex items-center gap-3">
+            {/* Role switcher */}
+            <div className="flex items-center gap-1 rounded-lg bg-[#F3F4F6] p-0.5">
+              <button
+                onClick={() => setRole("admin")}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  isAdmin
+                    ? "bg-white text-[#111827] shadow-sm"
+                    : "text-[#6B7280] hover:text-[#111827]"
+                }`}
+              >
+                Администратор
+              </button>
+              <button
+                onClick={() => setRole("operator")}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                  !isAdmin
+                    ? "bg-white text-[#111827] shadow-sm"
+                    : "text-[#6B7280] hover:text-[#111827]"
+                }`}
+              >
+                Оператор
+              </button>
+            </div>
+            {/* Header right icons */}
+            <div className="flex h-9 w-9 items-center justify-center rounded-full text-[#374151] hover:bg-[#F3F4F6] cursor-pointer">
+              <Clock className="h-5 w-5" />
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full text-[#374151] hover:bg-[#F3F4F6] cursor-pointer">
+              <AlertCircle className="h-5 w-5" />
+            </div>
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3F4F6] text-[#6B7280]">
+              <Users className="h-4 w-4" />
+            </div>
           </div>
         </div>
 
         <div className="px-6 py-6 md:px-8">
-          <h1 className="text-2xl font-bold text-[#111827]">Услуги</h1>
-
-          {/* Search */}
-          <div className="mt-4 flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2.5">
-            <Search className="h-4 w-4 text-[#9CA3AF]" />
-            <span className="text-sm text-[#9CA3AF]">CRM</span>
+          {/* Heading + Search on the same line */}
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-semibold text-[#111827]">Услуги</h1>
+            <div className="flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2.5 w-72">
+              <Search className="h-5 w-5 text-[#9CA3AF]" />
+              <span className="text-sm text-[#111827]">CRM</span>
+            </div>
           </div>
 
           {/* Tabs */}
-          <div className="mt-4 flex items-center gap-6 border-b border-[#E5E7EB]">
+          <div className="mt-5 flex items-center gap-8 border-b border-[#E5E7EB]">
             {tabs.map((tab) => (
               <button
                 key={tab.label}
                 onClick={() => setActiveTab(tab.label)}
-                className={`relative pb-2.5 text-sm font-medium transition-colors ${
+                className={`relative pb-3 text-sm font-medium transition-colors ${
                   activeTab === tab.label
                     ? "text-[#111827]"
-                    : "text-[#6B7280] hover:text-[#111827]"
+                    : "text-[#374151] hover:text-[#111827]"
                 }`}
               >
                 <span className="inline-flex items-center gap-1.5">
                   {tab.icon && <Check className="h-3.5 w-3.5" />}
                   {tab.label}
-                  <span className="text-xs text-[#9CA3AF]">({tab.count})</span>
+                  <span className={`text-xs ${activeTab === tab.label ? "text-[#6B7280]" : "text-[#9CA3AF]"}`}>({tab.count})</span>
                 </span>
                 {activeTab === tab.label && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FDB913]" />
+                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FACC15]" />
                 )}
               </button>
             ))}
@@ -1496,10 +1532,10 @@ function ServiceCardScreen() {
             <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
               {/* Badges row */}
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-3 py-1 text-xs font-medium text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-2.5 py-1 text-xs font-medium text-white">
                   <Check className="h-3 w-3" /> Подключено
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-3 py-1 text-xs font-medium text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-2.5 py-1 text-xs font-medium text-white">
                   <Zap className="h-3 w-3" /> Новый сервис
                 </span>
               </div>
@@ -1508,27 +1544,27 @@ function ServiceCardScreen() {
               <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
                 {/* Logo + Name */}
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3B82F6]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#3B82F6]">
                     <UsersRound className="h-5 w-5" />
                   </div>
-                  <span className="text-xl font-semibold text-[#111827]">ОмниРМ</span>
+                  <span className="text-xl font-bold text-[#111827]">ОмниРМ</span>
                 </div>
 
                 {/* Price block */}
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
                   <span className="text-xs text-[#6B7280]">в месяц</span>
-                  <button className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                    <Pencil className="h-3.5 w-3.5" />
+                  <button className="ml-1 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                    <Pencil className="h-4 w-4" />
                   </button>
                 </div>
 
                 {/* Employees block */}
                 <div>
-                  <p className="font-semibold text-[#111827]">{ops} сотрудников</p>
+                  <p className="font-medium text-[#374151]">{ops} сотрудников</p>
                   <p className="text-xs text-[#6B7280]">Доступно</p>
-                  <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                    <Pencil className="h-3.5 w-3.5" />
+                  <button className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                    <Pencil className="h-4 w-4" />
                   </button>
                 </div>
 
@@ -1536,17 +1572,17 @@ function ServiceCardScreen() {
                 <div>
                   <p className="font-semibold text-[#111827]">{kit?.name ?? (omniPlan?.name ?? "—")}</p>
                   <p className="text-xs text-[#6B7280]">тариф</p>
-                  <button className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                    <EyeOff className="h-3.5 w-3.5" />
+                  <button className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
+                    <EyeOff className="h-4 w-4" />
                   </button>
                 </div>
 
                 {/* CTA button */}
                 <button
                   onClick={() => navigate("cabinet")}
-                  className="ml-auto rounded-lg bg-[#000000] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#111827]"
+                  className="ml-auto rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1F2937]"
                 >
-                  Перейти в кабинет ОмниРМ
+                  Перейти в ОмниРМ
                 </button>
               </div>
 
@@ -1571,7 +1607,7 @@ function ServiceCardScreen() {
             <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
               {/* Badges row */}
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-3 py-1 text-xs font-medium text-white">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-2.5 py-1 text-xs font-medium text-white">
                   <Check className="h-3 w-3" /> Подключено
                 </span>
               </div>
@@ -1580,15 +1616,15 @@ function ServiceCardScreen() {
               <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
                 {/* Logo + Name */}
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EEF2FF] text-[#3B82F6]">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#3B82F6]">
                     <UsersRound className="h-5 w-5" />
                   </div>
-                  <span className="text-xl font-semibold text-[#111827]">ОмниРМ</span>
+                  <span className="text-xl font-bold text-[#111827]">ОмниРМ</span>
                 </div>
 
                 {/* Employees block — read-only, no edit */}
                 <div>
-                  <p className="font-semibold text-[#111827]">{ops} сотрудников</p>
+                  <p className="font-medium text-[#374151]">{ops} сотрудников</p>
                   <p className="text-xs text-[#6B7280]">Доступно</p>
                 </div>
 
@@ -1621,6 +1657,16 @@ function ServiceCardScreen() {
               </div>
             </div>
           )}
+
+          {/* Back link */}
+          <div className="mt-6">
+            <button
+              onClick={() => navigate("vats")}
+              className="flex items-center gap-1 text-sm text-[#6B7280] hover:text-[#1A1D29] transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" /> Вернуться в АТС
+            </button>
+          </div>
         </div>
       </main>
     </div>
