@@ -673,9 +673,28 @@ function KitsScreen() {
   } = useAppStore();
   const [alertShown, setAlertShown] = useState(false);
 
+  /* ── Employee popup state ── */
+  const [showEmpPopup, setShowEmpPopup] = useState(false);
+  const [checkedEmps, setCheckedEmps] = useState<Set<number>>(new Set());
+
   const selectedKit = KITS.find((k) => k.id === selectedKitId) ?? null;
   const separate = selectedKit ? SEPARATE_PRICES[selectedKit.id] : null;
   const savings = separate ? separate.omnirm + separate.agents - selectedKit.price : 0;
+
+  /* operator cost calculations */
+  const kitIncludedOps = selectedKit ? selectedKit.operatorCount : 0;
+  const selectedOpCount = checkedEmps.size > 0 ? checkedEmps.size : kitIncludedOps;
+  const extraOps = Math.max(0, selectedOpCount - kitIncludedOps);
+  const extraOpsCost = extraOps * ADDITIONAL_OPERATOR_PRICE;
+
+  const toggleEmp = (idx: number) => {
+    setCheckedEmps((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  };
 
   const handleConnect = () => {
     if (!agree1 || !agree2) {
@@ -683,11 +702,23 @@ function KitsScreen() {
       return;
     }
     setAlertShown(false);
-    if (selectedKit) {
-      connect(selectedKit.omnirmPlan, selectedKit.agentsPlan, selectedKit.operatorCount);
-      navigate("confirm");
+    if (!selectedKit) return;
+
+    /* If employees not yet chosen → open popup */
+    if (checkedEmps.size === 0) {
+      setShowEmpPopup(true);
+      return;
     }
+
+    /* Proceed to connection */
+    const empNames = Array.from(checkedEmps).map((i) => MOCK_EMPLOYEES[i]);
+    connect(selectedKit.omnirmPlan, selectedKit.agentsPlan, selectedOpCount, empNames);
+    navigate("confirm");
   };
+
+  /* Popup: extra-ops info */
+  const popupExtra = Math.max(0, checkedEmps.size - kitIncludedOps);
+  const popupExtraCost = popupExtra * ADDITIONAL_OPERATOR_PRICE;
 
   return (
     <div className="min-h-screen bg-[#F7F7FA]">
@@ -747,6 +778,54 @@ function KitsScreen() {
           >
             Хочу собрать свой тариф — конструктор тарифа →
           </button>
+
+          {/* Employee selection section */}
+          {selectedKit && (
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-base font-semibold text-[#1A1D29]">
+                  Сотрудники для ОмниРМ
+                </h2>
+                <button
+                  onClick={() => setShowEmpPopup(true)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#EEF2FF] px-3 py-2 text-sm font-medium text-[#4F46E5] hover:bg-[#E0E7FF] transition-colors"
+                >
+                  <Users className="h-4 w-4" />
+                  {checkedEmps.size > 0 ? "Изменить" : "Выбрать сотрудников"}
+                </button>
+              </div>
+              {checkedEmps.size > 0 ? (
+                <>
+                  <p className="mt-1 text-sm text-[#6B7280]">
+                    Выбрано {checkedEmps.size} {checkedEmps.size === 1 ? "сотрудник" : checkedEmps.size < 5 ? "сотрудника" : "сотрудников"} из {MOCK_EMPLOYEES.length}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {Array.from(checkedEmps).map((idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 rounded-full bg-[#EEF2FF] px-2.5 py-1 text-xs font-medium text-[#4F46E5]"
+                      >
+                        {MOCK_EMPLOYEES[idx]}
+                      </span>
+                    ))}
+                  </div>
+                  {extraOps > 0 && (
+                    <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FEF3C7] px-3 py-2.5 text-sm">
+                      <AlertCircle className="h-4 w-4 shrink-0 text-[#92400E]" />
+                      <span className="text-[#92400E]">
+                        Каждый следующий оператор стоит {fmtPrice(ADDITIONAL_OPERATOR_PRICE)}/мес.
+                        {" "}Доп. операторы: {extraOps} × {fmtPrice(ADDITIONAL_OPERATOR_PRICE)} = {fmtPrice(extraOpsCost)}/мес
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="mt-1 text-sm text-[#6B7280]">
+                  Выберите сотрудников, которым будет подключена ОмниРМ
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Checkout sidebar */}
@@ -764,8 +843,46 @@ function KitsScreen() {
                     Экономия {fmtPrice(savings)}/мес
                   </p>
                 )}
+                {/* Selected employees */}
+                {checkedEmps.size > 0 && (
+                  <div className="border-t border-[#E5E7EB] pt-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-[#1A1D29]">
+                        Сотрудники ({checkedEmps.size})
+                      </p>
+                      <button
+                        onClick={() => setShowEmpPopup(true)}
+                        className="text-xs font-medium text-[#4F46E5] hover:underline"
+                      >
+                        Изменить
+                      </button>
+                    </div>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {Array.from(checkedEmps).slice(0, 5).map((idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1 rounded-full bg-[#EEF2FF] px-2 py-0.5 text-xs font-medium text-[#4F46E5]"
+                        >
+                          {MOCK_EMPLOYEES[idx]}
+                        </span>
+                      ))}
+                      {checkedEmps.size > 5 && (
+                        <span className="inline-flex items-center rounded-full bg-[#EEF2FF] px-2 py-0.5 text-xs font-medium text-[#4F46E5]">
+                          +{checkedEmps.size - 5}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {extraOps > 0 && (
+                  <p className="text-xs text-[#92400E]">
+                    Доп. операторы: +{fmtPrice(extraOpsCost)}/мес
+                  </p>
+                )}
                 <div className="border-t border-[#E5E7EB] pt-2">
-                  <p className="text-base font-bold text-[#1A1D29]">{selectedKit.priceLabel}</p>
+                  <p className="text-base font-bold text-[#1A1D29]">
+                    {fmtPrice(selectedKit.price + extraOpsCost)}/мес
+                  </p>
                 </div>
               </div>
             ) : (
@@ -817,6 +934,106 @@ function KitsScreen() {
           </YellowBtn>
         </div>
       </div>
+
+      {/* ═══ Employee selection popup ═══ */}
+      {showEmpPopup && selectedKit && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
+              <div>
+                <h2 className="text-lg font-bold text-[#1A1D29]">Сотрудники для ОмниРМ</h2>
+                <p className="mt-0.5 text-sm text-[#6B7280]">
+                  Выберите сотрудников, которым будет подключена ОмниРМ
+                </p>
+              </div>
+              <button
+                onClick={() => setShowEmpPopup(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1D29] transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Tariff info */}
+            <div className="mx-6 mt-4 flex items-center gap-2 rounded-lg bg-[#F7F7FA] px-3 py-2 text-sm text-[#6B7280]">
+              <Monitor className="h-4 w-4 shrink-0 text-[#4F46E5]" />
+              <span>Комплект «{selectedKit.name}» — включено {kitIncludedOps} {kitIncludedOps === 1 ? "оператор" : "операторов"}</span>
+            </div>
+
+            {/* Informer for extra cost */}
+            {popupExtra > 0 && (
+              <div className="mx-6 mt-2 flex items-center gap-2 rounded-lg bg-[#FEF3C7] px-3 py-2.5 text-sm">
+                <AlertCircle className="h-4 w-4 shrink-0 text-[#92400E]" />
+                <span className="text-[#92400E]">
+                  Каждый следующий оператор стоит {fmtPrice(ADDITIONAL_OPERATOR_PRICE)}/мес.
+                  {" "}(+{fmtPrice(popupExtraCost)} за {popupExtra} доп.)
+                </span>
+              </div>
+            )}
+
+            {/* Search / select all */}
+            <div className="mx-6 mt-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2 w-56">
+                <Search className="h-4 w-4 text-[#9CA3AF]" />
+                <span className="text-sm text-[#9CA3AF]">Поиск сотрудника</span>
+              </div>
+              <button
+                onClick={() => {
+                  if (checkedEmps.size === MOCK_EMPLOYEES.length) {
+                    setCheckedEmps(new Set());
+                  } else {
+                    setCheckedEmps(new Set(MOCK_EMPLOYEES.keys()));
+                  }
+                }}
+                className="text-sm font-medium text-[#4F46E5] hover:underline"
+              >
+                {checkedEmps.size === MOCK_EMPLOYEES.length ? "Снять все" : "Выбрать все"}
+              </button>
+            </div>
+
+            {/* Employee list */}
+            <div className="mx-6 mt-3 max-h-64 overflow-y-auto space-y-0.5">
+              {MOCK_EMPLOYEES.map((name, idx) => (
+                <label
+                  key={idx}
+                  className="flex items-center gap-3 rounded-lg px-2 py-2 cursor-pointer hover:bg-[#F7F7FA] transition-colors"
+                >
+                  <Checkbox
+                    checked={checkedEmps.has(idx)}
+                    onCheckedChange={() => toggleEmp(idx)}
+                  />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF2FF] text-xs font-bold text-[#4F46E5]">
+                    {name.split(" ").map((w) => w[0]).join("")}
+                  </div>
+                  <span className="text-sm font-medium text-[#1A1D29]">{name}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Footer: count + confirm */}
+            <div className="border-t border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
+              <div className="text-sm text-[#6B7280]">
+                Выбрано: <span className="font-semibold text-[#1A1D29]">{checkedEmps.size}</span> из {MOCK_EMPLOYEES.length}
+              </div>
+              <div className="flex items-center gap-3">
+                <OutlineBtn onClick={() => setShowEmpPopup(false)}>
+                  Отмена
+                </OutlineBtn>
+                <YellowBtn
+                  onClick={() => {
+                    if (checkedEmps.size === 0) return;
+                    setShowEmpPopup(false);
+                  }}
+                  disabled={checkedEmps.size === 0}
+                >
+                  Выбрать
+                </YellowBtn>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
