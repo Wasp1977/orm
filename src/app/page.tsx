@@ -418,7 +418,7 @@ function LandingScreen() {
           консоль. ИИ-агенты берут рутину на&nbsp;себя.
         </p>
         <YellowBtn onClick={() => navigate("kits")} className="mt-8">
-          Подключить ОмниРМ
+          Подключить ОмниРМ за 0 ₽
         </YellowBtn>
       </section>
 
