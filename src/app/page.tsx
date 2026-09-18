@@ -748,6 +748,24 @@ function KitsScreen() {
   const popupExtra = Math.max(0, checkedEmps.size - kitIncludedOps);
   const popupExtraCost = popupExtra * ADDITIONAL_OPERATOR_PRICE;
 
+  /* ── Better kit suggestion ── */
+  const currentTotal = selectedKit ? selectedKit.price + extraOpsCost : 0;
+  const betterKit = (() => {
+    if (!selectedKit || checkedEmps.size === 0) return null;
+    const kitIndex = KITS.findIndex((k) => k.id === selectedKit.id);
+    // Check all more expensive kits
+    for (let i = kitIndex + 1; i < KITS.length; i++) {
+      const nextKit = KITS[i];
+      const nextExtra = Math.max(0, selectedOpCount - nextKit.operatorCount);
+      const nextTotal = nextKit.price + nextExtra * ADDITIONAL_OPERATOR_PRICE;
+      // Suggest if: next kit is cheaper OR within 15% but gives more value (ИИ-агенты, more ops)
+      if (nextTotal <= currentTotal || (nextTotal <= currentTotal * 1.15 && nextKit.operatorCount > selectedKit.operatorCount)) {
+        return { kit: nextKit, total: nextTotal, savings: currentTotal - nextTotal };
+      }
+    }
+    return null;
+  })();
+
   return (
     <div className="min-h-screen bg-[#F7F7FA]">
       {/* Nav */}
@@ -852,6 +870,35 @@ function KitsScreen() {
                   Выберите сотрудников, которым будет подключена ОмниРМ
                 </p>
               )}
+            </div>
+          )}
+
+          {/* Better kit suggestion banner */}
+          {betterKit && (
+            <div className="rounded-2xl border border-[#C026D3]/30 bg-gradient-to-r from-[#FDF4FF] to-[#FAF5FF] p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#C026D3]/10">
+                  <Sparkles className="h-5 w-5 text-[#C026D3]" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-[#1A1D29]">
+                    Комплект «{betterKit.kit.name}» выгоднее!
+                  </p>
+                  <p className="mt-1 text-sm text-[#6B7280]">
+                    С {selectedOpCount} {selectedOpCount === 1 ? "оператором" : selectedOpCount < 5 ? "операторами" : "операторами"} вы платите {fmtPrice(currentTotal)}/мес,
+                    а комплект «{betterKit.kit.name}» — {fmtPrice(betterKit.total)}/мес
+                    {betterKit.savings > 0 && <> (экономия {fmtPrice(betterKit.savings)}/мес)</>}
+                    {betterKit.kit.agents !== "Без ИИ-агентов" && <> + ИИ-агенты в комплекте</>}
+                  </p>
+                  <Button
+                    size="sm"
+                    className="mt-3 bg-[#C026D3] text-white hover:bg-[#A020A0] border-[#C026D3]"
+                    onClick={() => selectKit(betterKit.kit.id)}
+                  >
+                    Перейти на «{betterKit.kit.name}»
+                  </Button>
+                </div>
+              </div>
             </div>
           )}
         </div>
