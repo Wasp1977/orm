@@ -57,7 +57,7 @@ export const OMNIRM_PLANS: TariffPlan[] = [
     price: 0,
     priceLabel: "0 ₽",
     note: "в тарифе ОАТС",
-    features: ["1 оператор", "1 канал (виджет или MAX)", "100 диалогов/мес", "история 30 дней"],
+    features: ["1 оператор", "все каналы", "100 диалогов/мес", "история 30 дней"],
     cons: "без очередей, супервизора, аналитики и рассылок",
     includedOperators: 1,
   },
@@ -224,8 +224,8 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   screen: "vats",
-  selectedKitId: null,
-  selectedOmniPlanId: null,
+  selectedKitId: "start-plus",
+  selectedOmniPlanId: "solo",
   selectedAgentsPlanId: null,
   selectedOperatorCount: 1,
   connectedOmniPlan: null,
@@ -253,8 +253,8 @@ export const useAppStore = create<AppState>((set) => ({
   reset: () =>
     set({
       screen: "vats",
-      selectedKitId: null,
-      selectedOmniPlanId: null,
+      selectedKitId: "start-plus",
+      selectedOmniPlanId: "solo",
       selectedAgentsPlanId: null,
       selectedOperatorCount: 1,
       connectedOmniPlan: null,

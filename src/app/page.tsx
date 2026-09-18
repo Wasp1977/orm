@@ -673,6 +673,11 @@ function KitsScreen() {
   } = useAppStore();
   const [alertShown, setAlertShown] = useState(false);
 
+  /* Auto-select Старт+ on first mount if nothing selected */
+  useEffect(() => {
+    if (!selectedKitId) selectKit("start-plus");
+  }, []);
+
   /* ── Employee popup state ── */
   const [showEmpPopup, setShowEmpPopup] = useState(false);
   const [checkedEmps, setCheckedEmps] = useState<Set<number>>(new Set());
@@ -1139,6 +1144,14 @@ function ConstructorScreen() {
     connect,
   } = useAppStore();
   const [alertShown, setAlertShown] = useState(false);
+
+  /* Auto-select Соло (without ИИ-агенты) on first mount if nothing selected */
+  useEffect(() => {
+    if (!selectedOmniPlanId) {
+      selectOmniPlan("solo");
+      setOperatorCount(1);
+    }
+  }, []);
 
   /* ── Employee popup state ── */
   const [showEmpPopup, setShowEmpPopup] = useState(false);
