@@ -912,6 +912,27 @@ function ConstructorScreen() {
   } = useAppStore();
   const [alertShown, setAlertShown] = useState(false);
 
+  /* ── Connection mode: omni | agents | both ── */
+  const [mode, setMode] = useState<"omni" | "agents" | "both">(() => {
+    if (selectedOmniPlanId && selectedAgentsPlanId) return "both";
+    if (selectedAgentsPlanId) return "agents";
+    return "omni";
+  });
+
+  const showOmni = mode === "omni" || mode === "both";
+  const showAgents = mode === "agents" || mode === "both";
+
+  /* When mode changes, clear the irrelevant selection */
+  const handleModeChange = (m: "omni" | "agents" | "both") => {
+    setMode(m);
+    if (m === "agents") {
+      selectOmniPlan(null);
+    }
+    if (m === "omni") {
+      selectAgentsPlan(null);
+    }
+  };
+
   const omniPlan = findPlan(OMNIRM_PLANS, selectedOmniPlanId);
   const agentsPlan = findPlan(AGENTS_PLANS, selectedAgentsPlanId);
   const hasOmni = !!selectedOmniPlanId;
@@ -928,7 +949,7 @@ function ConstructorScreen() {
       k.agentsPlan === selectedAgentsPlanId
   );
 
-  const hasAnySelection = selectedOmniPlanId || selectedAgentsPlanId;
+  const hasAnySelection = (showOmni && selectedOmniPlanId) || (showAgents && selectedAgentsPlanId);
 
   const handleConnect = () => {
     if (!agree3 || !agree4) {
@@ -941,6 +962,12 @@ function ConstructorScreen() {
       navigate("confirm");
     }
   };
+
+  const modeOptions = [
+    { key: "omni" as const, label: "ОмниРМ", icon: <Monitor className="h-4 w-4" /> },
+    { key: "agents" as const, label: "ИИ-агенты", icon: <Bot className="h-4 w-4" /> },
+    { key: "both" as const, label: "ОмниРМ + ИИ-агенты", icon: <Zap className="h-4 w-4" /> },
+  ];
 
   return (
     <div className="min-h-screen bg-[#F7F7FA]">
@@ -982,52 +1009,66 @@ function ConstructorScreen() {
         <h1 className="text-2xl font-bold text-[#1A1D29]">Соберите свой тариф</h1>
       </div>
 
+      {/* Mode selector */}
+      <div className="mx-auto max-w-4xl px-6 pt-4 md:px-10">
+        <div className="flex items-center gap-2">
+          {modeOptions.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => handleModeChange(opt.key)}
+              className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-all ${
+                mode === opt.key
+                  ? "border-[#FFDD5B] bg-[#FFFEF5] text-[#1A1D29] shadow-sm"
+                  : "border-[#E5E7EB] bg-white text-[#6B7280] hover:border-[#D1D5DB] hover:text-[#1A1D29]"
+              }`}
+            >
+              {opt.icon}
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="mx-auto flex max-w-5xl flex-col gap-6 px-6 pt-6 md:flex-row md:px-10">
         {/* Plans */}
         <div className="flex-1 space-y-8">
-          {/* ОмниРМ plans */}
-          <div>
-            <h2 className="text-base font-semibold text-[#1A1D29]">ОмниРМ</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {OMNIRM_PLANS.map((p) => (
-                <PlanCard
-                  key={p.id}
-                  plan={p}
-                  selected={selectedOmniPlanId === p.id}
-                  onSelect={() => {
-                    selectOmniPlan(p.id);
-                    // Reset operator count to the plan's included amount
-                    setOperatorCount(p.includedOperators ?? 1);
-                  }}
-                />
-              ))}
-              <NoneCard
-                label="Не нужна"
-                selected={selectedOmniPlanId === null}
-                onSelect={() => selectOmniPlan(null)}
-              />
+          {/* ОмниРМ plans — visible in "omni" or "both" mode */}
+          {showOmni && (
+            <div>
+              <h2 className="text-base font-semibold text-[#1A1D29]">ОмниРМ</h2>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {OMNIRM_PLANS.map((p) => (
+                  <PlanCard
+                    key={p.id}
+                    plan={p}
+                    selected={selectedOmniPlanId === p.id}
+                    onSelect={() => {
+                      selectOmniPlan(p.id);
+                      // Reset operator count to the plan's included amount
+                      setOperatorCount(p.includedOperators ?? 1);
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Agents plans */}
-          <div>
-            <h2 className="text-base font-semibold text-[#1A1D29]">ИИ-агенты</h2>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {AGENTS_PLANS.map((p) => (
-                <PlanCard
-                  key={p.id}
-                  plan={p}
-                  selected={selectedAgentsPlanId === p.id}
-                  onSelect={() => selectAgentsPlan(p.id)}
-                />
-              ))}
-              <NoneCard
-                label="Не нужны"
-                selected={selectedAgentsPlanId === null}
-                onSelect={() => selectAgentsPlan(null)}
-              />
+          {/* Agents plans — visible in "agents" or "both" mode */}
+          {showAgents && (
+            <div>
+              <h2 className="text-base font-semibold text-[#1A1D29]">ИИ-агенты</h2>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {AGENTS_PLANS.map((p) => (
+                  <PlanCard
+                    key={p.id}
+                    plan={p}
+                    selected={selectedAgentsPlanId === p.id}
+                    onSelect={() => selectAgentsPlan(p.id)}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Employee selection step — only when ОмниРМ is selected */}
           {hasOmni && (
@@ -1053,7 +1094,7 @@ function ConstructorScreen() {
                   +
                 </button>
                 <span className="text-sm text-[#6B7280]">
-                  {selectedOperatorCount === 1 ? "оператор" : "оператора"}
+                  {selectedOperatorCount === 1 ? "оператор" : selectedOperatorCount < 5 ? "оператора" : "операторов"}
                 </span>
               </div>
 
@@ -1067,8 +1108,8 @@ function ConstructorScreen() {
                 <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FEF3C7] px-3 py-2.5 text-sm">
                   <AlertCircle className="h-4 w-4 shrink-0 text-[#92400E]" />
                   <span className="text-[#92400E]">
-                    Каждый дополнительный оператор стоит {fmtPrice(ADDITIONAL_OPERATOR_PRICE)}/мес.
-                    Доп. операторы: {extraOps} × {fmtPrice(ADDITIONAL_OPERATOR_PRICE)} = {fmtPrice(extraOpsCost)}/мес
+                    Каждый следующий оператор стоит {fmtPrice(ADDITIONAL_OPERATOR_PRICE)}/мес.
+                    {" "}Доп. операторы: {extraOps} × {fmtPrice(ADDITIONAL_OPERATOR_PRICE)} = {fmtPrice(extraOpsCost)}/мес
                   </span>
                 </div>
               )}
@@ -1081,23 +1122,27 @@ function ConstructorScreen() {
           <div className="rounded-2xl bg-white p-5 shadow-sm">
             <h3 className="text-sm font-semibold text-[#1A1D29]">Ваш выбор</h3>
             <div className="mt-3 space-y-2 text-sm text-[#6B7280]">
-              {omniPlan ? (
-                <>
-                  <p>ОмниРМ: <span className="font-medium text-[#1A1D29]">{omniPlan.name} — {omniPlan.priceLabel}</span></p>
-                  {hasOmni && (
-                    <p className="pl-2">Операторов: <span className="font-medium text-[#1A1D29]">{selectedOperatorCount}</span></p>
-                  )}
-                  {extraOps > 0 && (
-                    <p className="pl-2 text-[#92400E]">Доп. операторы: +{fmtPrice(extraOpsCost)}/мес</p>
-                  )}
-                </>
-              ) : (
-                <p>ОмниРМ: <span className="text-[#9CA3AF]">не выбрана</span></p>
+              {showOmni && (
+                omniPlan ? (
+                  <>
+                    <p>ОмниРМ: <span className="font-medium text-[#1A1D29]">{omniPlan.name} — {omniPlan.priceLabel}</span></p>
+                    {hasOmni && (
+                      <p className="pl-2">Операторов: <span className="font-medium text-[#1A1D29]">{selectedOperatorCount}</span></p>
+                    )}
+                    {extraOps > 0 && (
+                      <p className="pl-2 text-[#92400E]">Доп. операторы: +{fmtPrice(extraOpsCost)}/мес</p>
+                    )}
+                  </>
+                ) : (
+                  <p>ОмниРМ: <span className="text-[#9CA3AF]">не выбрана</span></p>
+                )
               )}
-              {agentsPlan ? (
-                <p>ИИ-агенты: <span className="font-medium text-[#1A1D29]">{agentsPlan.name} — {agentsPlan.priceLabel}</span></p>
-              ) : (
-                <p>ИИ-агенты: <span className="text-[#9CA3AF]">не выбраны</span></p>
+              {showAgents && (
+                agentsPlan ? (
+                  <p>ИИ-агенты: <span className="font-medium text-[#1A1D29]">{agentsPlan.name} — {agentsPlan.priceLabel}</span></p>
+                ) : (
+                  <p>ИИ-агенты: <span className="text-[#9CA3AF]">не выбраны</span></p>
+                )
               )}
               <div className="border-t border-[#E5E7EB] pt-2">
                 <p className="text-base font-bold text-[#1A1D29]">{fmtPrice(total)}/мес</p>
