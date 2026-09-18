@@ -110,6 +110,23 @@ export const AGENTS_PLANS: TariffPlan[] = [
 
 export const KITS: Kit[] = [
   {
+    id: "solo",
+    name: "Соло",
+    price: 0,
+    priceLabel: "0 ₽",
+    operatorCount: 1,
+    operatorLabel: "1 оператор",
+    minutes: 0,
+    requests: 100,
+    operators: "ОмниРМ: 1 оператор (Соло)",
+    agents: "Без ИИ-агентов",
+    pkg: "все каналы · 100 диалогов/мес",
+    overage: "",
+    recommended: false,
+    omnirmPlan: "solo",
+    agentsPlan: "",
+  },
+  {
     id: "start-plus",
     name: "Старт+",
     price: 2490,
@@ -163,6 +180,7 @@ export const KITS: Kit[] = [
 ];
 
 export const SEPARATE_PRICES: Record<string, { omnirm: number; agents: number }> = {
+  "solo": { omnirm: 0, agents: 0 },
   "start-plus": { omnirm: 0, agents: 2700 },
   "business-plus": { omnirm: 3990, agents: 6500 },
   "pro-plus": { omnirm: 3990, agents: 18700 },
@@ -224,7 +242,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>((set) => ({
   screen: "vats",
-  selectedKitId: "start-plus",
+  selectedKitId: "solo",
   selectedOmniPlanId: "solo",
   selectedAgentsPlanId: null,
   selectedOperatorCount: 1,
@@ -253,7 +271,7 @@ export const useAppStore = create<AppState>((set) => ({
   reset: () =>
     set({
       screen: "vats",
-      selectedKitId: "start-plus",
+      selectedKitId: "solo",
       selectedOmniPlanId: "solo",
       selectedAgentsPlanId: null,
       selectedOperatorCount: 1,

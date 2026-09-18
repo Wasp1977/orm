@@ -613,8 +613,11 @@ function KitCard({
         <span className="text-3xl font-extrabold text-[#1A1D29]">
           {fmtNum(kit.price)}
         </span>
-        <span className="text-sm font-medium text-[#6B7280]">₽/мес</span>
+        <span className="text-sm font-medium text-[#6B7280]">{kit.price === 0 ? "" : "₽/мес"}</span>
       </div>
+      {kit.price === 0 && (
+        <p className="text-xs text-[#6B7280]">в тарифе ОАТС</p>
+      )}
 
       {/* Key params — 3 prominent stat blocks */}
       <div className="mt-4 grid grid-cols-3 gap-3">
@@ -649,7 +652,7 @@ function KitCard({
       {/* Secondary details */}
       <div className="mt-3 space-y-0.5 text-xs text-[#9CA3AF]">
         <p>{kit.agents}</p>
-        <p>Сверх: {kit.overage.replace("Сверх: ", "")}</p>
+        {kit.overage && <p>Сверх: {kit.overage.replace("Сверх: ", "")}</p>}
       </div>
 
       {savings > 0 && (
@@ -673,9 +676,9 @@ function KitsScreen() {
   } = useAppStore();
   const [alertShown, setAlertShown] = useState(false);
 
-  /* Auto-select Старт+ on first mount if nothing selected */
+  /* Auto-select Соло on first mount if nothing selected */
   useEffect(() => {
-    if (!selectedKitId) selectKit("start-plus");
+    if (!selectedKitId) selectKit("solo");
   }, []);
 
   /* ── Employee popup state ── */
@@ -717,7 +720,7 @@ function KitsScreen() {
 
     /* Proceed to connection */
     const empNames = Array.from(checkedEmps).map((i) => MOCK_EMPLOYEES[i]);
-    connect(selectedKit.omnirmPlan, selectedKit.agentsPlan, selectedOpCount, empNames);
+    connect(selectedKit.omnirmPlan, selectedKit.agentsPlan || null, selectedOpCount, empNames);
     navigate("confirm");
   };
 
