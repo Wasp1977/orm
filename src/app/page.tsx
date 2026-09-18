@@ -959,6 +959,30 @@ function KitsScreen() {
                     {fmtPrice(selectedKit.price + extraOpsCost)}/мес
                   </p>
                 </div>
+                {/* Better option suggestion in sidebar */}
+                {betterKit && (
+                  <div className="mt-3 rounded-xl bg-gradient-to-r from-[#FDF4FF] to-[#FAF5FF] p-3 border border-[#C026D3]/20">
+                    <div className="flex items-start gap-2">
+                      <Sparkles className="h-4 w-4 shrink-0 text-[#C026D3] mt-0.5" />
+                      <div>
+                        <p className="text-xs font-semibold text-[#1A1D29]">
+                          «{betterKit.kit.name}» выгоднее
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[#6B7280] leading-tight">
+                          {fmtPrice(betterKit.total)}/мес
+                          {betterKit.savings > 0 && <> — экономия {fmtPrice(betterKit.savings)}/мес</>}
+                          {betterKit.kit.agents !== "Без ИИ-агентов" && <> + ИИ-агенты</>}
+                        </p>
+                        <button
+                          onClick={() => selectKit(betterKit.kit.id)}
+                          className="mt-1.5 text-[11px] font-semibold text-[#C026D3] hover:underline"
+                        >
+                          Перейти на «{betterKit.kit.name}» →
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="mt-2 text-sm text-[#6B7280]">Выберите комплект</p>
