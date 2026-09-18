@@ -26,6 +26,8 @@ export interface TariffPlan {
   requests?: number;
   overMinute?: number;
   overRequest?: number;
+  /** How many operators are included in this plan */
+  includedOperators?: number;
 }
 
 export interface Kit {
@@ -46,6 +48,8 @@ export interface Kit {
   agentsPlan: string;
 }
 
+export const ADDITIONAL_OPERATOR_PRICE = 990;
+
 export const OMNIRM_PLANS: TariffPlan[] = [
   {
     id: "solo",
@@ -55,6 +59,7 @@ export const OMNIRM_PLANS: TariffPlan[] = [
     note: "в тарифе ОАТС",
     features: ["1 оператор", "1 канал (виджет или MAX)", "100 диалогов/мес", "история 30 дней"],
     cons: "без очередей, супервизора, аналитики и рассылок",
+    includedOperators: 1,
   },
   {
     id: "team5",
@@ -63,6 +68,7 @@ export const OMNIRM_PLANS: TariffPlan[] = [
     priceLabel: "3 990 ₽/мес",
     features: ["до 5 операторов", "полный функционал"],
     footnote: "+990 ₽ за оператора с 6-го",
+    includedOperators: 5,
   },
 ];
 
@@ -77,6 +83,17 @@ export const AGENTS_PLANS: TariffPlan[] = [
     requests: 300,
     overMinute: 10,
     overRequest: 5,
+  },
+  {
+    id: "business",
+    name: "Бизнес",
+    price: 6500,
+    priceLabel: "6 500 ₽/мес",
+    features: ["800 мин голоса", "1 000 обращений", "все каналы", "обзвон из пакета"],
+    minutes: 800,
+    requests: 1000,
+    overMinute: 9,
+    overRequest: 4,
   },
   {
     id: "pro",
@@ -161,6 +178,17 @@ export function getOperatorCount(planId: string | null): number {
   return 0;
 }
 
+/** Cost of additional operators beyond the plan's included amount */
+export function getAdditionalOpsCost(
+  omniPlanId: string | null,
+  operatorCount: number
+): number {
+  if (!omniPlanId) return 0;
+  const included = getOperatorCount(omniPlanId);
+  const extra = Math.max(0, operatorCount - included);
+  return extra * ADDITIONAL_OPERATOR_PRICE;
+}
+
 export function findPlan(plans: TariffPlan[], id: string | null): TariffPlan | null {
   if (!id) return null;
   return plans.find((p) => p.id === id) ?? null;
@@ -171,8 +199,12 @@ interface AppState {
   selectedKitId: string | null;
   selectedOmniPlanId: string | null;
   selectedAgentsPlanId: string | null;
+  /** Number of operators selected by user in constructor */
+  selectedOperatorCount: number;
   connectedOmniPlan: string | null;
   connectedAgentsPlan: string | null;
+  /** Number of operators stored after connection */
+  connectedOperatorCount: number;
   agree1: boolean;
   agree2: boolean;
   agree3: boolean;
@@ -182,7 +214,8 @@ interface AppState {
   selectKit: (id: string | null) => void;
   selectOmniPlan: (id: string | null) => void;
   selectAgentsPlan: (id: string | null) => void;
-  connect: (omniPlan: string, agentsPlan: string) => void;
+  setOperatorCount: (n: number) => void;
+  connect: (omniPlan: string | null, agentsPlan: string | null, operatorCount: number) => void;
   setAgree: (n: 1 | 2 | 3 | 4, v: boolean) => void;
   reset: () => void;
 }
@@ -192,8 +225,10 @@ export const useAppStore = create<AppState>((set) => ({
   selectedKitId: null,
   selectedOmniPlanId: null,
   selectedAgentsPlanId: null,
+  selectedOperatorCount: 1,
   connectedOmniPlan: null,
   connectedAgentsPlan: null,
+  connectedOperatorCount: 0,
   agree1: false,
   agree2: false,
   agree3: false,
@@ -203,10 +238,12 @@ export const useAppStore = create<AppState>((set) => ({
   selectKit: (id) => set({ selectedKitId: id }),
   selectOmniPlan: (id) => set({ selectedOmniPlanId: id }),
   selectAgentsPlan: (id) => set({ selectedAgentsPlanId: id }),
-  connect: (omniPlan, agentsPlan) =>
+  setOperatorCount: (n) => set({ selectedOperatorCount: n }),
+  connect: (omniPlan, agentsPlan, operatorCount) =>
     set({
       connectedOmniPlan: omniPlan,
       connectedAgentsPlan: agentsPlan,
+      connectedOperatorCount: operatorCount,
     }),
   setAgree: (n, v) => set({ [`agree${n}`]: v }),
   reset: () =>
@@ -215,8 +252,10 @@ export const useAppStore = create<AppState>((set) => ({
       selectedKitId: null,
       selectedOmniPlanId: null,
       selectedAgentsPlanId: null,
+      selectedOperatorCount: 1,
       connectedOmniPlan: null,
       connectedAgentsPlan: null,
+      connectedOperatorCount: 0,
       agree1: false,
       agree2: false,
       agree3: false,

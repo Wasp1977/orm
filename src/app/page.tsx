@@ -48,8 +48,10 @@ import {
   OMNIRM_PLANS,
   AGENTS_PLANS,
   SEPARATE_PRICES,
+  ADDITIONAL_OPERATOR_PRICE,
   fmtPrice,
   getOperatorCount,
+  getAdditionalOpsCost,
   findPlan,
   type Screen,
   type Kit,
@@ -130,11 +132,12 @@ function ProtoNav({ onBack, onReset }: { onBack?: () => void; onReset?: () => vo
    ═══════════════════════════════════════════ */
 
 function VatsScreen() {
-  const { navigate, connectedOmniPlan, connectedAgentsPlan } = useAppStore();
+  const { navigate, connectedOmniPlan, connectedAgentsPlan, connectedOperatorCount } = useAppStore();
   const isConnected = connectedOmniPlan !== null;
   const omnirmPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
   const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
-  const ops = getOperatorCount(connectedOmniPlan);
+  const ops = connectedOperatorCount > 0 ? connectedOperatorCount : getOperatorCount(connectedOmniPlan);
+  const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
 
   const sidebarItems = [
     { icon: Menu, label: "Меню", active: false },
@@ -255,6 +258,7 @@ function VatsScreen() {
               <p className="text-sm text-[#6B7280]">
                 {omnirmPlan?.priceLabel}
                 {agentsPlan ? ` + ${agentsPlan.priceLabel}` : ""}
+                {extraOpsCost > 0 ? ` + ${fmtPrice(extraOpsCost)} доп. операторы` : ""}
               </p>
               <p className="text-sm text-[#6B7280]">{ops} оператор(ов)</p>
               <div className="mt-3 flex gap-2">
@@ -468,11 +472,12 @@ function LandingScreen() {
    ═══════════════════════════════════════════ */
 
 function LandingConnectedScreen() {
-  const { navigate, connectedOmniPlan, connectedAgentsPlan } = useAppStore();
+  const { navigate, connectedOmniPlan, connectedAgentsPlan, connectedOperatorCount } = useAppStore();
   const omnirmPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
   const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
-  const ops = getOperatorCount(connectedOmniPlan);
-  const totalCost = (omnirmPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const ops = connectedOperatorCount > 0 ? connectedOperatorCount : getOperatorCount(connectedOmniPlan);
+  const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
+  const totalCost = (omnirmPlan?.price ?? 0) + (agentsPlan?.price ?? 0) + extraOpsCost;
 
   const benefitCards = [
     {
@@ -528,6 +533,9 @@ function LandingConnectedScreen() {
             {agentsPlan && <p>ИИ-агенты: <span className="font-semibold">{agentsPlan.name}</span></p>}
             <p>Стоимость: <span className="font-semibold">{fmtPrice(totalCost)}/мес</span></p>
             <p>Операторов: <span className="font-semibold">{ops}</span></p>
+            {extraOpsCost > 0 && (
+              <p>Доп. операторы: <span className="font-semibold">+{fmtPrice(extraOpsCost)} ₽/мес</span></p>
+            )}
           </div>
         </div>
         <YellowBtn onClick={() => navigate("cabinet")} className="mt-8">
@@ -676,7 +684,7 @@ function KitsScreen() {
     }
     setAlertShown(false);
     if (selectedKit) {
-      connect(selectedKit.omnirmPlan, selectedKit.agentsPlan);
+      connect(selectedKit.omnirmPlan, selectedKit.agentsPlan, selectedKit.operatorCount);
       navigate("confirm");
     }
   };
@@ -895,6 +903,8 @@ function ConstructorScreen() {
     selectOmniPlan,
     selectAgentsPlan,
     selectKit,
+    selectedOperatorCount,
+    setOperatorCount,
     agree3,
     agree4,
     setAgree,
@@ -904,7 +914,12 @@ function ConstructorScreen() {
 
   const omniPlan = findPlan(OMNIRM_PLANS, selectedOmniPlanId);
   const agentsPlan = findPlan(AGENTS_PLANS, selectedAgentsPlanId);
-  const total = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const hasOmni = !!selectedOmniPlanId;
+  const includedOps = getOperatorCount(selectedOmniPlanId);
+  const extraOps = hasOmni ? Math.max(0, selectedOperatorCount - includedOps) : 0;
+  const extraOpsCost = extraOps * ADDITIONAL_OPERATOR_PRICE;
+  const baseTotal = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const total = baseTotal + extraOpsCost;
 
   /* find matching kit */
   const matchingKit = KITS.find(
@@ -913,14 +928,16 @@ function ConstructorScreen() {
       k.agentsPlan === selectedAgentsPlanId
   );
 
+  const hasAnySelection = selectedOmniPlanId || selectedAgentsPlanId;
+
   const handleConnect = () => {
     if (!agree3 || !agree4) {
       setAlertShown(true);
       return;
     }
     setAlertShown(false);
-    if (selectedOmniPlanId && selectedAgentsPlanId) {
-      connect(selectedOmniPlanId, selectedAgentsPlanId);
+    if (hasAnySelection) {
+      connect(selectedOmniPlanId ?? null, selectedAgentsPlanId ?? null, hasOmni ? selectedOperatorCount : 0);
       navigate("confirm");
     }
   };
@@ -977,7 +994,11 @@ function ConstructorScreen() {
                   key={p.id}
                   plan={p}
                   selected={selectedOmniPlanId === p.id}
-                  onSelect={() => selectOmniPlan(p.id)}
+                  onSelect={() => {
+                    selectOmniPlan(p.id);
+                    // Reset operator count to the plan's included amount
+                    setOperatorCount(p.includedOperators ?? 1);
+                  }}
                 />
               ))}
               <NoneCard
@@ -1007,6 +1028,52 @@ function ConstructorScreen() {
               />
             </div>
           </div>
+
+          {/* Employee selection step — only when ОмниРМ is selected */}
+          {hasOmni && (
+            <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+              <h2 className="text-base font-semibold text-[#1A1D29]">Сотрудники для ОмниРМ</h2>
+              <p className="mt-1 text-sm text-[#6B7280]">
+                Выберите количество сотрудников, которым будет подключена ОмниРМ
+              </p>
+              <div className="mt-4 flex items-center gap-4">
+                <button
+                  onClick={() => setOperatorCount(Math.max(1, selectedOperatorCount - 1))}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors"
+                >
+                  −
+                </button>
+                <span className="text-2xl font-bold text-[#1A1D29] min-w-[3ch] text-center">
+                  {selectedOperatorCount}
+                </span>
+                <button
+                  onClick={() => setOperatorCount(selectedOperatorCount + 1)}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6] transition-colors"
+                >
+                  +
+                </button>
+                <span className="text-sm text-[#6B7280]">
+                  {selectedOperatorCount === 1 ? "оператор" : "оператора"}
+                </span>
+              </div>
+
+              {/* Info about included operators */}
+              <div className="mt-3 flex items-center gap-2 text-sm text-[#6B7280]">
+                <span>В тарифе «{omniPlan?.name}» включено {includedOps} {includedOps === 1 ? "оператор" : "операторов"}</span>
+              </div>
+
+              {/* Informer: additional operators cost */}
+              {extraOps > 0 && (
+                <div className="mt-3 flex items-center gap-2 rounded-lg bg-[#FEF3C7] px-3 py-2.5 text-sm">
+                  <AlertCircle className="h-4 w-4 shrink-0 text-[#92400E]" />
+                  <span className="text-[#92400E]">
+                    Каждый дополнительный оператор стоит {fmtPrice(ADDITIONAL_OPERATOR_PRICE)}/мес.
+                    Доп. операторы: {extraOps} × {fmtPrice(ADDITIONAL_OPERATOR_PRICE)} = {fmtPrice(extraOpsCost)}/мес
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Checkout sidebar */}
@@ -1015,9 +1082,17 @@ function ConstructorScreen() {
             <h3 className="text-sm font-semibold text-[#1A1D29]">Ваш выбор</h3>
             <div className="mt-3 space-y-2 text-sm text-[#6B7280]">
               {omniPlan ? (
-                <p>ОмниРМ: <span className="font-medium text-[#1A1D29]">{omniPlan.name} — {omniPlan.priceLabel}</span></p>
+                <>
+                  <p>ОмниРМ: <span className="font-medium text-[#1A1D29]">{omniPlan.name} — {omniPlan.priceLabel}</span></p>
+                  {hasOmni && (
+                    <p className="pl-2">Операторов: <span className="font-medium text-[#1A1D29]">{selectedOperatorCount}</span></p>
+                  )}
+                  {extraOps > 0 && (
+                    <p className="pl-2 text-[#92400E]">Доп. операторы: +{fmtPrice(extraOpsCost)}/мес</p>
+                  )}
+                </>
               ) : (
-                <p>ОмниРМ: <span className="text-[#9CA3AF]">не выбран</span></p>
+                <p>ОмниРМ: <span className="text-[#9CA3AF]">не выбрана</span></p>
               )}
               {agentsPlan ? (
                 <p>ИИ-агенты: <span className="font-medium text-[#1A1D29]">{agentsPlan.name} — {agentsPlan.priceLabel}</span></p>
@@ -1028,7 +1103,7 @@ function ConstructorScreen() {
                 <p className="text-base font-bold text-[#1A1D29]">{fmtPrice(total)}/мес</p>
               </div>
             </div>
-            {matchingKit && (
+            {matchingKit && !extraOps && (
               <div className="mt-3 rounded-lg bg-[#EEF2FF] p-3">
                 <p className="text-xs text-[#4F46E5]">
                   Комплект «{matchingKit.name}» выгоднее — экономия {fmtPrice(
@@ -1095,7 +1170,7 @@ function ConstructorScreen() {
           <OutlineBtn onClick={() => navigate("kits")}>Готовые комплекты</OutlineBtn>
           <YellowBtn
             onClick={handleConnect}
-            disabled={!selectedOmniPlanId && !selectedAgentsPlanId}
+            disabled={!hasAnySelection}
           >
             Подключить
           </YellowBtn>
@@ -1115,12 +1190,14 @@ function ConfirmScreen() {
     connectedOmniPlan,
     connectedAgentsPlan,
     selectedKitId,
+    connectedOperatorCount,
   } = useAppStore();
 
   const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
   const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
   const kit = KITS.find((k) => k.id === selectedKitId) ?? null;
-  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
+  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0) + extraOpsCost;
 
   const goToCabinet = () => {
     navigate("transition");
@@ -1153,6 +1230,9 @@ function ConfirmScreen() {
           )}
           <div className="border-t border-[#E5E7EB] pt-2">
             <p className="text-base font-bold text-[#1A1D29]">{fmtPrice(totalCost)}/мес</p>
+            {extraOpsCost > 0 && (
+              <p className="text-xs text-[#6B7280]">Включая доп. операторы: +{fmtPrice(extraOpsCost)} ₽/мес</p>
+            )}
           </div>
         </div>
 
@@ -1266,12 +1346,14 @@ function CabinetScreen() {
     navigate,
     connectedOmniPlan,
     connectedAgentsPlan,
+    connectedOperatorCount,
   } = useAppStore();
 
   const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
   const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
-  const ops = getOperatorCount(connectedOmniPlan);
-  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const ops = connectedOperatorCount > 0 ? connectedOperatorCount : getOperatorCount(connectedOmniPlan);
+  const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
+  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0) + extraOpsCost;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F1117] to-[#1A1D29] text-white">
@@ -1317,6 +1399,9 @@ function CabinetScreen() {
               <span className="text-xs font-medium">Стоимость</span>
             </div>
             <p className="mt-2 text-xl font-bold">{fmtPrice(totalCost)}/мес</p>
+            {extraOpsCost > 0 && (
+              <p className="text-xs text-[#9CA3AF]">Доп. операторы: +{fmtPrice(extraOpsCost)} ₽/мес</p>
+            )}
           </div>
 
           <div className="rounded-2xl bg-white/5 p-5">
@@ -1362,12 +1447,14 @@ function ServiceCardScreen() {
     navigate,
     connectedOmniPlan,
     connectedAgentsPlan,
+    connectedOperatorCount,
   } = useAppStore();
 
   const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
   const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
-  const ops = getOperatorCount(connectedOmniPlan);
-  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0);
+  const ops = connectedOperatorCount > 0 ? connectedOperatorCount : getOperatorCount(connectedOmniPlan);
+  const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
+  const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0) + extraOpsCost;
   const kit = KITS.find(
     (k) => k.omnirmPlan === connectedOmniPlan && k.agentsPlan === connectedAgentsPlan
   );
@@ -1554,6 +1641,9 @@ function ServiceCardScreen() {
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
                   <span className="text-xs text-[#6B7280]">в месяц</span>
+                  {extraOpsCost > 0 && (
+                    <span className="text-xs text-[#6B7280]">(+{fmtPrice(extraOpsCost)} доп. операторы)</span>
+                  )}
                   <button className="ml-1 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
                     <Pencil className="h-4 w-4" />
                   </button>
