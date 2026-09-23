@@ -1275,7 +1275,12 @@ function KitsScreen() {
                 <YellowBtn
                   onClick={() => {
                     if (checkedEmps.size === 0) return;
+                    if (!selectedKit) return;
+                    const empNames = Array.from(checkedEmps).map((i) => MOCK_EMPLOYEES[i]);
+                    const opCount = checkedEmps.size > 0 ? checkedEmps.size : kitIncludedOps;
+                    connect(selectedKit.omnirmPlan, selectedKit.agentsPlan || null, opCount, empNames);
                     setShowEmpPopup(false);
+                    navigate("confirm");
                   }}
                   disabled={checkedEmps.size === 0}
                 >
@@ -1774,7 +1779,15 @@ function ConstructorScreen() {
                   onClick={() => {
                     if (checkedEmps.size === 0) return;
                     setOperatorCount(checkedEmps.size);
+                    const empNames = Array.from(checkedEmps).map((i) => MOCK_EMPLOYEES[i]);
+                    connect(
+                      selectedOmniPlanId ?? null,
+                      selectedAgentsPlanId ?? null,
+                      checkedEmps.size,
+                      empNames
+                    );
                     setShowEmpPopup(false);
+                    navigate("confirm");
                   }}
                   disabled={checkedEmps.size === 0}
                 >
