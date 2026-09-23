@@ -824,7 +824,16 @@ function KitCard({
 
       {/* Secondary details */}
       <div className="mt-3 space-y-0.5 text-xs text-[#9CA3AF]">
-        <p>{kit.agents}</p>
+        {kit.agents === "Без ИИ-агентов" ? (
+          <div className="rounded-lg bg-[#FEF3C7] border border-[#FDE68A] px-3 py-2">
+            <p className="text-xs font-medium text-[#92400E]">Тариф без ИИ-агентов</p>
+            <p className="mt-0.5 text-[11px] text-[#A16207] leading-snug">
+              Позволяет использовать ОмниРМ для одного сотрудника. Для раскрытия всех возможностей ОмниРМ выбирайте тарифы с ИИ-агентами.
+            </p>
+          </div>
+        ) : (
+          <p>{kit.agents}</p>
+        )}
         {kit.overage && <p>Сверх: {kit.overage.replace("Сверх: ", "")}</p>}
       </div>
 
@@ -1064,7 +1073,14 @@ function KitsScreen() {
               <div className="mt-3 space-y-2 text-sm text-[#6B7280]">
                 <p className="font-medium text-[#1A1D29]">{selectedKit.name}</p>
                 <p>{selectedKit.operators}</p>
-                <p>{selectedKit.agents}</p>
+                {selectedKit.agents === "Без ИИ-агентов" ? (
+                  <div className="rounded-lg bg-[#FEF3C7] border border-[#FDE68A] px-2.5 py-1.5">
+                    <p className="text-[11px] font-medium text-[#92400E]">Тариф без ИИ-агентов</p>
+                    <p className="mt-0.5 text-[10px] text-[#A16207] leading-snug">Позволяет использовать ОмниРМ для одного сотрудника. Для раскрытия всех возможностей выбирайте тарифы с ИИ-агентами.</p>
+                  </div>
+                ) : (
+                  <p>{selectedKit.agents}</p>
+                )}
                 <p className="font-medium text-[#1A1D29]">{selectedKit.pkg}</p>
                 {savings > 0 && (
                   <p className="text-[#1E9E4A] font-medium">
@@ -1839,7 +1855,14 @@ function ConfirmScreen() {
             <>
               <p>Комплект: <span className="font-semibold text-[#1A1D29]">{kit.name}</span></p>
               <p>{kit.operators}</p>
-              <p>{kit.agents}</p>
+              {kit.agents === "Без ИИ-агентов" ? (
+                <div className="rounded-lg bg-[#FEF3C7] border border-[#FDE68A] px-3 py-2">
+                  <p className="text-xs font-medium text-[#92400E]">Тариф без ИИ-агентов</p>
+                  <p className="mt-0.5 text-[11px] text-[#A16207] leading-snug">Позволяет использовать ОмниРМ для одного сотрудника. Для раскрытия всех возможностей ОмниРМ выбирайте тарифы с ИИ-агентами.</p>
+                </div>
+              ) : (
+                <p>{kit.agents}</p>
+              )}
             </>
           ) : (
             <>
