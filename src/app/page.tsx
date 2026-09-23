@@ -803,6 +803,9 @@ function KitCard({
           <p className="mt-0.5 text-[10px] font-medium text-[#6B7280]">
             {kit.operatorCount === 1 ? "оператор" : "операторов"}
           </p>
+          <p className="mt-0.5 text-[9px] text-[#9CA3AF] leading-tight">
+            далее по 990 ₽/опер.
+          </p>
         </div>
         {/* Minutes */}
         <div className="rounded-xl bg-[#F5F5F7] px-3 py-2.5 text-center">
