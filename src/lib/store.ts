@@ -129,8 +129,8 @@ export const KITS: Kit[] = [
   {
     id: "start-plus",
     name: "Старт+",
-    price: 2490,
-    priceLabel: "2 490 ₽/мес",
+    price: 3990,
+    priceLabel: "3 990 ₽/мес",
     operatorCount: 2,
     operatorLabel: "2 оператора",
     minutes: 300,
@@ -146,8 +146,8 @@ export const KITS: Kit[] = [
   {
     id: "business-plus",
     name: "Бизнес+",
-    price: 7990,
-    priceLabel: "7 990 ₽/мес",
+    price: 8990,
+    priceLabel: "8 990 ₽/мес",
     operatorCount: 5,
     operatorLabel: "до 5 операторов",
     minutes: 300,
@@ -163,8 +163,8 @@ export const KITS: Kit[] = [
   {
     id: "pro-plus",
     name: "Про+",
-    price: 21900,
-    priceLabel: "21 900 ₽/мес",
+    price: 23900,
+    priceLabel: "23 900 ₽/мес",
     operatorCount: 20,
     operatorLabel: "до 20 операторов",
     minutes: 2000,
@@ -181,7 +181,7 @@ export const KITS: Kit[] = [
 
 export const SEPARATE_PRICES: Record<string, { omnirm: number; agents: number }> = {
   "solo": { omnirm: 0, agents: 0 },
-  "start-plus": { omnirm: 0, agents: 2700 },
+  "start-plus": { omnirm: 990, agents: 2700 },
   "business-plus": { omnirm: 3990, agents: 6500 },
   "pro-plus": { omnirm: 3990, agents: 18700 },
 };
