@@ -34,10 +34,14 @@ import {
   UsersRound,
   DollarSign,
   UserCog,
+  Eye,
   EyeOff,
   ExternalLink,
   Search,
   Unplug,
+  PhoneOff,
+  Timer,
+  Ban,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -58,6 +62,41 @@ import {
   type Kit,
   type TariffPlan,
 } from "@/lib/store";
+
+/* ─── Enriched employee data ─── */
+interface EmployeeDetail {
+  name: string;
+  phone: string;
+  department?: string;
+}
+
+const MOCK_EMPLOYEE_DETAILS: EmployeeDetail[] = [
+  { name: "Алексей Иванов", phone: "+7 900 111-22-33", department: "Отдел продаж" },
+  { name: "Мария Петрова", phone: "+7 900 222-33-44", department: "Поддержка" },
+  { name: "Дмитрий Сидоров", phone: "+7 900 333-44-55", department: "Отдел продаж" },
+  { name: "Елена Козлова", phone: "+7 900 444-55-66" },
+  { name: "Сергей Новиков", phone: "+7 900 555-66-77", department: "IT" },
+  { name: "Анна Морозова", phone: "+7 900 666-77-88", department: "Поддержка" },
+  { name: "Игорь Волков", phone: "+7 900 777-88-99" },
+  { name: "Ольга Лебедева", phone: "+7 900 -888-99-00", department: "Отдел продаж" },
+  { name: "Павел Соколов", phone: "+7 900 999-00-11", department: "IT" },
+  { name: "Наталья Зайцева", phone: "+7 900 000-11-22" },
+  { name: "Андрей Кузнецов", phone: "+7 901 111-22-33", department: "Поддержка" },
+  { name: "Татьяна Попова", phone: "+7 901 222-33-44", department: "Отдел продаж" },
+  { name: "Максим Васильев", phone: "+7 901 333-44-55" },
+  { name: "Юлия Михайлова", phone: "+7 901 444-55-66", department: "IT" },
+  { name: "Виктор Фёдоров", phone: "+7 901 555-66-77", department: "Поддержка" },
+  { name: "Екатерина Андреева", phone: "+7 901 666-77-88" },
+  { name: "Артём Семёнов", phone: "+7 901 777-88-99", department: "Отдел продаж" },
+  { name: "Валерия Николаева", phone: "+7 901 888-99-00" },
+  { name: "Роман Егоров", phone: "+7 901 (999)-00-11", department: "IT" },
+  { name: "Светлана Павлова", phone: "+7 901 000-11-22", department: "Поддержка" },
+  { name: "Кирилл Тарасов", phone: "+7 902 111-22-33" },
+  { name: "Людмила Белова", phone: "+7 902 222-33-44", department: "Отдел продаж" },
+  { name: "Геннадий Комаров", phone: "+7 902 333-44-55", department: "IT" },
+  { name: "Ирина Орлова", phone: "+7 902 444-55-66" },
+  { name: "Владимир Киселёв", phone: "+7 902 555-66-77", department: "Поддержка" },
+];
 
 /* ─── tiny helpers ─── */
 
@@ -492,12 +531,22 @@ function LandingScreen() {
    ═══════════════════════════════════════════ */
 
 function LandingConnectedScreen() {
-  const { navigate, connectedOmniPlan, connectedAgentsPlan, connectedOperatorCount } = useAppStore();
+  const { navigate, connectedOmniPlan, connectedAgentsPlan, connectedOperatorCount, omnirmBlocked, disconnectOmni, toggleOmniBlock } = useAppStore();
   const omnirmPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
   const agentsPlan = findPlan(AGENTS_PLANS, connectedAgentsPlan);
   const ops = connectedOperatorCount > 0 ? connectedOperatorCount : getOperatorCount(connectedOmniPlan);
   const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
   const totalCost = (omnirmPlan?.price ?? 0) + (agentsPlan?.price ?? 0) + extraOpsCost;
+
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+
+  /* Mock usage stats */
+  const usedMinutes = 187;
+  const totalMinutes = agentsPlan?.minutes ?? 300;
+  const remainingMinutes = Math.max(0, totalMinutes - usedMinutes);
+  const usedRequests = 142;
+  const usedSms = 38;
+  const fmtNum = (n: number) => n.toLocaleString("ru-RU");
 
   const benefitCards = [
     {
@@ -537,30 +586,110 @@ function LandingConnectedScreen() {
 
       {/* Hero */}
       <section className="mx-auto max-w-5xl px-6 pt-16 text-center md:px-10">
-        <Badge className="mb-4 bg-[#EAF7EE] text-[#1E9E4A] border-[#1E9E4A]/20">
-          ОмниРМ подключен
-        </Badge>
+        {omnirmBlocked ? (
+          <Badge className="mb-4 bg-[#FEF2F2] text-[#DC2626] border-[#FECACA]">
+            ОмниРМ заблокирован
+          </Badge>
+        ) : (
+          <Badge className="mb-4 bg-[#EAF7EE] text-[#1E9E4A] border-[#1E9E4A]/20">
+            ОмниРМ подключен
+          </Badge>
+        )}
         <h1 className="text-3xl font-bold text-[#1A1D29] md:text-5xl">
           Все каналы — в одном окне оператора
         </h1>
+
+        {/* Blocked alert */}
+        {omnirmBlocked && (
+          <div className="mx-auto mt-6 max-w-lg flex items-start gap-3 rounded-xl bg-[#FEF2F2] border border-[#FECACA] px-4 py-3 text-left">
+            <Ban className="h-5 w-5 shrink-0 mt-0.5 text-[#DC2626]" />
+            <div>
+              <p className="text-sm font-semibold text-[#DC2626]">Услуга заблокирована</p>
+              <p className="text-xs text-[#991B1B]">Работа ОмниРМ приостановлена — лимит минут на текущий месяц исчерпан.</p>
+            </div>
+          </div>
+        )}
+
         <div className="mx-auto mt-6 max-w-md rounded-2xl border border-[#E5E7EB] bg-[#F7F7FA] p-4 text-left">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#1E9E4A]" />
-            <span className="text-sm font-medium text-[#1E9E4A]">Подключено</span>
+            {omnirmBlocked ? (
+              <>
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#DC2626]" />
+                <span className="text-sm font-medium text-[#DC2626]">Заблокирована</span>
+              </>
+            ) : (
+              <>
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#1E9E4A]" />
+                <span className="text-sm font-medium text-[#1E9E4A]">Подключено</span>
+              </>
+            )}
           </div>
           <div className="mt-2 space-y-1 text-sm text-[#1A1D29]">
             <p>Тариф ОмниРМ: <span className="font-semibold">{omnirmPlan?.name ?? "—"}</span></p>
             {agentsPlan && <p>ИИ-агенты: <span className="font-semibold">{agentsPlan.name}</span></p>}
             <p>Стоимость: <span className="font-semibold">{fmtPrice(totalCost)}/мес</span></p>
-            <p>Операторов: <span className="font-semibold">{ops}</span></p>
+            <p>Операторов: <span className="font-semibold">{ops}</span> <span className="text-[#6B7280]">Подключено</span></p>
             {extraOpsCost > 0 && (
               <p>Доп. операторы: <span className="font-semibold">+{fmtPrice(extraOpsCost)} ₽/мес</span></p>
             )}
           </div>
         </div>
-        <YellowBtn onClick={() => navigate("cabinet")} className="mt-8">
-          Перейти в кабинет ОмниРМ
-        </YellowBtn>
+
+        {/* Usage stats */}
+        <div className="mx-auto mt-6 max-w-lg">
+          <div className="grid grid-cols-3 gap-3">
+            <div className={`rounded-xl px-3 py-2.5 ${omnirmBlocked ? "bg-[#FEF2F2] border border-[#FECACA]" : "bg-[#F7F7FA]"}`}>
+              <div className={`flex items-center justify-center gap-1 ${omnirmBlocked ? "text-[#DC2626]" : "text-[#2563EB]"}`}>
+                <Timer className="h-3.5 w-3.5" />
+                <span className="text-lg font-bold">{omnirmBlocked ? "0" : fmtNum(remainingMinutes)}</span>
+              </div>
+              <p className={`mt-0.5 text-[10px] font-medium text-center ${omnirmBlocked ? "text-[#991B1B]" : "text-[#6B7280]"}`}>минут осталось</p>
+            </div>
+            <div className="rounded-xl bg-[#F7F7FA] px-3 py-2.5">
+              <div className="flex items-center justify-center gap-1 text-[#7C3AED]">
+                <Phone className="h-3.5 w-3.5" />
+                <span className="text-lg font-bold">{fmtNum(usedRequests)}</span>
+              </div>
+              <p className="mt-0.5 text-[10px] font-medium text-center text-[#6B7280]">обращений</p>
+            </div>
+            <div className="rounded-xl bg-[#F7F7FA] px-3 py-2.5">
+              <div className="flex items-center justify-center gap-1 text-[#059669]">
+                <MessageSquare className="h-3.5 w-3.5" />
+                <span className="text-lg font-bold">{fmtNum(usedSms)}</span>
+              </div>
+              <p className="mt-0.5 text-[10px] font-medium text-center text-[#6B7280]">СМС</p>
+            </div>
+          </div>
+          {!omnirmBlocked && (
+            <button
+              onClick={() => toggleOmniBlock(true)}
+              className="mt-2 text-xs font-medium text-[#6B7280] hover:text-[#DC2626] transition-colors underline decoration-dashed underline-offset-2"
+            >
+              Посмотреть, что будет, когда минуты закончатся
+            </button>
+          )}
+          {omnirmBlocked && (
+            <button
+              onClick={() => toggleOmniBlock(false)}
+              className="mt-2 text-xs font-medium text-[#2563EB] hover:underline"
+            >
+              Вернуть работу сервиса
+            </button>
+          )}
+        </div>
+
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <button
+            onClick={() => setShowDisconnectConfirm(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#FEF2F2] hover:text-[#DC2626] hover:border-[#FECACA] transition-colors"
+            title="Отключить ОмниРМ"
+          >
+            <Unplug className="h-5 w-5" />
+          </button>
+          <YellowBtn onClick={() => navigate("cabinet")}>
+            Перейти в кабинет ОмниРМ
+          </YellowBtn>
+        </div>
         <button
           onClick={() => navigate("service-card")}
           className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-[#2563EB] hover:underline"
@@ -585,6 +714,30 @@ function LandingConnectedScreen() {
           ))}
         </div>
       </section>
+
+      {/* Disconnect confirm popup */}
+      {showDisconnectConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl">
+            <div className="px-6 pt-6 pb-2 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#FEF2F2]">
+                <Unplug className="h-6 w-6 text-[#DC2626]" />
+              </div>
+              <h2 className="mt-4 text-lg font-bold text-[#1A1D29]">Отключить ОмниРМ?</h2>
+              <p className="mt-2 text-sm text-[#6B7280]">Все каналы связи и история обращений будут недоступны. Вы сможете подключить услугу снова.</p>
+            </div>
+            <div className="px-6 py-4 flex items-center gap-3">
+              <OutlineBtn onClick={() => setShowDisconnectConfirm(false)} className="flex-1 justify-center">Отмена</OutlineBtn>
+              <button
+                onClick={() => { disconnectOmni(); setShowDisconnectConfirm(false); }}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#DC2626] px-6 py-3 text-sm font-semibold text-white hover:bg-[#B91C1C] transition-colors"
+              >
+                Отключить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1836,6 +1989,9 @@ function CabinetScreen() {
     connectedOmniPlan,
     connectedAgentsPlan,
     connectedOperatorCount,
+    omnirmBlocked,
+    disconnectOmni,
+    toggleOmniBlock,
   } = useAppStore();
 
   const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
@@ -1843,6 +1999,16 @@ function CabinetScreen() {
   const ops = connectedOperatorCount > 0 ? connectedOperatorCount : getOperatorCount(connectedOmniPlan);
   const extraOpsCost = getAdditionalOpsCost(connectedOmniPlan, connectedOperatorCount);
   const totalCost = (omniPlan?.price ?? 0) + (agentsPlan?.price ?? 0) + extraOpsCost;
+
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+
+  /* Mock usage stats */
+  const usedMinutes = 187;
+  const totalMinutes = agentsPlan?.minutes ?? 300;
+  const remainingMinutes = Math.max(0, totalMinutes - usedMinutes);
+  const usedRequests = 142;
+  const usedSms = 38;
+  const fmtNum = (n: number) => n.toLocaleString("ru-RU");
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F1117] to-[#1A1D29] text-white">
@@ -1852,9 +2018,19 @@ function CabinetScreen() {
           <Monitor className="h-6 w-6 text-[#FFDD5B]" />
           <span className="text-lg font-bold">ОмниРМ</span>
         </div>
-        <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
-          <UsersRound className="h-4 w-4" />
-          Администратор
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
+            <UsersRound className="h-4 w-4" />
+            Администратор
+          </div>
+          {/* Disconnect button */}
+          <button
+            onClick={() => setShowDisconnectConfirm(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-[#9CA3AF] hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
+            title="Отключить ОмниРМ"
+          >
+            <Unplug className="h-4 w-4" />
+          </button>
         </div>
       </header>
 
@@ -1862,8 +2038,38 @@ function CabinetScreen() {
         <h1 className="text-3xl font-bold">Кабинет ОмниРМ</h1>
         <p className="mt-2 text-[#9CA3AF]">Управление подключенными сервисами</p>
 
+        {/* Blocked alert */}
+        {omnirmBlocked && (
+          <div className="mt-6 flex items-start gap-3 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3">
+            <Ban className="h-5 w-5 shrink-0 mt-0.5 text-red-400" />
+            <div>
+              <p className="text-sm font-semibold text-red-400">Услуга заблокирована</p>
+              <p className="text-xs text-red-400/80">Работа ОмниРМ приостановлена — лимит минут на текущий месяц исчерпан. Для возобновления работы пополните баланс или дождитесь начала следующего расчётного периода.</p>
+              <button
+                onClick={() => toggleOmniBlock(false)}
+                className="mt-2 text-xs font-medium text-[#FFDD5B] hover:underline"
+              >
+                Вернуть работу сервиса
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Status badge */}
+        <div className="mt-4">
+          {omnirmBlocked ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-500/20 px-2.5 py-1 text-xs font-medium text-red-400">
+              <Ban className="h-3 w-3" /> Заблокирована
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-medium text-emerald-400">
+              <Check className="h-3 w-3" /> Подключено
+            </span>
+          )}
+        </div>
+
         {/* 2x2 grid */}
-        <div className="mt-8 grid gap-4 sm:grid-cols-2">
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl bg-white/5 p-5">
             <div className="flex items-center gap-2 text-[#9CA3AF]">
               <Monitor className="h-4 w-4" />
@@ -1896,11 +2102,45 @@ function CabinetScreen() {
           <div className="rounded-2xl bg-white/5 p-5">
             <div className="flex items-center gap-2 text-[#9CA3AF]">
               <UserCog className="h-4 w-4" />
-              <span className="text-xs font-medium">Операторов в системе</span>
+              <span className="text-xs font-medium">Операторов</span>
             </div>
             <p className="mt-2 text-xl font-bold">{ops}</p>
+            <p className="text-sm text-[#9CA3AF]">Подключено</p>
           </div>
         </div>
+
+        {/* Usage statistics */}
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <div className={`rounded-xl p-4 ${omnirmBlocked ? "bg-red-500/10 border border-red-500/20" : "bg-white/5"}`}>
+            <div className={`flex items-center gap-2 ${omnirmBlocked ? "text-red-400" : "text-blue-400"}`}>
+              <Timer className="h-4 w-4" />
+              <span className="text-2xl font-bold">{omnirmBlocked ? "0" : fmtNum(remainingMinutes)}</span>
+            </div>
+            <p className={`mt-1 text-xs ${omnirmBlocked ? "text-red-400/70" : "text-[#9CA3AF]"}`}>минут осталось</p>
+          </div>
+          <div className="rounded-xl bg-white/5 p-4">
+            <div className="flex items-center gap-2 text-purple-400">
+              <Phone className="h-4 w-4" />
+              <span className="text-2xl font-bold">{fmtNum(usedRequests)}</span>
+            </div>
+            <p className="mt-1 text-xs text-[#9CA3AF]">обращений</p>
+          </div>
+          <div className="rounded-xl bg-white/5 p-4">
+            <div className="flex items-center gap-2 text-emerald-400">
+              <MessageSquare className="h-4 w-4" />
+              <span className="text-2xl font-bold">{fmtNum(usedSms)}</span>
+            </div>
+            <p className="mt-1 text-xs text-[#9CA3AF]">СМС отправлено</p>
+          </div>
+        </div>
+        {!omnirmBlocked && (
+          <button
+            onClick={() => toggleOmniBlock(true)}
+            className="mt-3 text-xs font-medium text-[#9CA3AF] hover:text-red-400 transition-colors underline decoration-dashed underline-offset-2"
+          >
+            Посмотреть, что будет, когда минуты закончатся
+          </button>
+        )}
 
         <div className="mt-10 flex flex-wrap items-center gap-6">
           <button
@@ -1923,6 +2163,30 @@ function CabinetScreen() {
           </button>
         </div>
       </main>
+
+      {/* Disconnect confirm popup */}
+      {showDisconnectConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-[#1A1D29] border border-white/10 shadow-xl">
+            <div className="px-6 pt-6 pb-2 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20">
+                <Unplug className="h-6 w-6 text-red-400" />
+              </div>
+              <h2 className="mt-4 text-lg font-bold text-white">Отключить ОмниРМ?</h2>
+              <p className="mt-2 text-sm text-[#9CA3AF]">Все каналы связи и история обращений будут недоступны. Вы сможете подключить услугу снова.</p>
+            </div>
+            <div className="px-6 py-4 flex items-center gap-3">
+              <OutlineBtn onClick={() => setShowDisconnectConfirm(false)} className="flex-1 justify-center">Отмена</OutlineBtn>
+              <button
+                onClick={() => { disconnectOmni(); setShowDisconnectConfirm(false); }}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-red-500 px-6 py-3 text-sm font-semibold text-white hover:bg-red-600 transition-colors"
+              >
+                Отключить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1931,12 +2195,390 @@ function CabinetScreen() {
    10. SERVICE CARD (ОмниРМ подключен)
    ═══════════════════════════════════════════ */
 
+/* ─── OmniRmAdminCard: extracted component with all new features ─── */
+function OmniRmAdminCard({
+  ops,
+  totalCost,
+  extraOpsCost,
+  kit,
+  omniPlan,
+  agentsPlan,
+  omnirmBlocked,
+  navigate,
+  disconnectOmni,
+  toggleOmniBlock,
+  connectedEmployeeNames,
+}: {
+  ops: number;
+  totalCost: number;
+  extraOpsCost: number;
+  kit: Kit | undefined;
+  omniPlan: TariffPlan | null;
+  agentsPlan: TariffPlan | null;
+  omnirmBlocked: boolean;
+  navigate: (s: Screen) => void;
+  disconnectOmni: () => void;
+  toggleOmniBlock: (b: boolean) => void;
+  connectedEmployeeNames: string[];
+}) {
+  const fmtNum = (n: number) => n.toLocaleString("ru-RU");
+
+  /* Popups */
+  const [showEmpPopup, setShowEmpPopup] = useState(false);
+  const [showTariffPopup, setShowTariffPopup] = useState(false);
+  const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
+
+  /* Employee selection state */
+  const initialChecked = new Set<number>();
+  connectedEmployeeNames.forEach((name) => {
+    const idx = MOCK_EMPLOYEE_DETAILS.findIndex((e) => e.name === name);
+    if (idx >= 0) initialChecked.add(idx);
+  });
+  const [checkedEmps, setCheckedEmps] = useState<Set<number>>(initialChecked);
+
+  const toggleEmp = (idx: number) => {
+    setCheckedEmps((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  };
+
+  /* Mock usage stats */
+  const usedMinutes = 187;
+  const totalMinutes = agentsPlan?.minutes ?? 300;
+  const remainingMinutes = Math.max(0, totalMinutes - usedMinutes);
+  const totalRequests = agentsPlan?.requests ?? 300;
+  const usedRequests = 142;
+  const usedSms = 38;
+
+  const tariffName = kit?.name ?? (omniPlan?.name ?? "—");
+
+  return (
+    <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+      {/* Blocked alert */}
+      {omnirmBlocked && (
+        <div className="mb-4 flex items-center gap-3 rounded-xl bg-[#FEF2F2] border border-[#FECACA] px-4 py-3">
+          <Ban className="h-5 w-5 shrink-0 text-[#DC2626]" />
+          <div>
+            <p className="text-sm font-semibold text-[#DC2626]">Услуга заблокирована</p>
+            <p className="text-xs text-[#991B1B]">Работа ОмниРМ приостановлена — лимит минут на текущий месяц исчерпан. Для возобновления работы пополните баланс или дождитесь начала следующего расчётного периода.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Badges row */}
+      <div className="flex items-center gap-2">
+        {omnirmBlocked ? (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#DC2626] px-2.5 py-1 text-xs font-medium text-white">
+            <Ban className="h-3 w-3" /> Заблокирована
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-2.5 py-1 text-xs font-medium text-white">
+            <Check className="h-3 w-3" /> Подключено
+          </span>
+        )}
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-2.5 py-1 text-xs font-medium text-white">
+          <Zap className="h-3 w-3" /> Новый сервис
+        </span>
+      </div>
+
+      {/* Main info row */}
+      <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
+        {/* Logo + Name */}
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#3B82F6]">
+            <UsersRound className="h-5 w-5" />
+          </div>
+          <span className="text-xl font-bold text-[#111827]">ОмниРМ</span>
+        </div>
+
+        {/* Price block — no pencil */}
+        <div className="flex items-baseline gap-2">
+          <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
+          <span className="text-xs text-[#6B7280]">в месяц</span>
+          {extraOpsCost > 0 && (
+            <span className="text-xs text-[#6B7280]">(+{fmtPrice(extraOpsCost)} доп. операторы)</span>
+          )}
+        </div>
+
+        {/* Employees block — pencil moved to right, "Подключено" instead of "Доступно" */}
+        <div className="flex items-center gap-2">
+          <div>
+            <p className="font-medium text-[#374151]">{ops} сотрудников</p>
+            <p className="text-xs text-[#6B7280]">Подключено</p>
+          </div>
+          <button
+            onClick={() => setShowEmpPopup(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]"
+            title="Редактировать сотрудников"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Tariff block — eye icon moved to right */}
+        <div className="flex items-center gap-2">
+          <div>
+            <p className="font-semibold text-[#111827]">{tariffName}</p>
+            <p className="text-xs text-[#6B7280]">тариф</p>
+          </div>
+          <button
+            onClick={() => setShowTariffPopup(true)}
+            className="flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]"
+            title="Посмотреть тариф"
+          >
+            <Eye className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Disconnect button (square, crossed plug) + CTA */}
+        <div className="ml-auto flex items-center gap-3">
+          <button
+            onClick={() => setShowDisconnectConfirm(true)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-[#D1D5DB] text-[#6B7280] hover:bg-[#FEF2F2] hover:text-[#DC2626] hover:border-[#FECACA] transition-colors"
+            title="Отключить ОмниРМ"
+          >
+            <Unplug className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => navigate("cabinet")}
+            className="rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1F2937]"
+          >
+            Перейти в ОмниРМ
+          </button>
+        </div>
+      </div>
+
+      {/* Description */}
+      <div className="mt-5 flex items-start justify-between">
+        <p className="max-w-xl text-sm leading-relaxed text-[#4B5563]">
+          ОмниРМ — ваши сотрудники смогут общаться с клиентами в любых мессенджерах,
+          по телефону или по видеосвязи. История заказов будет в одном пространстве.
+        </p>
+        <button
+          onClick={() => navigate("landing-connected")}
+          className="shrink-0 text-sm font-medium text-[#2563EB] hover:underline"
+        >
+          На страницу ОмниРМ
+        </button>
+      </div>
+
+      {/* ─── Usage statistics ─── */}
+      {!omnirmBlocked && (
+        <div className="mt-5 w-full">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="rounded-xl bg-[#F7F7FA] px-4 py-3">
+              <div className="flex items-center gap-2 text-[#2563EB]">
+                <Timer className="h-4 w-4" />
+                <span className="text-lg font-bold">{fmtNum(remainingMinutes)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#6B7280]">минут осталось в этом месяце</p>
+            </div>
+            <div className="rounded-xl bg-[#F7F7FA] px-4 py-3">
+              <div className="flex items-center gap-2 text-[#7C3AED]">
+                <Phone className="h-4 w-4" />
+                <span className="text-lg font-bold">{fmtNum(usedRequests)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#6B7280]">обращений</p>
+            </div>
+            <div className="rounded-xl bg-[#F7F7FA] px-4 py-3">
+              <div className="flex items-center gap-2 text-[#059669]">
+                <MessageSquare className="h-4 w-4" />
+                <span className="text-lg font-bold">{fmtNum(usedSms)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#6B7280]">СМС отправлено</p>
+            </div>
+          </div>
+          <button
+            onClick={() => toggleOmniBlock(true)}
+            className="mt-3 text-xs font-medium text-[#6B7280] hover:text-[#DC2626] transition-colors underline decoration-dashed underline-offset-2"
+          >
+            Посмотреть, что будет, когда минуты закончатся
+          </button>
+        </div>
+      )}
+      {omnirmBlocked && (
+        <div className="mt-5 w-full">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="rounded-xl bg-[#FEF2F2] px-4 py-3 border border-[#FECACA]">
+              <div className="flex items-center gap-2 text-[#DC2626]">
+                <Timer className="h-4 w-4" />
+                <span className="text-lg font-bold">0</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#991B1B]">минут осталось</p>
+            </div>
+            <div className="rounded-xl bg-[#F7F7FA] px-4 py-3">
+              <div className="flex items-center gap-2 text-[#7C3AED]">
+                <Phone className="h-4 w-4" />
+                <span className="text-lg font-bold">{fmtNum(usedRequests)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#6B7280]">обращений</p>
+            </div>
+            <div className="rounded-xl bg-[#F7F7FA] px-4 py-3">
+              <div className="flex items-center gap-2 text-[#059669]">
+                <MessageSquare className="h-4 w-4" />
+                <span className="text-lg font-bold">{fmtNum(usedSms)}</span>
+              </div>
+              <p className="mt-0.5 text-xs text-[#6B7280]">СМС отправлено</p>
+            </div>
+          </div>
+          <button
+            onClick={() => toggleOmniBlock(false)}
+            className="mt-3 text-xs font-medium text-[#2563EB] hover:underline"
+          >
+            Вернуть работу сервиса
+          </button>
+        </div>
+      )}
+
+      {/* ─── Employee edit popup ─── */}
+      {showEmpPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-lg rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
+              <div>
+                <h2 className="text-lg font-bold text-[#1A1D29]">Редактирование сотрудников</h2>
+                <p className="mt-0.5 text-sm text-[#6B7280]">Выберите сотрудников, подключённых к ОмниРМ</p>
+              </div>
+              <button onClick={() => setShowEmpPopup(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1D29]">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="mx-6 mt-3 flex items-center gap-2 rounded-lg bg-[#F3F4F6] px-3 py-2">
+              <Search className="h-4 w-4 text-[#9CA3AF]" />
+              <span className="text-sm text-[#9CA3AF]">Поиск сотрудника</span>
+            </div>
+            <div className="mx-6 mt-3 max-h-72 overflow-y-auto space-y-0.5">
+              {MOCK_EMPLOYEE_DETAILS.map((emp, idx) => (
+                <label key={idx} className="flex items-center gap-3 rounded-lg px-2 py-2.5 cursor-pointer hover:bg-[#F7F7FA] transition-colors">
+                  <Checkbox checked={checkedEmps.has(idx)} onCheckedChange={() => toggleEmp(idx)} />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF2FF] text-xs font-bold text-[#4F46E5]">
+                    {emp.name.split(" ").map((w) => w[0]).join("")}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[#1A1D29] truncate">{emp.name}</p>
+                    <div className="flex items-center gap-2 text-xs text-[#6B7280]">
+                      <Phone className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{emp.phone}</span>
+                      {emp.department && (
+                        <>
+                          <span className="text-[#D1D5DB]">·</span>
+                          <span className="truncate text-[#7C3AED]">{emp.department}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="border-t border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
+              <div className="text-sm text-[#6B7280]">
+                Выбрано: <span className="font-semibold text-[#1A1D29]">{checkedEmps.size}</span> из {MOCK_EMPLOYEE_DETAILS.length}
+              </div>
+              <div className="flex items-center gap-3">
+                <OutlineBtn onClick={() => setShowEmpPopup(false)}>Отмена</OutlineBtn>
+                <YellowBtn onClick={() => setShowEmpPopup(false)} disabled={checkedEmps.size === 0}>Сохранить</YellowBtn>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Tariff info popup ─── */}
+      {showTariffPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#E5E7EB] px-6 py-4">
+              <h2 className="text-lg font-bold text-[#1A1D29]">Тариф «{tariffName}»</h2>
+              <button onClick={() => setShowTariffPopup(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#1A1D29]">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="px-6 py-4 space-y-3">
+              {omniPlan && (
+                <div>
+                  <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">ОмниРМ</p>
+                  <p className="mt-1 text-base font-semibold text-[#111827]">{omniPlan.name} — {omniPlan.priceLabel}</p>
+                  <ul className="mt-1 space-y-0.5">
+                    {omniPlan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-1.5 text-sm text-[#4B5563]">
+                        <Check className="h-3.5 w-3.5 text-[#22C55E]" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                  {omniPlan.cons && <p className="mt-1 text-xs text-[#9CA3AF]">{omniPlan.cons}</p>}
+                  {omniPlan.footnote && <p className="mt-1 text-xs text-[#6B7280]">{omniPlan.footnote}</p>}
+                </div>
+              )}
+              {agentsPlan && (
+                <div className="border-t border-[#E5E7EB] pt-3">
+                  <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">ИИ-агенты</p>
+                  <p className="mt-1 text-base font-semibold text-[#111827]">{agentsPlan.name} — {agentsPlan.priceLabel}</p>
+                  <ul className="mt-1 space-y-0.5">
+                    {agentsPlan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-1.5 text-sm text-[#4B5563]">
+                        <Check className="h-3.5 w-3.5 text-[#22C55E]" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="border-t border-[#E5E7EB] pt-3">
+                <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">Итого</p>
+                <p className="mt-1 text-xl font-bold text-[#111827]">{fmtPrice(totalCost)}/мес</p>
+                {extraOpsCost > 0 && (
+                  <p className="text-xs text-[#6B7280]">+{fmtPrice(extraOpsCost)} доп. операторы</p>
+                )}
+              </div>
+            </div>
+            <div className="border-t border-[#E5E7EB] px-6 py-4">
+              <YellowBtn onClick={() => { setShowTariffPopup(false); navigate("kits"); }} className="w-full justify-center">
+                Выбрать другой тариф
+              </YellowBtn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Disconnect confirm popup ─── */}
+      {showDisconnectConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl">
+            <div className="px-6 pt-6 pb-2 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#FEF2F2]">
+                <Unplug className="h-6 w-6 text-[#DC2626]" />
+              </div>
+              <h2 className="mt-4 text-lg font-bold text-[#1A1D29]">Отключить ОмниРМ?</h2>
+              <p className="mt-2 text-sm text-[#6B7280]">Все каналы связи и история обращений будут недоступны. Вы сможете подключить услугу снова.</p>
+            </div>
+            <div className="px-6 py-4 flex items-center gap-3">
+              <OutlineBtn onClick={() => setShowDisconnectConfirm(false)} className="flex-1 justify-center">Отмена</OutlineBtn>
+              <button
+                onClick={() => { disconnectOmni(); setShowDisconnectConfirm(false); }}
+                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#DC2626] px-6 py-3 text-sm font-semibold text-white hover:bg-[#B91C1C] transition-colors"
+              >
+                Отключить
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ServiceCardScreen() {
   const {
     navigate,
     connectedOmniPlan,
     connectedAgentsPlan,
     connectedOperatorCount,
+    connectedEmployeeNames,
+    omnirmBlocked,
+    disconnectOmni,
+    toggleOmniBlock,
   } = useAppStore();
 
   const omniPlan = findPlan(OMNIRM_PLANS, connectedOmniPlan);
@@ -2105,80 +2747,19 @@ function ServiceCardScreen() {
 
           {/* ─── ADMIN card ─── */}
           {isAdmin && (
-            <div className="mt-6 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
-              {/* Badges row */}
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#22C55E] px-2.5 py-1 text-xs font-medium text-white">
-                  <Check className="h-3 w-3" /> Подключено
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#A855F7] px-2.5 py-1 text-xs font-medium text-white">
-                  <Zap className="h-3 w-3" /> Новый сервис
-                </span>
-              </div>
-
-              {/* Main info row */}
-              <div className="mt-5 flex flex-wrap items-center gap-6 md:gap-10">
-                {/* Logo + Name */}
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#3B82F6]">
-                    <UsersRound className="h-5 w-5" />
-                  </div>
-                  <span className="text-xl font-bold text-[#111827]">ОмниРМ</span>
-                </div>
-
-                {/* Price block */}
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-bold text-[#111827]">{fmtNum(totalCost)} ₽</span>
-                  <span className="text-xs text-[#6B7280]">в месяц</span>
-                  {extraOpsCost > 0 && (
-                    <span className="text-xs text-[#6B7280]">(+{fmtPrice(extraOpsCost)} доп. операторы)</span>
-                  )}
-                  <button className="ml-1 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {/* Employees block */}
-                <div>
-                  <p className="font-medium text-[#374151]">{ops} сотрудников</p>
-                  <p className="text-xs text-[#6B7280]">Доступно</p>
-                  <button className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {/* Tariff block */}
-                <div>
-                  <p className="font-semibold text-[#111827]">{kit?.name ?? (omniPlan?.name ?? "—")}</p>
-                  <p className="text-xs text-[#6B7280]">тариф</p>
-                  <button className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-md border border-[#D1D5DB] text-[#6B7280] hover:bg-[#F3F4F6]">
-                    <EyeOff className="h-4 w-4" />
-                  </button>
-                </div>
-
-                {/* CTA button */}
-                <button
-                  onClick={() => navigate("cabinet")}
-                  className="ml-auto rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#1F2937]"
-                >
-                  Перейти в ОмниРМ
-                </button>
-              </div>
-
-              {/* Description */}
-              <div className="mt-5 flex items-start justify-between">
-                <p className="max-w-xl text-sm leading-relaxed text-[#4B5563]">
-                  ОмниРМ — ваши сотрудники смогут общаться с клиентами в любых мессенджерах,
-                  по телефону или по видеосвязи. История заказов будет в одном пространстве.
-                </p>
-                <button
-                  onClick={() => navigate("landing-connected")}
-                  className="shrink-0 text-sm font-medium text-[#2563EB] hover:underline"
-                >
-                  На страницу ОмниРМ
-                </button>
-              </div>
-            </div>
+            <OmniRmAdminCard
+              ops={ops}
+              totalCost={totalCost}
+              extraOpsCost={extraOpsCost}
+              kit={kit}
+              omniPlan={omniPlan}
+              agentsPlan={agentsPlan}
+              omnirmBlocked={omnirmBlocked}
+              navigate={navigate}
+              disconnectOmni={disconnectOmni}
+              toggleOmniBlock={toggleOmniBlock}
+              connectedEmployeeNames={connectedEmployeeNames}
+            />
           )}
 
           {/* ─── OPERATOR card ─── */}
@@ -2204,7 +2785,7 @@ function ServiceCardScreen() {
                 {/* Employees block — read-only, no edit */}
                 <div>
                   <p className="font-medium text-[#374151]">{ops} сотрудников</p>
-                  <p className="text-xs text-[#6B7280]">Доступно</p>
+                  <p className="text-xs text-[#6B7280]">Подключено</p>
                 </div>
 
                 {/* Tariff block — read-only, no edit */}
