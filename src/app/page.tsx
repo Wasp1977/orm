@@ -880,8 +880,18 @@ function KitsScreen() {
   const toggleEmp = (idx: number) => {
     setCheckedEmps((prev) => {
       const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
+      /* Соло — only 1 operator: radio-like behavior */
+      if (selectedKitId === "solo") {
+        if (next.has(idx)) {
+          next.delete(idx);
+        } else {
+          next.clear();
+          next.add(idx);
+        }
+      } else {
+        if (next.has(idx)) next.delete(idx);
+        else next.add(idx);
+      }
       return next;
     });
   };
@@ -1447,8 +1457,18 @@ function ConstructorScreen() {
   const toggleEmp = (idx: number) => {
     setCheckedEmps((prev) => {
       const next = new Set(prev);
-      if (next.has(idx)) next.delete(idx);
-      else next.add(idx);
+      /* Соло — only 1 operator: radio-like behavior */
+      if (selectedOmniPlanId === "solo") {
+        if (next.has(idx)) {
+          next.delete(idx);
+        } else {
+          next.clear();
+          next.add(idx);
+        }
+      } else {
+        if (next.has(idx)) next.delete(idx);
+        else next.add(idx);
+      }
       return next;
     });
   };
